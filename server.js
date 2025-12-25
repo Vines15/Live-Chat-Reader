@@ -46,13 +46,6 @@ io.on('connection', (socket) => {
 
         // Connect to the given username (uniqueId)
         try {
-            // ép ngôn ngữ (Locale) về vi-VN.
-            options.requestOptions = {
-                headers: {
-                    'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7'
-                }
-            };
-            
             tiktokConnectionWrapper = new TikTokConnectionWrapper(uniqueId, options, true);
             tiktokConnectionWrapper.connect();
         } catch (err) {
