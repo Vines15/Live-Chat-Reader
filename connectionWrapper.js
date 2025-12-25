@@ -23,20 +23,20 @@ class TikTokConnectionWrapper extends EventEmitter {
         // this.connection = new WebcastPushConnection(uniqueId, options);
 
         this.connection = new WebcastPushConnection(uniqueId, {
-            ...options, // Giữ lại các cấu hình sẵn có trong biến options
-            requestOptions: {
-                headers: {
-                    // Ép trình duyệt yêu cầu dữ liệu tiếng Việt
-                    'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7'
-                }
-            },
-            clientParams: {
-                // Tham số quan trọng để TikTok trả về ngôn ngữ hiển thị là tiếng Việt
-                "app_language": "vi-VN",
-                "webcast_language": "vi-VN",
-                "region": "VN"
-            }
-        });
+    ...options,
+    requestOptions: {
+        headers: {
+            'Accept-Language': 'vi-VN,vi;q=0.9',
+            // Thêm User-Agent để giả lập trình duyệt Chrome thật, tránh lỗi 403
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+    },
+    clientParams: {
+        "app_language": "vi-VN",
+        "webcast_language": "vi-VN",
+        "region": "VN"
+    }
+});
         
 
         this.connection.on('streamEnd', () => {
