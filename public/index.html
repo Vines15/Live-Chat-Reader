@@ -1,0 +1,1377 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+
+  <title>Live Chat Monitor</title>
+  <style>
+    :root {
+      --bg: #0f0f23;
+      --fg: #e8e8e8;
+      --card: #1a1a2e;
+      --header-bg: #16213e;
+      --name: #4fc3f7;
+      --uid: #90a4ae;
+      --orange: #ff9800;
+      --border: #2d3748;
+      --hover: #252545;
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
+
+    html.light {
+      --bg: #f5f7fa;
+      --fg: #2d3748;
+      --card: #ffffff;
+      --header-bg: #ffffff;
+      --name: #1976d2;
+      --uid: #64748b;
+      --border: #e2e8f0;
+      --hover: #f1f5f9;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    html.light body {
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 10px 20px;
+      background: var(--header-bg);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 2px 8px var(--shadow);
+      border-bottom: 1px solid var(--border);
+    }
+
+    #username {
+      padding: 8px 14px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      background: var(--card);
+      color: var(--fg);
+      font-size: 14px;
+      min-width: 220px;
+      transition: border-color 0.3s;
+    }
+
+    #username:focus {
+      outline: none;
+      border-color: #2196f3;
+    }
+
+    button {
+      border: none !important;
+      padding: 5px 15px !important;
+      color: white !important;
+      border-radius: 6px !important;
+      cursor: pointer !important;
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 4px var(--shadow) !important;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px var(--shadow) !important;
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    #connect {
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    }
+
+    #connect:hover {
+      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    }
+
+    #copyAll {
+      background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    }
+
+    #copyAll:hover {
+      background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+    }
+
+    #clear {
+      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    }
+
+    #clear:hover {
+      background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    input[type="checkbox"] {
+      width: 44px;
+      height: 22px;
+      appearance: none;
+      background: #cbd5e0;
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    input[type="checkbox"]::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input[type="checkbox"]:checked {
+      background: #2196f3;
+    }
+
+    input[type="checkbox"]:checked::before {
+      transform: translateX(22px);
+    }
+
+    #currentLive {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--card);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-left: auto;
+    }
+
+    #currentLive img {
+      box-shadow: 0 2px 4px var(--shadow);
+    }
+
+    #currentLive b {
+      color: var(--name);
+    }
+
+    #themeToggle {
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    #themeToggle:hover {
+      background: var(--hover);
+    }
+
+    #themeToggle input[type="checkbox"] {
+      display: none;
+    }
+
+    .theme-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--fg);
+    }
+
+    .state-info {
+      display: flex;
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .state-section {
+      flex: 0 0 62.05%;
+      background: var(--card);
+      padding: 8px 8px 8px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .state-section pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      color: var(--fg);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    #roomStats {
+      color: var(--fg);
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #roomStats>div {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    #roomStats strong {
+      color: var(--fg);
+      font-weight: 500;
+    }
+
+    #roomStats b {
+      color: var(--name);
+      font-weight: 700;
+    }
+
+    .main {
+      display: flex;
+      height: calc(100% - 110px);
+      gap: 1px;
+      background: var(--border);
+      overflow: hidden;
+      margin: 0 0 10px 0;
+    }
+
+    .panel {
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Tỷ lệ cột: 34% - 28% - 18.9% - 18.9% */
+    .panel:nth-child(1) {
+      flex: 0 0 34%;
+    }
+
+    /* CHAT */
+    .panel:nth-child(2) {
+      flex: 0 0 28%;
+    }
+
+    /* YÊU CẦU */
+    .panel:nth-child(3) {
+      flex: 0 0 18.9%;
+    }
+
+    /* GIFTS */
+    .panel:nth-child(4) {
+      flex: 0 0 18.9%;
+    }
+
+    /* ACTIONS */
+    /* ACTIONS */
+    .panel h3 {
+      margin: 0;
+      padding: 5px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: var(--header-bg);
+      border-bottom: 2px solid var(--border);
+      text-transform: uppercase;
+    }
+
+    .chatListContainer {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      scroll-behavior: smooth;
+    }
+
+    .chatListContainer::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chatListContainer::-webkit-scrollbar-track {
+      background: var(--card);
+    }
+
+    .chatListContainer::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .chatListContainer::-webkit-scrollbar-thumb:hover {
+      background: var(--uid);
+    }
+
+    .msg {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    .msg:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+      transform: translateX(2px);
+    }
+
+    .msg.selected {
+      background: rgba(255, 152, 0, 0.15);
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+    }
+
+    .msg.temporary {
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    .chat-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+      flex-wrap: wrap;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      box-shadow: 0 2px 4px var(--shadow);
+    }
+
+    .time {
+      font-size: 11px;
+      opacity: 0.7;
+      background: var(--hover);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .name {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .uid {
+      font-size: 12px;
+      color: var(--uid);
+      opacity: 0.8;
+    }
+
+    .arrow {
+      margin-left: auto;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.3s;
+      padding: 6px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .arrow:hover {
+      opacity: 1;
+      background: var(--hover);
+      transform: scale(1.15);
+    }
+
+    .arrow svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--orange);
+    }
+
+    #chat .msg>div:last-child {
+      padding-left: 40px;
+      line-height: 1.5;
+      color: var(--fg);
+    }
+
+    .req {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      position: relative;
+      padding: 8px 10px;
+      padding-right: 80px;
+      margin-bottom: 10px;
+      background: var(--card);
+      border: 1px solid #f93740;
+      border-radius: 8px;
+      line-height: 1.6;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+      color: var(--fg);
+    }
+
+    .req:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .req .req-nickname {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .req .req-message {
+      color: #f50e0e;
+      transition: color 0.3s ease;
+    }
+
+    /* Khi được check - TOÀN BỘ đổi màu xanh */
+    .req.done {
+      border-color: #10b981;
+    }
+
+    .req.done .req-nickname {
+      color: var(--name);
+    }
+
+    .req.done .req-message {
+      color: #10b981;
+    }
+
+    .req .checkbox-icon {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.3s;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .req .checkbox-icon:hover {
+      opacity: 1;
+      background: var(--hover);
+    }
+
+    .req .checkbox-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: #ef4444;
+      transition: fill 0.3s ease;
+    }
+
+    .req.done .checkbox-icon svg {
+      fill: #10b981;
+    }
+
+    .req .del {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none !important;
+      border: none !important;
+      cursor: pointer;
+      padding: 6px !important;
+      border-radius: 4px;
+      transition: all 0.3s;
+      opacity: 0.6;
+      box-shadow: none !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .req .del:hover {
+      opacity: 1;
+      background: rgba(244, 67, 54, 0.15) !important;
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    .req .del svg {
+      width: 16px;
+      height: 16px;
+      fill: #f44336;
+    }
+
+    .gift-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    .gift-item:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+      transform: translateX(2px);
+    }
+
+    .gift-item .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+    }
+
+    .gift-details {
+      flex: 1;
+    }
+
+    .gift-sender {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .gift-desc {
+      font-size: 12px;
+      color: var(--uid);
+      margin-bottom: 8px;
+    }
+
+    .gift-info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gift-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--hover);
+    }
+
+    .gift-stats {
+      flex: 1;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .gift-stats b {
+      color: var(--name);
+    }
+
+    .gift-repeat-pending {
+      color: #ef4444;
+      font-weight: 700;
+    }
+
+    /* Action item styling for member join, likes, shares */
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+      font-size: 13px;
+    }
+
+    .action-item:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .action-item.temporary {
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    .action-item .avatar {
+      width: 28px;
+      height: 28px;
+    }
+
+    .action-content {
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .action-username {
+      color: var(--name);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        flex-direction: column;
+      }
+
+      .panel:nth-child(1),
+      .panel:nth-child(2),
+      .panel:nth-child(3),
+      .panel:nth-child(4) {
+        flex: 1 1 auto;
+      }
+
+      header {
+        padding: 12px;
+      }
+
+      #username {
+        min-width: 100%;
+      }
+
+      label {
+        font-size: 12px;
+      }
+    }
+  </style>
+  <style>
+    @view-transition {
+      navigation: auto;
+    }
+  </style>
+
+</head>
+
+<body>
+  <header><input id="username" placeholder="TikTok username">
+    <button id="connect">Connect</button>
+    <button id="copyAll">Copy</button>
+    <button id="clear">Clear</button>
+    <label> <input type="checkbox" id="showId"> <span>Hiện ID</span> </label>
+    <label> <input type="checkbox" id="hideTime"> <span>Hiện thời gian</span> </label>
+    <label><input type="checkbox" id="theme"> Light</label>
+
+    <span id="currentLive"></span>
+  </header>
+  <div class="state-info">
+    <div class="state-section">
+      <pre id="stateText">Disconnected</pre>
+    </div>
+    <div class="state-section">
+      <div id="roomStats">
+        Chờ kết nối...
+      </div>
+    </div>
+  </div>
+  <main class="main">
+    <!-- Column 1: CHAT (34%) - Chỉ chứa tin nhắn chat thuần túy -->
+    <div class="panel">
+      <h3>CHAT</h3>
+      <div class="chatListContainer">
+        <div id="chat"></div>
+      </div>
+    </div><!-- Column 2: YÊU CẦU (28%) - Danh sách các yêu cầu được pin -->
+    <div class="panel">
+      <h3>YÊU CẦU</h3>
+      <div class="chatListContainer">
+        <div id="request"></div>
+      </div>
+    </div><!-- Column 3: GIFTS (18.9%) - Danh sách quà tặng -->
+    <div class="panel">
+      <h3>GIFTS</h3>
+      <div class="chatListContainer">
+        <div id="gifts"></div>
+      </div>
+    </div><!-- Column 4: ACTIONS (18.9%) - Member join, likes, shares -->
+    <div class="panel">
+      <h3>ACTIONS</h3>
+      <div class="chatListContainer">
+        <div id="actions"></div>
+      </div>
+    </div>
+  </main><!-- Socket.IO Client Library -->
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // ==========================================
+    // FILE: connection.js
+    // Mô tả: Wrapper for TikTok connection over Socket.IO with reconnect functionality
+    // ==========================================
+    /**
+     * TikTokIOConnection Class
+     * Quản lý kết nối Socket.IO với TikTok Live backend
+     * Hỗ trợ tự động reconnect khi mất kết nối
+     */
+    class TikTokIOConnection {
+      constructor(backendUrl) {
+        this.socket = io(backendUrl);
+        this.uniqueId = null;
+        this.options = null;
+        // Event: Khi socket kết nối thành công
+        this.socket.on('connect', () => {
+          console.info("Socket connected!");
+          // Reconnect to streamer if uniqueId already set
+          // Tự động kết nối lại với streamer nếu đã có uniqueId
+          if (this.uniqueId) {
+            this.setUniqueId();
+          }
+        });
+        // Event: Khi socket bị ngắt kết nối
+        this.socket.on('disconnect', () => {
+          console.warn("Socket disconnected!");
+        });
+        // Event: Khi livestream kết thúc
+        this.socket.on('streamEnd', () => {
+          console.warn("LIVE has ended!");
+          this.uniqueId = null;
+        });
+        // Event: Khi TikTok bị ngắt kết nối
+        this.socket.on('tiktokDisconnected', (errMsg) => {
+          console.warn(errMsg);
+          if (errMsg && errMsg.includes('LIVE has ended')) {
+            this.uniqueId = null;
+          }
+        });
+      }
+      /**
+       * Kết nối tới TikTok Live của một user
+       * @param {string} uniqueId - TikTok username
+       * @param {object} options - Các tùy chọn kết nối (enableExtendedGiftInfo, etc.)
+       * @returns {Promise} - Resolve khi kết nối thành công, Reject khi thất bại
+       */
+      connect(uniqueId, options) {
+        this.uniqueId = uniqueId;
+        this.options = options || {};
+        this.setUniqueId();
+        return new Promise((resolve, reject) => {
+          this.socket.once('tiktokConnected', resolve);
+          this.socket.once('tiktokDisconnected', reject);
+          // Timeout sau 15 giây nếu không kết nối được
+          setTimeout(() => {
+            reject('Connection Timeout');
+          }, 15000);
+        });
+      }
+      /**
+       * Gửi uniqueId tới backend để bắt đầu kết nối TikTok Live
+       */
+      setUniqueId() {
+        this.socket.emit('setUniqueId', this.uniqueId, this.options);
+      }
+      /**
+       * Đăng ký event listener cho các sự kiện TikTok Live
+       * @param {string} eventName - Tên event (chat, gift, member, like, etc.)
+       * @param {function} eventHandler - Hàm xử lý khi event được trigger
+       */
+      on(eventName, eventHandler) {
+        this.socket.on(eventName, eventHandler);
+      }
+    }
+    // ==========================================
+    // END FILE: connection.js
+    // ==========================================
+    // ==========================================
+    // FILE: app.js
+    // Mô tả: Main application logic for TikTok Live Chat Monitor
+    // ==========================================
+    // -------- CONFIGURATION (app.js) --------
+    /**
+     * MAX_MESSAGES: Số lượng tin nhắn tối đa cho mỗi container
+     * - Nếu = 0: Lưu toàn bộ tin nhắn (không giới hạn)
+     * - Nếu > 0: Khi vượt quá giới hạn, sẽ xóa 200 tin cũ nhất để tối ưu hiệu năng
+     * Áp dụng cho: Chat, Actions
+     */
+    const MAX_MESSAGES = 0; // Đổi thành 0 để lưu toàn bộ tin nhắn
+    /**
+     * MAX_GIFTS: Số lượng gift tối đa
+     * - Nếu = 0: Lưu toàn bộ gifts
+     * - Nếu > 0: Khi vượt quá, xóa 100 gifts cũ nhất
+     */
+    const MAX_GIFTS = 0; // Đổi thành 0 để lưu toàn bộ gifts
+    // -------- KHAI BÁO CÁC PHẦN TỬ GIAO DIỆN (DOM ELEMENTS) (app.js) --------
+    const chatDiv = document.getElementById('chat');
+    const reqDiv = document.getElementById('request');
+    const giftsDiv = document.getElementById('gifts');
+    const actionsDiv = document.getElementById('actions');
+    const chatContainers = document.querySelectorAll('.chatListContainer');
+    const currentLiveDiv = document.getElementById('currentLive'); // Thông tin streamer
+    const stateText = document.getElementById('stateText'); // Thông báo trạng thái kết nối
+    const usernameInput = document.getElementById('username'); // Ô nhập username
+    // -------- STATE VARIABLES (app.js) --------
+    let autoScroll = true; // Tự động scroll xuống cuối khi có tin mới
+    let showIdEnabled = false; // Hiển thị User ID
+    let showTimeEnabled = false; // Hiển thị thời gian
+    // TikTok Connection (sử dụng connection.js)
+    // Backend URL: sử dụng server proxy nếu chạy từ file://, ngược lại dùng cùng domain
+    let backendUrl = location.protocol === 'file:' ? "https://tiktok-chat-reader.zerody.one/" : undefined;
+    let connection = new TikTokIOConnection(backendUrl);
+    // Room Statistics (from app.js window.settings)
+    let viewerCount = 0; // Số người xem hiện tại
+    let likeCount = 0; // Tổng số like
+    let diamondsCount = 0; // Tổng số diamonds từ gifts
+    // -------- SVG ICONS (app.js) --------
+    const pinIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 12V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2zm-2 0l-1 1-1-1V4h2v8z"/>
+    </svg>`;
+    const trashIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+    </svg>`;
+    const checkboxUnchecked = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+    </svg>`;
+    const checkboxChecked = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+    </svg>`;
+    const moonIcon = `<svg class="theme-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>`;
+    const sunIcon = `<svg class="theme-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="5"/>
+      <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>`;
+
+    function resetUI() {
+      // Dùng trực tiếp các biến đã khai báo ở đầu file
+      chatDiv.innerHTML = '';
+      reqDiv.innerHTML = '';
+      giftsDiv.innerHTML = '';
+      actionsDiv.innerHTML = '';
+      currentLiveDiv.innerHTML = '';
+      stateText.innerHTML = '';
+      // Reset số liệu
+      viewerCount = 0;
+      likeCount = 0;
+      diamondsCount = 0;
+      updateRoomStats();
+      //console.log("🧹 Đã dọn dẹp toàn bộ dữ liệu phiên cũ.");
+    }
+    // -------- UTILITY FUNCTIONS (app.js) --------
+    /**
+     * Sanitize text để ngăn chặn XSS attacks
+     * Chuyển đổi < thành &lt; để hiển thị an toàn
+     */
+    function sanitize(text) {
+      return text.replace(/</g, '&lt;');
+    }
+    /**
+     * Lấy thời gian hiện tại theo định dạng HH:MM:SS (Việt Nam)
+     */
+    function getCurrentTime() {
+      const d = new Date();
+      // Tính GMT+7
+      const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+      const tz = new Date(utc + 7 * 3600000);
+      const yyyy = tz.getFullYear();
+      const mm = String(tz.getMonth() + 1).padStart(2, '0');
+      const dd = String(tz.getDate()).padStart(2, '0');
+      const hh = String(tz.getHours()).padStart(2, '0');
+      const min = String(tz.getMinutes()).padStart(2, '0');
+      const ss = String(tz.getSeconds()).padStart(2, '0');
+      return `${dd}-${mm}-${yyyy} ${hh}:${min}:${ss}`;
+    }
+    // console.log(fullTimestamp()); 
+    // Ví dụ: "21-12-2025 21:37:08"
+    /**
+     * Cập nhật thống kê phòng live (viewers, likes, diamonds)
+     * Hiển thị trên cùng 1 row thay vì column
+     */
+    function updateRoomStats() {
+      document.getElementById('roomStats').innerHTML = `
+        <div><strong>Viewers:</strong> <b>${viewerCount.toLocaleString()}</b></div>
+        <div><strong>Likes:</strong> <b>${likeCount.toLocaleString()}</b></div>
+        <div><strong>Diamonds:</strong> <b>${diamondsCount.toLocaleString()}</b></div>
+      `;
+    }
+    /**
+     * Tạo link username dẫn tới profile TikTok
+     * @param {object} data - Dữ liệu user chứa uniqueId
+     * @returns {string} HTML anchor tag
+     */
+    function generateUsernameLink(data) {
+      const id_user = data.uniqueId || data.display_id || "";
+      const name_user = data.nickname || data.displayName || "User";
+      return `<a class="usernamelink" href="https://www.tiktok.com/@${id_user}" target="_blank"
+      rel="noopener noreferrer" style="color: var(--name); text-decoration: none;">${name_user}</a>`;
+    }
+    /**
+     * Kiểm tra xem gift có đang chờ streak kết thúc không
+     * @param {object} data - Dữ liệu gift
+     * @returns {boolean} true nếu đang pending streak
+     */
+    function isPendingStreak(data) {
+      return data.giftType === 1 && !data.repeatEnd;
+    }
+    // -------- AUTO SCROLL LOGIC (app.js) --------
+    /**
+     * Theo dõi scroll position của mỗi container
+     * Nếu user scroll lên xem lại, tắt auto-scroll
+     * Nếu user scroll xuống cuối, bật lại auto-scroll
+     */
+    chatContainers.forEach(container => {
+      // Khởi tạo trạng thái mặc định cho từng container
+      container._autoScrollEnabled = true;
+      container.addEventListener('scroll', () => {
+        // Kiểm tra xem đã cuộn xuống sát đáy chưa (sai số 10px)
+        const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 10;
+        // Lưu trạng thái vào chính container đó
+        container._autoScrollEnabled = atBottom;
+      });
+    });
+    /**
+     * Scroll container xuống cuối nếu autoScroll đang bật
+     * @param {HTMLElement} container - Container cần scroll
+     */
+    function scrollIfNeeded(container) {
+      // Chỉ cuộn nếu thuộc tính riêng của container này là true
+      if (container._autoScrollEnabled) {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth' // Giúp cuộn mượt mà hơn
+        });
+      }
+    }
+    // -------- BUTTON HANDLERS (app.js) --------
+    /**
+     * Xóa toàn bộ nội dung của tất cả các container
+     */
+    document.getElementById('clear').onclick = () => {
+      chatDiv.innerHTML = '';
+      reqDiv.innerHTML = '';
+      giftsDiv.innerHTML = '';
+      actionsDiv.innerHTML = '';
+      currentLiveDiv.innerHTML = '';
+      stateText.innerHTML = '';
+      usernameInput.innerHTML = '';
+    };
+    /**
+     * Copy toàn bộ nội dung yêu cầu vào clipboard
+     */
+    document.getElementById('copyAll').onclick = () => {
+      const text = reqDiv.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyAll');
+        const originalText = btn.textContent;
+        btn.textContent = 'Đã copy!';
+        setTimeout(() => btn.textContent = originalText, 1500);
+      });
+    };
+    // -------- TOGGLE VISIBILITY (app.js) --------
+    /**
+     * Cập nhật hiển thị của User ID và Time dựa trên checkbox
+     */
+    function updateElementsVisibility() {
+      document.querySelectorAll('.uid').forEach(u => {
+        u.style.display = showIdEnabled ? 'inline' : 'none';
+      });
+      document.querySelectorAll('.time').forEach(t => {
+        t.style.display = showTimeEnabled ? 'inline' : 'none';
+      });
+    }
+    /**
+     * Khởi tạo trạng thái ban đầu của các checkbox
+     */
+    function setInitialDisplay() {
+      const showIdCheckbox = document.getElementById('showId');
+      const hideTimeCheckbox = document.getElementById('hideTime');
+      showIdCheckbox.checked = false;
+      hideTimeCheckbox.checked = false;
+      showIdEnabled = false;
+      showTimeEnabled = false;
+      updateElementsVisibility();
+      showIdCheckbox.onchange = (e) => {
+        showIdEnabled = e.target.checked;
+        updateElementsVisibility();
+      };
+      hideTimeCheckbox.onchange = (e) => {
+        showTimeEnabled = e.target.checked;
+        updateElementsVisibility();
+      };
+    }
+    setInitialDisplay();
+    // -------- THEME TOGGLE (app.js) --------
+    // Light/Dark Mode
+    const themeCheckbox = document.getElementById('theme');
+    themeCheckbox.onchange = (e) => {
+      document.documentElement.classList.toggle('light', e.target.checked);
+    };
+    // -------- RENDER CHAT FUNCTIONS (app.js) --------
+    /**
+     * Thêm tin nhắn chat mới vào container CHAT
+     * Chỉ chứa tin nhắn thuần túy, không có actions
+     * @param {object} data - Dữ liệu user
+     * @param {string} text - Nội dung tin nhắn
+     * @param {string} color - Màu chữ (optional)
+     */
+    function renderChat(data, text, color = '') {
+      /**
+       * Giới hạn số lượng tin nhắn để tối ưu hiệu năng
+       * Nếu MAX_MESSAGES = 0: Lưu toàn bộ (không giới hạn)
+       * Nếu MAX_MESSAGES > 0: Xóa 200 tin cũ nhất khi vượt quá
+       */
+      // DEBUG: Log dữ liệu người chat và nội dung tin nhắn, // Clone để xem cấu trúc thật
+      // console.log("💬 CHAT DATA:", { user: JSON.parse(JSON.stringify(data)), rawText: text });
+      if (MAX_MESSAGES > 0 && chatDiv.children.length > MAX_MESSAGES) {
+        Array.from(chatDiv.children).slice(0, 200).forEach(el => el.remove());
+      }
+      const div = document.createElement('div');
+      div.className = 'msg';
+      const msgData = {
+        avatar: data.profilePictureUrl || `https://ui-avatars.com/api/?name=${data.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=128`,
+        time: getCurrentTime(),
+        nickname: data.nickname || data.displayName || data.uniqueId,
+        userId: data.uniqueId || data.userId,
+        message: sanitize(text)
+      };
+      div.innerHTML = `
+        <div class="chat-head">
+          <img class="avatar" src="${msgData.avatar}" alt="${msgData.nickname}">
+          <span class="time" style="display: ${showTimeEnabled ? 'inline' : 'none'}">[${msgData.time}]</span>
+          <span class="name">${generateUsernameLink(data)}</span>
+          <span class="uid" style="display: ${showIdEnabled ? 'inline' : 'none'}">@${msgData.userId}</span>
+          <span class="arrow">${pinIcon}</span>
+        </div>
+        <div style="${color ? 'color:' + color : ''}">${msgData.message}</div>
+      `;
+      // Click vào icon pin để thêm vào danh sách yêu cầu
+      // div.querySelector('.arrow').onclick = () => addRequest(msgData, div);
+      // Truyền cả dữ liệu gốc (data) và nội dung tin nhắn (text)
+      div.querySelector('.arrow').onclick = () => addRequest(data, text, div);
+      chatDiv.appendChild(div);
+      scrollIfNeeded(chatDiv.parentElement);
+    }
+    // -------- ADD REQUEST FUNCTION (app.js) --------
+    /**
+     * Thêm tin nhắn vào danh sách yêu cầu (pin message)
+     * @param {object} msg - Dữ liệu tin nhắn
+     * @param {HTMLElement} chatEl - Element tin nhắn gốc để đánh dấu đã pin
+     */
+    //function addRequest(msg, chatEl) {
+    function addRequest(data, text, chatEl) {
+      // DEBUG: Log dữ liệu tin nhắn khi được đưa vào danh sách yêu cầu
+      // console.log("📌 PINNED REQUEST:", JSON.stringify(msg, null, 2));
+      chatEl.classList.add('selected');
+      const d = document.createElement('div');
+      d.className = 'req';
+      d.innerHTML = `
+        <div>         
+          <span class="req-nickname">${generateUsernameLink(data)}</span>: 
+          <span class="req-message">${sanitize(text)}</span>
+        </div>
+        <span class="checkbox-icon">${checkboxUnchecked}</span>
+        <button class="del">${trashIcon}</button>
+      `;
+      const checkboxIcon = d.querySelector('.checkbox-icon');
+      let isChecked = false;
+      // Toggle trạng thái hoàn thành (done/undone)
+      checkboxIcon.onclick = () => {
+        isChecked = !isChecked;
+        checkboxIcon.innerHTML = isChecked ? checkboxChecked : checkboxUnchecked;
+        d.classList.toggle('done', isChecked);
+      };
+      // Xóa yêu cầu
+      d.querySelector('.del').onclick = () => d.remove();
+      reqDiv.appendChild(d);
+    }
+    // -------- RENDER GIFT FUNCTION (app.js) --------
+    /**
+     * Thêm gift mới vào container GIFTS
+     * Hỗ trợ update gift streak (combo) theo real-time
+     * @param {object} data - Dữ liệu gift
+     */
+    function renderGift(data) {
+      /**
+       * Giới hạn số lượng gifts
+       * Nếu MAX_GIFTS = 0: Lưu toàn bộ
+       * Nếu MAX_GIFTS > 0: Xóa 100 gifts cũ nhất khi vượt quá
+       */
+      // DEBUG: Log dữ liệu Gift (Tên quà, ID quà, Diamond, Combo)
+      // console.log("🎁 GIFT RECEIVED:", JSON.stringify(data, null, 2));
+      if (MAX_GIFTS > 0 && giftsDiv.children.length > MAX_GIFTS) {
+        Array.from(giftsDiv.children).slice(0, 100).forEach(el => el.remove());
+      }
+      // Tạo unique ID cho streak (userId + giftId)
+      const streakId = data.userId.toString() + '_' + data.giftId;
+      const existingStreak = giftsDiv.querySelector(`[data-streakid="${streakId}"]`);
+      const div = document.createElement('div');
+      div.className = 'gift-item';
+      // Nếu gift đang pending streak, gắn data attribute để update sau
+      if (isPendingStreak(data)) {
+        div.setAttribute('data-streakid', streakId);
+      }
+      div.innerHTML = `
+        <img class="avatar" src="${data.profilePictureUrl}" alt="${data.uniqueId}">
+        <div class="gift-details">
+          <div class="gift-sender">${generateUsernameLink(data)}</div>
+          <div class="gift-desc">${sanitize(data.describe || '')}</div>
+          <div class="gift-info-row">
+            <img class="gift-icon" src="${data.giftPictureUrl}" alt="${data.giftName}">
+            <div class="gift-stats">
+              <div>Name: <b>${sanitize(data.giftName)}</b> (ID: ${data.giftId})</div>
+              <div>Repeat: <b style="${isPendingStreak(data) ? 'color:red' : ''}">x${data.repeatCount.toLocaleString()}</b></div>
+              <div>Cost: <b>${(data.diamondCount * data.repeatCount).toLocaleString()} Diamonds</b></div>
+            </div>
+          </div>
+        </div>
+      `;
+      // Nếu đã có streak này, replace để update số lượng combo
+      if (existingStreak) {
+        existingStreak.replaceWith(div);
+      } else {
+        giftsDiv.appendChild(div);
+      }
+      scrollIfNeeded(giftsDiv.parentElement);
+    }
+    // -------- RENDER ACTION FUNCTION (app.js) --------
+    /**
+     * Thêm action event (member join, likes, shares) vào container ACTIONS
+     * @param {object} data - Dữ liệu user
+     * @param {string} text - Nội dung action
+     * @param {string} color - Màu chữ
+     * @param {boolean} isTemporary - Đánh dấu là tin tạm thời (sẽ bị xóa khi có tin mới)
+     */
+    function renderAction(data, text, color = '', isTemporary = false) {
+      // DEBUG: Log các hành động hệ thống
+      // console.log("⚡ ACTION EVENT:", { type: text, user: JSON.parse(JSON.stringify(data)), temp: isTemporary });
+      /**
+       * Giới hạn số lượng actions
+       * Nếu MAX_MESSAGES = 0: Lưu toàn bộ
+       * Nếu MAX_MESSAGES > 0: Xóa 200 actions cũ nhất khi vượt quá
+       */
+      if (MAX_MESSAGES > 0 && actionsDiv.children.length > MAX_MESSAGES) {
+        Array.from(actionsDiv.children).slice(0, 200).forEach(el => el.remove());
+      }
+      /**
+       * Xóa các tin nhắn tạm thời (temporary) trước khi thêm tin mới
+       * Áp dụng cho member join để tránh spam
+       */
+      if (!isTemporary) {
+        document.querySelectorAll('#actions .temporary').forEach(el => el.remove());
+      }
+      const div = document.createElement('div');
+      div.className = isTemporary ? 'action-item temporary' : 'action-item';
+      const avatar = data.profilePictureUrl || `https://ui-avatars.com/api/?name=${data.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=128`;
+      div.innerHTML = `
+        <img class="avatar" src="${avatar}" alt="${data.uniqueId}">
+        <div class="action-content">
+          <span class="action-username">${generateUsernameLink(data)}</span>
+          <span style="${color ? 'color:' + color : ''}">${sanitize(text)}</span>
+        </div>
+      `;
+      actionsDiv.appendChild(div);
+      scrollIfNeeded(actionsDiv.parentElement);
+    }
+    // -------- CONNECTION FUNCTION (app.js) --------
+    /**
+     * Kết nối tới TikTok Live của username được nhập
+     * Tương tự function connect() trong app.js gốc
+     */
+    function connect() {
+      const uniqueId = document.getElementById('username').value.trim();
+      if (uniqueId === '') {
+        document.getElementById('stateText').textContent = 'Vui lòng nhập username!';
+        return;
+      }
+      // Reset UI
+      resetUI();
+      document.getElementById('stateText').textContent = 'Đang kết nối...';
+      // Kết nối với enableExtendedGiftInfo để lấy thông tin gift đầy đủ
+      connection.connect(uniqueId, {
+        enableExtendedGiftInfo: true
+      }).then(state => {
+        // Kết nối thành công
+        document.getElementById('stateText').textContent = `Connected to roomId: ${state.roomId}`;
+        // Lấy thông tin Streamer từ 'state' thay vì đợi sự kiện roomUser
+        if (state.roomInfo && state.roomInfo.owner) {
+          renderStreamerInfo(state.roomInfo.owner);
+        } else {
+          // Backup nếu SDK trả về cấu trúc phẳng
+          renderStreamerInfo(state);
+        }
+        // Reset statistics khi kết nối mới
+        viewerCount = 0;
+        likeCount = 0;
+        diamondsCount = 0;
+        updateRoomStats();
+      }).catch(errorMessage => {
+        // Kết nối thất bại
+        document.getElementById('stateText').textContent = errorMessage;
+        /**
+         * TODO: Thêm logic reconnect tự động nếu cần (từ app.js gốc)
+         * Ví dụ: Nếu có window.settings.username, tự động retry sau 30s
+         * 
+         * if (window.settings && window.settings.username) {
+         *   setTimeout(() => {
+         *     connect();
+         *   }, 30000);
+         * }
+         */
+      });
+    }
+    // Hàm hiển thị thông tin streamer
+    /**
+     * Hiển thị thông tin streamer hiện tại
+     * @param {object} data - Dữ liệu streamer
+     * data chứa: uniqueId, nickname, profilePictureUrl
+     */
+    function renderStreamerInfo(data) {
+      // if (!data || (!data.nickname && !data.uniqueId)) return;
+      // console.log("DỮ LIỆU STREAMER:", JSON.stringify(data, null, 2));
+      if (!data) return;
+      const displayName = data.nickname || data.displayName || 'Unknown';
+      const username = data.display_id || data.uniqueId || '';
+      let avatarUrl = ""
+      // Kiểm tra: hộp avatar_large tồn tại -> có danh sách url_list -> danh sách không rỗng
+      if (data.avatar_large && data.avatar_large.url_list && data.avatar_large.url_list.length > 0) {
+        // Lấy link ĐẦU TIÊN (index 0)
+        avatarUrl = data.avatar_large.url_list[0];
+      }
+      // Tạo Avatar nếu username trống, ui-avatars sẽ dùng name
+      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${data.uniqueId}&background=2196f3&color=fff&size=128`;
+      document.getElementById('currentLive').innerHTML = `
+        <b style="color: var(--fg)">Live: </b>
+        <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
+        <b>${generateUsernameLink(data)}</b>
+        <span style="color:#888;margin-left:4px">@${username}</span>
+      `;
+    }
+    // -------- EVENT LISTENERS (app.js) --------
+    // Click button Connect
+    document.getElementById('connect').onclick = connect;
+    // Nhấn Enter trong input username để connect
+    document.getElementById('username').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        connect();
+      }
+    });
+    // -------- TIKTOK LIVE EVENTS (app.js) --------
+    /**
+     * Event: roomUser
+     * Cập nhật số lượng người xem trong phòng
+     */
+    connection.on('roomUser', (msg) => {
+      if (typeof msg.viewerCount === 'number') {
+        viewerCount = msg.viewerCount;
+        updateRoomStats();
+      }
+      // Chỉ cập nhật info nếu trong msg có chứa object owner (chủ phòng)
+      // Điều này loại bỏ hoàn toàn việc lấy nhầm avatar của người xem (viewer)
+      // (Một số bản SDK trả về thông tin chủ phòng trong roomUser.owner)
+      if (msg.owner) {
+        renderStreamerInfo(msg.owner);
+      }
+    });
+    /**
+     * Event: member
+     * Hiển thị khi có người join vào live
+     * Sử dụng delay để tránh spam khi có nhiều người join cùng lúc
+     */
+    let joinMsgDelay = 0;
+    connection.on('member', (msg) => {
+      let addDelay = 250;
+      if (joinMsgDelay > 500) addDelay = 100;
+      if (joinMsgDelay > 1000) addDelay = 0;
+      joinMsgDelay += addDelay;
+      setTimeout(() => {
+        joinMsgDelay -= addDelay;
+        renderAction(msg, 'joined', '#21b2c2', true); // temporary = true
+      }, joinMsgDelay);
+    });
+    /**
+     * Event: chat
+     * Tin nhắn chat mới từ viewers
+     * CHỈ hiển thị trong cột CHAT
+     */
+    connection.on('chat', (msg) => {
+      renderChat(msg, msg.comment);
+    });
+    /**
+     * Event: gift
+     * Quà tặng mới từ viewers
+     * Cập nhật tổng diamonds và hiển thị trong cột GIFTS
+     */
+    connection.on('gift', (data) => {
+      // Chỉ cộng diamonds khi gift streak kết thúc (không còn pending)
+      if (!isPendingStreak(data) && data.diamondCount > 0) {
+        diamondsCount += (data.diamondCount * data.repeatCount);
+        updateRoomStats();
+      }
+      renderGift(data);
+    });
+    /**
+     * Event: like
+     * Cập nhật tổng số like và hiển thị action trong ACTIONS column
+     */
+    connection.on('like', (msg) => {
+      if (typeof msg.totalLikeCount === 'number') {
+        likeCount = msg.totalLikeCount;
+        updateRoomStats();
+      }
+      // Hiển thị like action trong cột ACTIONS
+      if (typeof msg.likeCount === 'number') {
+        // renderAction(msg, msg.label.replace('{0:user}', '').replace('likes', `${msg.likeCount} likes`), '#447dd4');
+        renderAction(msg, `: liked the LIVE x${msg.likeCount}`, '#447dd4');
+      }
+    });
+    /**
+     * Event: social
+     * Share và Follow actions
+     * Hiển thị trong cột ACTIONS với màu khác nhau
+     */
+    connection.on('social', (data) => {
+      let color = data.displayType.includes('follow') ? '#ff005e' : '#2fb816';
+      renderAction(data, data.label.replace('{0:user}', ''), color);
+    });
+    /**
+     * Event: streamEnd
+     * Livestream đã kết thúc
+     */
+    connection.on('streamEnd', () => {
+      document.getElementById('stateText').textContent = 'Stream ended.';
+    });
+    // -------- INITIALIZATION (app.js) --------
+    // Khởi tạo room stats ban đầu
+    updateRoomStats();
+    // ==========================================
+    // END FILE: app.js
+    // ==========================================
+  </script>
+</body>
+
+</html>
