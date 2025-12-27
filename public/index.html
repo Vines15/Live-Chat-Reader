@@ -1235,6 +1235,8 @@
       if (isPendingStreak(data)) {
         div.setAttribute('data-streakid', streakId);
       }
+
+      /*
       div.innerHTML = `
         <img class="avatar" src="${data.profilePictureUrl}" alt="${data.uniqueId}">
         <div class="gift-details">
@@ -1250,6 +1252,7 @@
           </div>
         </div>
       `;
+      */
 
       // Nếu có giftNameVN thì hiện "đã gửi + tên", nếu không có thì hiện describe gốc
       const displayDesc = giftNameVN ? `đã gửi ${giftNameVN}` : (data.describe || 'đã gửi quà');
@@ -1306,10 +1309,6 @@
         document.querySelectorAll('#actions .temporary').forEach(el => el.remove());
       }
       */
-
-      // Hiệu ứng mờ dần mượt mà
-      div.style.transition = 'opacity 1s ease'; 
-      div.style.opacity = '1';
       
       const div = document.createElement('div');
       div.className = isTemporary ? 'action-item temporary' : 'action-item';
@@ -1328,6 +1327,10 @@
 
       // Xử lý xóa tự động cho tin Join
       if (isTemporary) {
+        // Hiệu ứng mờ dần mượt mà
+        div.style.transition = 'opacity 1s ease'; 
+        div.style.opacity = '1';
+        
         setTimeout(() => {
           if (div.parentNode) {
             div.style.opacity = '0'; // Mờ dần trong 1s
