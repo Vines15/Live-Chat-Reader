@@ -1505,8 +1505,8 @@
       if (typeof msg.likeCount === 'number') {
         // renderAction(msg, msg.label.replace('{0:user}', '').replace('likes', `${msg.likeCount} likes`), '#447dd4');
         // renderAction(msg, `liked the LIVE x${msg.likeCount}`, '#447dd4');
-        // renderAction(msg, `❤️ x${msg.likeCount}`, '#ff4b5c', 'action');
-        renderAction(msg, `đã ❤️ x${msg.likeCount}`, '#447dd4');
+        // renderAction(msg, `❤️ x${msg.likeCount}`, '#ff4b5c');
+        renderAction(msg, `đã ❤️ x${msg.likeCount}`, '#447dd4', true); // temporary = true
       }
     });
     
