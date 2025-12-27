@@ -840,7 +840,7 @@
     GIFTS:   { MAX: 0,   
               BATCH: 100 
              },
-    ACTIONS: { MAX: 10000, 
+    ACTIONS: { MAX: 5000, 
               BATCH: 1000 
              } // Mục tiêu 10k dòng cho Like/Share/Join
       };
@@ -1316,7 +1316,7 @@
       div.innerHTML = `
         <img class="avatar" src="${avatar}" alt="${data.uniqueId}">
         <div class="action-content">
-          <span class="action-username">${generateUsernameLink(data)}</span>
+          <span class="action-username">${generateUsernameLink(data)}</span>:
           <span style="${color ? 'color:' + color : ''}">${sanitize(text)}</span>
         </div>
       `;
@@ -1339,7 +1339,7 @@
               if (div.parentNode) div.remove(); // Xóa hẳn khỏi RAM
             }, 1000); 
           }
-        }, 5000); // 5 giây đứng yên
+        }, 6000); // 6 giây đứng yên
       }
     }
     
@@ -1502,7 +1502,7 @@
         // renderAction(msg, msg.label.replace('{0:user}', '').replace('likes', `${msg.likeCount} likes`), '#447dd4');
         // renderAction(msg, `liked the LIVE x${msg.likeCount}`, '#447dd4');
         // renderAction(msg, `❤️ x${msg.likeCount}`, '#ff4b5c', 'action');
-        renderAction(msg, `❤️ x${msg.likeCount}`, '#447dd4');
+        renderAction(msg, `đã ❤️ x${msg.likeCount}`, '#447dd4');
       }
     });
     
