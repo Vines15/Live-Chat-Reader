@@ -1439,7 +1439,7 @@
      * Event: roomUser
      * Cập nhật số lượng người xem trong phòng
      */
-    connection.on('roomUser', (msg) => {
+    /*connection.on('roomUser', (msg) => {
       if (typeof msg.viewerCount === 'number') {
         viewerCount = msg.viewerCount;
         updateRoomStats();
@@ -1450,7 +1450,7 @@
       if (msg.owner) {
         renderStreamerInfo(msg.owner);
       }
-    });
+    });*/
 
     /**
      * Event: roomUser
@@ -1507,6 +1507,12 @@
     });
     */
 
+    /**
+     * Event: chat
+     * Tin nhắn chat mới từ viewers, lđể lấy icon team và biểu tượng hệ thống
+     * CHỈ hiển thị trong cột CHAT
+     */
+    
     connection.on('chat', (msg) => {
       // Lấy nội dung gốc
       let chatContent = msg.comment;
