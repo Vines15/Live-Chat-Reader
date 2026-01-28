@@ -1260,7 +1260,14 @@
       */
 
       // Nếu có giftNameVN thì hiện "đã gửi + tên", nếu không có thì hiện describe gốc
-      const displayDesc = giftNameVN ? `đã gửi ${giftNameVN}` : (data.describe || 'đã gửi quà');
+      // Nếu có giftNameVN → dùng tiếng Việt 
+      // Nếu chưa có → fallback sang tên tiếng Anh
+      // Nếu không dùng describe hoặc chuỗi mặc định
+
+      // const displayDesc = giftNameVN ? 'đã gửi ${giftNameVN}' : (data.describe || 'đã gửi quà');
+      const giftDisplayName = giftNameVN || data.giftName || `Gift #${data.giftId}`;      
+      const displayDesc = `đã gửi ${giftDisplayName}`;
+      
       
       div.innerHTML = `
         <img class="avatar" src="${data.profilePictureUrl}" alt="${data.uniqueId}">
@@ -1268,9 +1275,9 @@
           <div class="gift-sender">${generateUsernameLink(data)}</div>
           <div class="gift-desc">${sanitize(displayDesc)}</div>
           <div class="gift-info-row">
-            <img class="gift-icon" src="${data.giftPictureUrl}" alt="${giftNameVN}">
+            <img class="gift-icon" src="${data.giftPictureUrl}" alt="${giftDisplayName}">
             <div class="gift-stats">
-              <div>Name: <b>${sanitize(giftNameVN)}</b> (ID: ${data.giftId})</div>
+              <div>Name: <b>${sanitize(giftDisplayName)}</b> (ID: ${data.giftId})</div>
               <div>Repeat: <b style="${isPendingStreak(data) ? 'color:red' : ''}">x${data.repeatCount.toLocaleString()}</b></div>
               <div>Cost: <b>${(data.diamondCount * data.repeatCount).toLocaleString()} Diamonds</b></div>
             </div>
