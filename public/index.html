@@ -1615,6 +1615,14 @@
       joinMsgDelay += addDelay;
       setTimeout(() => {
         joinMsgDelay -= addDelay;        
+
+        if (
+          watchUsername &&
+          msg.uniqueId?.toLowerCase() === watchUsername
+        ) {
+          showSpecialPopup(msg);
+        }
+        
         // renderAction(msg, 'joined', '#21b2c2', true); // temporary = true
         renderAction(msg, 'joined', '#f39c12', true); // temporary = true
       }, joinMsgDelay);
