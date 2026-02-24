@@ -670,6 +670,123 @@
         font-size: 12px;
       }
     }
+
+
+    /* 24:02 ===============================
+   WATCH USER HOTKEY OVERLAY
+================================ */
+
+#watchUserOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.watchBox {
+  background: #1e1e1e;
+  padding: 22px 26px;
+  border-radius: 12px;
+  min-width: 340px;
+  color: #ffffff;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+
+.watchBoxTitle {
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.watchBox input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.watchHint {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+
+/* ===============================
+   SPECIAL USER POPUP
+================================ */
+
+.specialPopup {
+  position: fixed;
+  right: 20px;
+  min-width: 300px;
+  max-width: 360px;
+  background: linear-gradient(135deg, #ff0000, #ff6600);
+  color: #fff;
+  padding: 16px 18px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: popupSlide 0.35s ease;
+  z-index: 9999;
+  font-family: inherit;
+}
+
+.specialPopup img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  object-fit: cover;
+}
+
+.specialPopup a {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+.specialPopup .popupContent {
+  flex: 1;
+}
+
+.specialPopup .popupTime {
+  font-size: 13px;
+  margin-top: 6px;
+  opacity: 0.9;
+}
+
+.specialPopup .popupClose {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.specialPopup .popupClose:hover {
+  opacity: 0.7;
+}
+
+@keyframes popupSlide {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
   </style>
   <style>
     @view-transition {
@@ -1601,6 +1718,144 @@
     // ==========================================
     // END FILE: app.js
     // ==========================================
+
+
+    /* 24:02 ======================================
+   WATCH USER VIA HOTKEY (Ctrl+Shift+U)
+====================================== */
+
+let watchUsername = '';
+
+document.addEventListener('keydown', function(e) {
+
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'u') {
+    e.preventDefault();
+    openWatchInput();
+  }
+
+});
+
+
+function openWatchInput() {
+
+  const oldOverlay = document.getElementById('watchUserOverlay');
+  if (oldOverlay) oldOverlay.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'watchUserOverlay';
+
+  overlay.innerHTML = `
+    <div class="watchBox">
+      <div class="watchBoxTitle">
+        Nhập Username hoặc link TikTok
+      </div>
+
+      <input 
+        type="text"
+        id="watchUserField"
+        placeholder="vd: username hoặc https://tiktok.com/@username"
+        value="${watchUsername}"
+        autofocus
+      >
+
+      <div class="watchHint">
+        Enter để lưu • ESC để đóng
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById('watchUserField');
+  input.focus();
+
+  input.addEventListener('keydown', function(e) {
+
+    if (e.key === 'Enter') {
+      saveWatchUser(input.value);
+      overlay.remove();
+    }
+
+    if (e.key === 'Escape') {
+      overlay.remove();
+    }
+
+  });
+
+}
+
+
+function saveWatchUser(value) {
+
+  let cleaned = value.trim().toLowerCase();
+  if (!cleaned) return;
+
+  if (cleaned.includes('tiktok.com')) {
+    const match = cleaned.match(/@([a-z0-9._]+)/);
+    if (match && match[1]) {
+      cleaned = match[1];
+    }
+  }
+
+  if (cleaned.startsWith('@')) {
+    cleaned = cleaned.substring(1);
+  }
+
+  watchUsername = cleaned;
+
+  console.log("Log:", watchUsername);
+}
+
+
+/* ======================================
+   SPECIAL USER POPUP
+====================================== */
+
+function showSpecialPopup(userData) {
+
+  const popup = document.createElement('div');
+  popup.className = 'specialPopup';
+
+  // Xếp chồng popup
+  const existingPopups = document.querySelectorAll('.specialPopup');
+  popup.style.top = (20 + existingPopups.length * 110) + 'px';
+
+  const avatar = userData.profilePictureUrl ||
+    `https://ui-avatars.com/api/?name=${userData.uniqueId}&background=ff0000&color=fff&size=128`;
+
+  const displayName = userData.nickname || userData.uniqueId;
+  const username = userData.uniqueId;
+
+  popup.innerHTML = `
+    <span class="popupClose">✕</span>
+    <img src="${avatar}">
+    <div class="popupContent">
+      <a href="https://www.tiktok.com/@${username}" target="_blank">
+        ${displayName}
+      </a>
+      <div class="popupTime">
+        Time: ${getCurrentTime()}
+      </div>
+    </div>
+  `;
+
+  popup.querySelector('.popupClose').onclick = function(e) {
+    e.stopPropagation();
+    popup.remove();
+    repositionPopups();
+  };
+
+  document.body.appendChild(popup);
+}
+
+
+function repositionPopups() {
+  const popups = document.querySelectorAll('.specialPopup');
+  popups.forEach((el, index) => {
+    el.style.top = (20 + index * 110) + 'px';
+  });
+}
+    
   </script>
 </body>
 
