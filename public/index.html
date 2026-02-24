@@ -679,7 +679,7 @@
 #watchUserOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -687,33 +687,48 @@
 }
 
 .watchBox {
-  background: #1e1e1e;
+  background: var(--card);
+  color: var(--fg);
   padding: 22px 26px;
   border-radius: 12px;
   min-width: 340px;
-  color: #ffffff;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  border: 1px solid var(--border);
+  box-shadow: 0 15px 40px var(--shadow);
 }
 
 .watchBoxTitle {
   margin-bottom: 12px;
   font-weight: 600;
   font-size: 15px;
+  color: var(--fg);
 }
 
 .watchBox input {
   width: 100%;
   padding: 9px 12px;
   border-radius: 8px;
-  border: none;
+  border: 1px solid var(--border);
   outline: none;
   font-size: 14px;
+
+  background: var(--bg);
+  color: var(--fg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.watchBox input::placeholder {
+  color: var(--uid);
+}
+
+.watchBox input:focus {
+  border-color: var(--name);
+  box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
 }
 
 .watchHint {
   margin-top: 10px;
   font-size: 12px;
-  opacity: 0.7;
+  color: var(--uid);
 }
 
 
