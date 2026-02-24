@@ -752,8 +752,9 @@
   animation: popupSlide 0.35s ease;
   z-index: 9999;
   font-family: inherit;
+  cursor: grab;
 }
-
+    
 .specialPopup img {
   width: 50px;
   height: 50px;
@@ -802,6 +803,12 @@
     transform: translateX(0);
   }
 }
+
+    .specialPopup.dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+    
   </style>
   <style>
     @view-transition {
@@ -1065,10 +1072,10 @@
       const hh = String(tz.getHours()).padStart(2, '0');
       const min = String(tz.getMinutes()).padStart(2, '0');
       const ss = String(tz.getSeconds()).padStart(2, '0');
-      return `${dd}-${mm}-${yyyy} ${hh}:${min}:${ss}`;
+      return `${dd}/${mm}/${yyyy} ${hh}:${min}:${ss}`;
     }
     // console.log(fullTimestamp()); 
-    // Ví dụ: "21-12-2025 21:37:08"
+    // Ví dụ: "21/12/2025 21:37:08"
         
     /**
      * Cập nhật thống kê phòng live (viewers, likes, diamonds)
@@ -1869,6 +1876,7 @@ function showSpecialPopup(userData) {
   };
 
   document.body.appendChild(popup);
+  enablePopupDrag(popup);
 }
 
 
@@ -1877,6 +1885,53 @@ function repositionPopups() {
   popups.forEach((el, index) => {
     el.style.top = (20 + index * 110) + 'px';
   });
+}
+
+    /* ===============================
+   DRAG & DROP FOR SPECIAL POPUP
+================================ */
+
+function enablePopupDrag(popup) {
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  popup.addEventListener('mousedown', function(e) {
+
+    // Không drag khi click nút đóng
+    if (e.target.classList.contains('popupClose')) return;
+
+    isDragging = true;
+    popup.classList.add('dragging');
+
+    const rect = popup.getBoundingClientRect();
+
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    // Khi bắt đầu kéo -> bỏ right để dùng left
+    popup.style.right = 'auto';
+    popup.style.left = rect.left + 'px';
+    popup.style.top = rect.top + 'px';
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  function onMouseMove(e) {
+    if (!isDragging) return;
+
+    popup.style.left = (e.clientX - offsetX) + 'px';
+    popup.style.top = (e.clientY - offsetY) + 'px';
+  }
+
+  function onMouseUp() {
+    isDragging = false;
+    popup.classList.remove('dragging');
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  }
 }
     
   </script>
