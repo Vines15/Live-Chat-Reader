@@ -1643,6 +1643,9 @@
           msg.uniqueId?.toLowerCase() === watchUsername
         ) {
           showSpecialPopup(msg);
+          renderAction(msg, '🔥 ${watchUsername} ĐÃ VÀO PHÒNG 🔥','#ff0000', 
+                       false // không tự xóa
+                        );
         }
         
         // renderAction(msg, 'joined', '#21b2c2', true); // temporary = true
@@ -1849,12 +1852,12 @@ function showSpecialPopup(userData) {
   // Xếp chồng popup
   const existingPopups = document.querySelectorAll('.specialPopup');
   popup.style.top = (20 + existingPopups.length * 110) + 'px';
-
+  
   const avatar = userData.profilePictureUrl ||
     `https://ui-avatars.com/api/?name=${userData.uniqueId}&background=ff0000&color=fff&size=128`;
 
-  const displayName = userData.nickname || userData.uniqueId;
-  const username = userData.uniqueId;
+  const displayName = userData.nickname || userData.displayName || "User";
+  const username = userData.uniqueId || "";
 
   popup.innerHTML = `
     <span class="popupClose">✕</span>
