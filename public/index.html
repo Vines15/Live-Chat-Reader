@@ -1641,11 +1641,11 @@
         if (
           watchUsername &&
           msg.uniqueId?.toLowerCase() === watchUsername
-        ) {
-          showSpecialPopup(msg);
+        ) {          
           renderAction(msg, '🔥 ${watchUsername} ĐÃ VÀO PHÒNG 🔥','#ff0000', 
                        false // không tự xóa
                         );
+          showSpecialPopup(msg);
         }
         
         // renderAction(msg, 'joined', '#21b2c2', true); // temporary = true
