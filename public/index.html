@@ -1537,54 +1537,44 @@
      * data chứa: uniqueId, nickname, profilePictureUrl
      */
 
-    function renderStreamerInfo(data) {
-      // if (!data || (!data.nickname && !data.uniqueId)) return;
-      // console.log("DỮ LIỆU STREAMER:", JSON.stringify(data, null, 2));
-      if (!data) return;
-      
-      // Lấy username từ ô input làm dự phòng
-      const inputUser = document.getElementById('username').value.trim();
-            
-      // --- BỔ SUNG LOGIC DỰ PHÒNG ---
-      const username = data.uniqueId || data.displayId || data.display_id || inputUser || "";
-      // Nếu nickname rỗng hoặc là 'User'/'Unknown', ta ép dùng username làm tên hiển thị
-      let displayName = data.nickname || data.displayName || 'Unknown';
-      if (!data.nickname || data.nickname === 'User' || data.nickname === 'Unknown') {
-          displayName = username || 'Streamer';
-      }
-      // ----------------------------
-      
-      let avatarUrl = ""
-      // Kiểm tra: hộp avatar_large tồn tại -> có danh sách url_list -> danh sách không rỗng
-      if (data.avatar_large && data.avatar_large.url_list && data.avatar_large.url_list.length > 0) {
-        // Lấy link ĐẦU TIÊN (index 0)
-        avatarUrl = data.avatar_large.url_list[0];
-      } else {
-        avatarUrl = data.profilePictureUrl || "";
-      }
-      // Tạo Avatar nếu username trống, ui-avatars sẽ dùng name
-      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
-      
-      /*document.getElementById('currentLive').innerHTML = `
-        <b style="color: var(--fg)">Live: </b>
-        <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
-        <b>${generateUsernameLink(data)}</b>
-        <span style="color:#888;margin-left:4px">@${username}</span>
-      `;*/
-      
-      const container = document.getElementById('currentLive');
-      if (container) {
-        // --- BỔ SUNG: Ép dữ liệu an toàn vào hàm tạo link ---
-        const safeData = { ...data, uniqueId: username, nickname: displayName };
+function renderStreamerInfo(data) {
+  if (!data) return;
+  
+  const inputUser = document.getElementById('username').value.trim();
         
-        container.innerHTML = `
-        <b style="color: var(--fg)">Live: </b>
-        <img src="${avatar}" onerror="this.src='https://ui-avatars.com/api/?name=?'" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
-        <b>${generateUsernameLink(safeData)}</b>
-        <span style="color:#888;margin-left:4px">${username ? '@' + username : ''}</span>
-        `;
-      }
-    }
+  const username = data.uniqueId || data.displayId || data.display_id || inputUser || "";
+  let displayName = data.nickname || data.displayName || 'Unknown';
+  if (!data.nickname || data.nickname === 'User' || data.nickname === 'Unknown') {
+      displayName = username || 'Streamer';
+  }
+  
+  let avatarUrl = "";
+  // Bổ sung kiểm tra thêm avatarMedium và avatarThumb thường có trong data từ server mới
+  if (data.avatar_large && data.avatar_large.url_list && data.avatar_large.url_list.length > 0) {
+    avatarUrl = data.avatar_large.url_list[0];
+  } else if (data.avatarMedium && data.avatarMedium.url_list && data.avatarMedium.url_list.length > 0) {
+    avatarUrl = data.avatarMedium.url_list[0];
+  } else if (data.avatarThumb && data.avatarThumb.url_list && data.avatarThumb.url_list.length > 0) {
+    avatarUrl = data.avatarThumb.url_list[0];
+  } else {
+    // Fallback về trường mặc định nếu không có danh sách URL
+    avatarUrl = data.profilePictureUrl || data.avatarUrl || "";
+  }
+  
+  const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+  
+  const container = document.getElementById('currentLive');
+  if (container) {
+    const safeData = { ...data, uniqueId: username, nickname: displayName };
+    
+    container.innerHTML = `
+    <b style="color: var(--fg)">Live: </b>
+    <img src="${avatar}" onerror="this.src='https://ui-avatars.com/api/?name=?'" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
+    <b>${generateUsernameLink(safeData)}</b>
+    <span style="color:#888;margin-left:4px">${username ? '@' + username : ''}</span>
+    `;
+  }
+}
     
     /*function renderStreamerInfo(data) {      
       // if (!data || (!data.nickname && !data.uniqueId)) return;
