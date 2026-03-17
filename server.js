@@ -6,15 +6,6 @@ const { Server } = require('socket.io');
 const { TikTokConnectionWrapper, getGlobalConnectionCount } = require('./connectionWrapper');
 const { clientBlocked } = require('./limiter');
 
-// --- BỔ SUNG: Import SignConfig để cấu hình API_KEY Euler ---
-const { SignConfig } = require('tiktok-live-connector');
-
-if (process.env.API_KEY) {
-    SignConfig.apiKey = process.env.API_KEY;
-    console.info('Using Euler API key from environment');
-}
-// ---------------------------------------------------------
-
 const app = express();
 const httpServer = createServer(app);
 
@@ -74,30 +65,15 @@ io.on('connection', (socket) => {
         tiktokConnectionWrapper.connection.on('member', msg => socket.emit('member', msg));
         tiktokConnectionWrapper.connection.on('chat', msg => socket.emit('chat', msg));
         tiktokConnectionWrapper.connection.on('gift', msg => socket.emit('gift', msg));
+        tiktokConnectionWrapper.connection.on('social', msg => socket.emit('social', msg));
         tiktokConnectionWrapper.connection.on('like', msg => socket.emit('like', msg));
+        tiktokConnectionWrapper.connection.on('questionNew', msg => socket.emit('questionNew', msg));
+        tiktokConnectionWrapper.connection.on('linkMicBattle', msg => socket.emit('linkMicBattle', msg));
+        tiktokConnectionWrapper.connection.on('linkMicArmies', msg => socket.emit('linkMicArmies', msg));
         tiktokConnectionWrapper.connection.on('liveIntro', msg => socket.emit('liveIntro', msg));
         tiktokConnectionWrapper.connection.on('emote', msg => socket.emit('emote', msg));
         tiktokConnectionWrapper.connection.on('envelope', msg => socket.emit('envelope', msg));
         tiktokConnectionWrapper.connection.on('subscribe', msg => socket.emit('subscribe', msg));
-
-        // --- CÁC SỰ KIỆN CÓ THAY ĐỔI HOẶC CẦN BỔ SUNG CHO V2.x ---
-        
-        // Thay cho 'social': v2.x tách riêng follow và share
-        tiktokConnectionWrapper.connection.on('social', msg => socket.emit('social', msg)); // Giữ cũ
-        tiktokConnectionWrapper.connection.on('follow', msg => socket.emit('follow', msg)); // Bổ sung mới
-        tiktokConnectionWrapper.connection.on('share', msg => socket.emit('share', msg));   // Bổ sung mới
-
-        // Thay cho 'questionNew'
-        tiktokConnectionWrapper.connection.on('questionNew', msg => socket.emit('questionNew', msg)); // Giữ cũ
-        tiktokConnectionWrapper.connection.on('question', msg => socket.emit('question', msg));       // Bổ sung mới
-
-        // Các sự kiện Battle (PK) mới
-        tiktokConnectionWrapper.connection.on('linkMicBattle', msg => socket.emit('linkMicBattle', msg));
-        tiktokConnectionWrapper.connection.on('battleStart', msg => socket.emit('linkMicBattle', msg)); // Map về event cũ cho client
-        
-        tiktokConnectionWrapper.connection.on('linkMicArmies', msg => socket.emit('linkMicArmies', msg));
-        tiktokConnectionWrapper.connection.on('battleArmies', msg => socket.emit('linkMicArmies', msg)); // Map về event cũ cho client
-        
     });
 
     socket.on('disconnect', () => {
