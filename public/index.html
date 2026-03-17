@@ -1520,6 +1520,14 @@
          * }
          */
       });
+
+      // Lắng nghe thêm liveIntro để cập nhật Avatar/Nickname thật khi nó load xong từ server
+      connection.on('liveIntro', (msg) => {
+        if (msg && msg.hostUser) {
+          renderStreamerInfo(msg.hostUser);
+        }
+      });
+      // ----------------------------
     }
     
     // Hàm hiển thị thông tin streamer
@@ -1528,7 +1536,57 @@
      * @param {object} data - Dữ liệu streamer
      * data chứa: uniqueId, nickname, profilePictureUrl
      */
+
     function renderStreamerInfo(data) {
+      // if (!data || (!data.nickname && !data.uniqueId)) return;
+      // console.log("DỮ LIỆU STREAMER:", JSON.stringify(data, null, 2));
+      if (!data) return;
+      
+      // Lấy username từ ô input làm dự phòng
+      const inputUser = document.getElementById('username').value.trim();
+            
+      // --- BỔ SUNG LOGIC DỰ PHÒNG ---
+      const username = data.uniqueId || data.displayId || data.display_id || inputUser || "";
+      // Nếu nickname rỗng hoặc là 'User'/'Unknown', ta ép dùng username làm tên hiển thị
+      let displayName = data.nickname || data.displayName || 'Unknown';
+      if (!data.nickname || data.nickname === 'User' || data.nickname === 'Unknown') {
+          displayName = username || 'Streamer';
+      }
+      // ----------------------------
+      
+      let avatarUrl = ""
+      // Kiểm tra: hộp avatar_large tồn tại -> có danh sách url_list -> danh sách không rỗng
+      if (data.avatar_large && data.avatar_large.url_list && data.avatar_large.url_list.length > 0) {
+        // Lấy link ĐẦU TIÊN (index 0)
+        avatarUrl = data.avatar_large.url_list[0];
+      } else {
+        avatarUrl = data.profilePictureUrl || "";
+      }
+      // Tạo Avatar nếu username trống, ui-avatars sẽ dùng name
+      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+      
+      /*document.getElementById('currentLive').innerHTML = `
+        <b style="color: var(--fg)">Live: </b>
+        <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
+        <b>${generateUsernameLink(data)}</b>
+        <span style="color:#888;margin-left:4px">@${username}</span>
+      `;*/
+      
+      const container = document.getElementById('currentLive');
+      if (container) {
+        // --- BỔ SUNG: Ép dữ liệu an toàn vào hàm tạo link ---
+        const safeData = { ...data, uniqueId: username, nickname: displayName };
+        
+        container.innerHTML = `
+        <b style="color: var(--fg)">Live: </b>
+        <img src="${avatar}" onerror="this.src='https://ui-avatars.com/api/?name=?'" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
+        <b>${generateUsernameLink(safeData)}</b>
+        <span style="color:#888;margin-left:4px">${username ? '@' + username : ''}</span>
+        `;
+      }
+    }
+    
+    /*function renderStreamerInfo(data) {      
       // if (!data || (!data.nickname && !data.uniqueId)) return;
       // console.log("DỮ LIỆU STREAMER:", JSON.stringify(data, null, 2));
       if (!data) return;
@@ -1548,7 +1606,7 @@
         avatarUrl = data.profilePictureUrl || "";
       }
       // Tạo Avatar nếu username trống, ui-avatars sẽ dùng name
-      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${username}&background=2196f3&color=fff&size=128`;
+      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${username}&background=2196f3&color=fff&size=128`;*/
       
       /*document.getElementById('currentLive').innerHTML = `
         <b style="color: var(--fg)">Live: </b>
@@ -1557,7 +1615,7 @@
         <span style="color:#888;margin-left:4px">@${username}</span>
       `;*/
       
-      const container = document.getElementById('currentLive');
+      /*const container = document.getElementById('currentLive');
       if (container) {
         container.innerHTML = `
         <b style="color: var(--fg)">Live: </b>
@@ -1566,7 +1624,7 @@
         <span style="color:#888;margin-left:4px">${username ? '@' + username : ''}</span>
         `;
       }
-    }
+    }*/
     
     // -------- EVENT LISTENERS (app.js) --------
     // Click button Connect
