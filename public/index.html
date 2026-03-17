@@ -1536,7 +1536,7 @@
       // Lấy username từ ô input làm dự phòng
       const inputUser = document.getElementById('username').value.trim();
             
-      const username = data.uniqueId || data.displayId || data.display_id || inputUser || "";
+      const username = inputUser || data.uniqueId || data.displayId || data.display_id || "";
       const displayName = data.nickname || data.displayName || 'Unknown';
       
       let avatarUrl = ""
