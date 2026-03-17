@@ -6,15 +6,6 @@ const { Server } = require('socket.io');
 const { TikTokConnectionWrapper, getGlobalConnectionCount } = require('./connectionWrapper');
 const { clientBlocked } = require('./limiter');
 
-// --- THÊM PHẦN CẤU HÌNH API KEY TẠI ĐÂY ---
-const { SignConfig } = require('tiktok-live-connector');
-
-if (process.env.API_KEY) {
-    SignConfig.apiKey = process.env.API_KEY;
-    console.info('Using Euler API key from environment');
-}
-// ------------------------------------------
-
 const app = express();
 const httpServer = createServer(app);
 
@@ -24,6 +15,7 @@ const io = new Server(httpServer, {
         origin: '*'
     }
 });
+
 
 io.on('connection', (socket) => {
     let tiktokConnectionWrapper;
@@ -101,6 +93,5 @@ app.use(express.static('public'));
 
 // Start http listener
 const port = process.env.PORT || 8081;
-httpServer.listen(port, () => {
-    console.info(`Server running! Please visit http://localhost:${port}`);
-});
+httpServer.listen(port);
+console.info(`Server running! Please visit http://localhost:${port}`);
