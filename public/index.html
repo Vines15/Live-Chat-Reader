@@ -294,7 +294,7 @@
     .panel:nth-child(4) {
       flex: 0 0 18.9%;
     }
-    
+
     /* ACTIONS */
     .panel h3 {
       margin: 0;
@@ -671,151 +671,144 @@
       }
     }
 
-
     /* 24:02 ===============================
-   WATCH USER HOTKEY OVERLAY
-================================ */
+    WATCH USER HOTKEY OVERLAY
+    ================================ */
+    #watchUserOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
 
-#watchUserOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-}
+    .watchBox {
+      background: var(--card);
+      color: var(--fg);
+      padding: 22px 26px;
+      border-radius: 12px;
+      min-width: 340px;
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 40px var(--shadow);
+    }
 
-.watchBox {
-  background: var(--card);
-  color: var(--fg);
-  padding: 22px 26px;
-  border-radius: 12px;
-  min-width: 340px;
-  border: 1px solid var(--border);
-  box-shadow: 0 15px 40px var(--shadow);
-}
+    .watchBoxTitle {
+      margin-bottom: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--fg);
+    }
 
-.watchBoxTitle {
-  margin-bottom: 12px;
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--fg);
-}
+    .watchBox input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      outline: none;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--fg);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-.watchBox input {
-  width: 100%;
-  padding: 9px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  outline: none;
-  font-size: 14px;
+    .watchBox input::placeholder {
+      color: var(--uid);
+    }
 
-  background: var(--bg);
-  color: var(--fg);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
+    .watchBox input:focus {
+      border-color: var(--name);
+      box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
+    }
 
-.watchBox input::placeholder {
-  color: var(--uid);
-}
+    .watchHint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--uid);
+    }
 
-.watchBox input:focus {
-  border-color: var(--name);
-  box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
-}
+    /* ===============================
+    SPECIAL USER POPUP
+    ================================ */
+    .specialPopup {
+      position: fixed;
+      right: 20px;
+      min-width: 300px;
+      max-width: 360px;
+      background: linear-gradient(135deg, #ff0000, #ff6600);
+      color: #fff;
+      padding: 16px 18px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: popupSlide 0.35s ease;
+      z-index: 9999;
+      font-family: inherit;
+      cursor: grab;
+    }
 
-.watchHint {
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--uid);
-}
+    .specialPopup img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      object-fit: cover;
+    }
 
+    .specialPopup a {
+      color: #fff;
+      font-weight: 600;
+      text-decoration: underline;
+      word-break: break-word;
+    }
 
-/* ===============================
-   SPECIAL USER POPUP
-================================ */
+    .specialPopup .popupContent {
+      flex: 1;
+    }
 
-.specialPopup {
-  position: fixed;
-  right: 20px;
-  min-width: 300px;
-  max-width: 360px;
-  background: linear-gradient(135deg, #ff0000, #ff6600);
-  color: #fff;
-  padding: 16px 18px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  animation: popupSlide 0.35s ease;
-  z-index: 9999;
-  font-family: inherit;
-  cursor: grab;
-}
-    
-.specialPopup img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  object-fit: cover;
-}
+    .specialPopup .popupTime {
+      font-size: 13px;
+      margin-top: 6px;
+      opacity: 0.9;
+    }
 
-.specialPopup a {
-  color: #fff;
-  font-weight: 600;
-  text-decoration: underline;
-  word-break: break-word;
-}
+    .specialPopup .popupClose {
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-.specialPopup .popupContent {
-  flex: 1;
-}
+    .specialPopup .popupClose:hover {
+      opacity: 0.7;
+    }
 
-.specialPopup .popupTime {
-  font-size: 13px;
-  margin-top: 6px;
-  opacity: 0.9;
-}
+    @keyframes popupSlide {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
 
-.specialPopup .popupClose {
-  position: absolute;
-  top: 6px;
-  right: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.specialPopup .popupClose:hover {
-  opacity: 0.7;
-}
-
-@keyframes popupSlide {
-  from {
-    opacity: 0;
-    transform: translateX(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
 
     .specialPopup.dragging {
-  cursor: grabbing;
-  user-select: none;
-}
-    
-  </style>
-  <style>
+      cursor: grabbing;
+      user-select: none;
+    }
+
     @view-transition {
       navigation: auto;
     }
   </style>
-
 </head>
 
 <body>
@@ -829,16 +822,19 @@
 
     <span id="currentLive"></span>
   </header>
+
   <div class="state-info">
     <div class="state-section">
       <pre id="stateText">Disconnected</pre>
     </div>
+
     <div class="state-section">
       <div id="roomStats">
         Chờ kết nối...
       </div>
     </div>
   </div>
+
   <main class="main">
     <!-- Column 1: CHAT (34%) - Chỉ chứa tin nhắn chat thuần túy -->
     <div class="panel">
@@ -846,27 +842,34 @@
       <div class="chatListContainer">
         <div id="chat"></div>
       </div>
-    </div><!-- Column 2: YÊU CẦU (28%) - Danh sách các yêu cầu được pin -->
+    </div>
+
+    <!-- Column 2: YÊU CẦU (28%) - Danh sách các yêu cầu được pin -->
     <div class="panel">
       <h3>YÊU CẦU</h3>
       <div class="chatListContainer">
         <div id="request"></div>
       </div>
-    </div><!-- Column 3: GIFTS (18.9%) - Danh sách quà tặng -->
+    </div>
+
+    <!-- Column 3: GIFTS (18.9%) - Danh sách quà tặng -->
     <div class="panel">
       <h3>GIFTS</h3>
       <div class="chatListContainer">
         <div id="gifts"></div>
       </div>
-    </div><!-- Column 4: ACTIONS (18.9%) - Member join, likes, shares -->
+    </div>
+
+    <!-- Column 4: ACTIONS (18.9%) - Member join, likes, shares -->
     <div class="panel">
       <h3>ACTIONS</h3>
       <div class="chatListContainer">
         <div id="actions"></div>
       </div>
     </div>
-  </main><!-- Socket.IO Client Library -->
+  </main>
 
+  <!-- Socket.IO Client Library -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
     // ==========================================
@@ -909,6 +912,7 @@
           }
         });
       }
+      
       /**
        * Kết nối tới TikTok Live của một user
        * @param {string} uniqueId - TikTok username
@@ -928,6 +932,7 @@
           }, 15000);
         });
       }
+      
       /**
        * Gửi uniqueId tới backend để bắt đầu kết nối TikTok Live
        */
@@ -943,16 +948,15 @@
         this.socket.on(eventName, eventHandler);
       }
     }
+    
     // ==========================================
     // END FILE: connection.js
     // ==========================================
     // ==========================================
-    
     // FILE: app.js
     // Mô tả: Main application logic for TikTok Live Chat Monitor
     // ==========================================
     // -------- CONFIGURATION (app.js) --------
-    
     /**
      * MAX_MESSAGES: Số lượng tin nhắn tối đa cho mỗi container
      * - Nếu = 0: Lưu toàn bộ tin nhắn (không giới hạn)
@@ -960,32 +964,33 @@
      * Áp dụng cho: Chat, Actions
      */
     // const MAX_MESSAGES = 0; // Đổi thành 0 để lưu toàn bộ tin nhắn
-    
     /**
      * MAX_GIFTS: Số lượng gift tối đa
      * - Nếu = 0: Lưu toàn bộ gifts
      * - Nếu > 0: Khi vượt quá, xóa 100 gifts cũ nhất
-     */    
+     */
     // const MAX_GIFTS = 0; // Đổi thành 0 để lưu toàn bộ gifts
-
     /**
      * MAX: Số lượng tin nhắn tối đa cho mỗi container
      * - Nếu = 0: Lưu toàn bộ tin nhắn (không giới hạn)
      * - Nếu > 0: Khi vượt quá giới hạn, sẽ xóa BATCH = ? tin cũ nhất để tối ưu hiệu năng
      * BATCH: Số lượng tin nhắn cần xóa
      * Áp dụng cho: Chat, Gift, Actions
-     */    
+     */
     const UI_CONFIG = {
-    CHAT:    { MAX: 2000,   
-              BATCH: 200 
-             },
-    GIFTS:   { MAX: 500,   
-              BATCH: 100 
-             },
-    ACTIONS: { MAX: 1000, 
-              BATCH: 100 
-             } // Mục tiêu 1k dòng cho Like/Share/Join, xóa 100 dòng
-      };
+      CHAT: {
+        MAX: 2000,
+        BATCH: 200
+      },
+      GIFTS: {
+        MAX: 500,
+        BATCH: 100
+      },
+      ACTIONS: {
+        MAX: 1000,
+        BATCH: 100
+      } // Mục tiêu 1k dòng cho Like/Share/Join, xóa 100 dòng
+    };
     
     // -------- KHAI BÁO CÁC PHẦN TỬ GIAO DIỆN (DOM ELEMENTS) (app.js) --------
     const chatDiv = document.getElementById('chat');
@@ -1041,6 +1046,7 @@
       actionsDiv.innerHTML = '';
       currentLiveDiv.innerHTML = '';
       stateText.innerHTML = '';
+      
       // Reset số liệu
       viewerCount = 0;
       likeCount = 0;
@@ -1048,7 +1054,6 @@
       updateRoomStats();
       //console.log("🧹 Đã dọn dẹp toàn bộ dữ liệu phiên cũ.");
     }
-
     
     // -------- UTILITY FUNCTIONS (app.js) --------
     /**
@@ -1058,6 +1063,7 @@
     function sanitize(text) {
       return text.replace(/</g, '&lt;');
     }
+    
     /**
      * Lấy thời gian hiện tại theo định dạng HH:MM:SS (Việt Nam)
      */
@@ -1076,7 +1082,7 @@
     }
     // console.log(fullTimestamp()); 
     // Ví dụ: "21/12/2025 21:37:08"
-        
+    
     /**
      * Cập nhật thống kê phòng live (viewers, likes, diamonds)
      * Hiển thị trên cùng 1 row thay vì column
@@ -1095,12 +1101,15 @@
      * @returns {string} HTML anchor tag
      */
     function generateUsernameLink(data) {
-      const id_user = data.uniqueId || data.display_id || "";
-      const name_user = data.nickname || data.displayName || "User";
+      if (!data) return "User";
+      // Thử tất cả các trường ID có thể tồn tại (SDK cũ và mới)
+      const id_user = data.uniqueId || data.displayId || data.display_id || data.userId || "";
+      // Ưu tiên Nickname, nếu không có thì dùng ID, cuối cùng là "User"
+      const name_user = data.nickname || data.displayName || id_user || "User";
       return `<a class="usernamelink" href="https://www.tiktok.com/@${id_user}" target="_blank"
       rel="noopener noreferrer" style="color: var(--name); text-decoration: none;">${name_user}</a>`;
     }
-
+    
     /**
      * Kiểm tra xem gift có đang chờ streak kết thúc không
      * @param {object} data - Dữ liệu gift
@@ -1109,7 +1118,7 @@
     function isPendingStreak(data) {
       return data.giftType === 1 && !data.repeatEnd;
     }
-
+    
     /**
      * Xóa các tin nhẵn cũ ở trên đầu
      */
@@ -1119,7 +1128,6 @@
         while (toRemove > 0 && container.children.length > 0) {
           // Xóa phần tử cũ nhất dựa trên hướng thêm vào
           const target = (direction === 'top') ? container.firstChild : container.lastChild;
-          
           if (target) {
             container.removeChild(target);
           } else {
@@ -1129,25 +1137,21 @@
         }
       }
     }
-
     // Khai báo biến từ điển quà tặng toàn cục
     let giftDictionaryMap = {};
     
     /**
-    * Tải từ điển quà tặng tiếng Việt từ file JSON
-    * Đảm bảo file vi-VN.json nằm trong thư mục public
-    */
+     * Tải từ điển quà tặng tiếng Việt từ file JSON
+     * Đảm bảo file vi-VN.json nằm trong thư mục public
+     */
     async function loadGiftDictionary() {
       try {
         // Fetch trực tiếp từ thư mục public
         const response = await fetch('./vi-VN.json');
-        
         if (!response.ok) {
           throw new Error(`Không thể tải file: ${response.statusText}`);
         }
-        
         const data = await response.json();
-        
         // Kiểm tra xem dữ liệu có phải là Object không trước khi gán
         if (data && typeof data === 'object') {
           giftDictionaryMap = data;
@@ -1193,7 +1197,6 @@
         });
       }
     }
-
     
     // -------- BUTTON HANDLERS (app.js) --------
     /**
@@ -1221,7 +1224,6 @@
         setTimeout(() => btn.textContent = originalText, 1500);
       });
     };
-
     
     // -------- TOGGLE VISIBILITY (app.js) --------
     /**
@@ -1235,7 +1237,7 @@
         t.style.display = showTimeEnabled ? 'inline' : 'none';
       });
     }
-   
+    
     /**
      * Khởi tạo trạng thái ban đầu của các checkbox
      */
@@ -1256,9 +1258,7 @@
         updateElementsVisibility();
       };
     }
-    
     setInitialDisplay();
-   
     
     // -------- THEME TOGGLE (app.js) --------
     // Light/Dark Mode
@@ -1266,7 +1266,6 @@
     themeCheckbox.onchange = (e) => {
       document.documentElement.classList.toggle('light', e.target.checked);
     };
-    
     
     // -------- RENDER CHAT FUNCTIONS (app.js) --------
     /**
@@ -1276,16 +1275,13 @@
      * @param {string} text - Nội dung tin nhắn
      * @param {string} color - Màu chữ (optional)
      */
-    function renderChat(data, text, color = '') {      
+    function renderChat(data, text, color = '') {
       // DEBUG: Log dữ liệu người chat và nội dung tin nhắn, // Clone để xem cấu trúc thật
       // console.log("💬 CHAT DATA:", { user: JSON.parse(JSON.stringify(data)), rawText: text });
-      
       checkAndCleanUI(chatDiv, UI_CONFIG.CHAT, 'top');
-      
       /**if (MAX_MESSAGES > 0 && chatDiv.children.length > MAX_MESSAGES) {
         Array.from(chatDiv.children).slice(0, 200).forEach(el => el.remove());
       }*/
-      
       const div = document.createElement('div');
       div.className = 'msg';
       const msgData = {
@@ -1293,7 +1289,7 @@
         time: getCurrentTime(),
         nickname: data.nickname || data.displayName || data.uniqueId,
         userId: data.uniqueId || data.userId,
-       // message: sanitize(text)
+        // message: sanitize(text)
         message: text
       };
       div.innerHTML = `
@@ -1358,28 +1354,22 @@
     function renderGift(data) {
       // DEBUG: Log dữ liệu Gift (Tên quà, ID quà, Diamond, Combo)
       // console.log("🎁 GIFT RECEIVED:", JSON.stringify(data, null, 2));
-
       // Tra cứu tên tiếng Việt từ từ điển dựa trên giftId
       const giftKey = `live_gift_${data.giftId}`;
       const giftNameVN = giftDictionaryMap[giftKey]; // KHÔNG để || data.giftName ở đây để logic dự phòng phía dưới chạy đúng
-      
       checkAndCleanUI(giftsDiv, UI_CONFIG.GIFTS, 'top');
-      
       /*if (MAX_GIFTS > 0 && giftsDiv.children.length > MAX_GIFTS) {
         Array.from(giftsDiv.children).slice(0, 100).forEach(el => el.remove());
       }*/
-      
       // Tạo unique ID cho streak (userId + giftId)
       const streakId = data.userId.toString() + '_' + data.giftId;
       const existingStreak = giftsDiv.querySelector(`[data-streakid="${streakId}"]`);
       const div = document.createElement('div');
       div.className = 'gift-item';
-      
       // Nếu gift đang pending streak, gắn data attribute để update sau
       if (isPendingStreak(data)) {
         div.setAttribute('data-streakid', streakId);
       }
-
       /*
       div.innerHTML = `
         <img class="avatar" src="${data.profilePictureUrl}" alt="${data.uniqueId}">
@@ -1397,17 +1387,13 @@
         </div>
       `;
       */
-
       // Nếu có giftNameVN thì hiện "đã gửi + tên", nếu không có thì hiện describe gốc
       // Nếu có giftNameVN → dùng tiếng Việt 
       // Nếu chưa có → fallback sang tên tiếng Anh
       // Nếu không dùng describe hoặc chuỗi mặc định
-
       // const displayDesc = giftNameVN ? 'đã gửi ${giftNameVN}' : (data.describe || 'đã gửi quà');
-      const giftDisplayName = giftNameVN || data.giftName || `Gift #${data.giftId}`;      
+      const giftDisplayName = giftNameVN || data.giftName || `Gift #${data.giftId}`;
       const displayDesc = `đã gửi ${giftDisplayName}`;
-      
-      
       div.innerHTML = `
         <img class="avatar" src="${data.profilePictureUrl}" alt="${data.uniqueId}">
         <div class="gift-details">
@@ -1423,7 +1409,6 @@
           </div>
         </div>
       `;
-      
       // Nếu đã có streak này, replace để update số lượng combo
       if (existingStreak) {
         existingStreak.replaceWith(div);
@@ -1445,9 +1430,7 @@
     function renderAction(data, text, color = '', isTemporary = false) {
       // DEBUG: Log các hành động hệ thống
       // console.log("⚡ ACTION EVENT:", { type: text, user: JSON.parse(JSON.stringify(data)), temp: isTemporary });
-
       checkAndCleanUI(actionsDiv, UI_CONFIG.ACTIONS, 'top');
-      
       /* if (MAX_MESSAGES > 0 && actionsDiv.children.length > MAX_MESSAGES) {
         Array.from(actionsDiv.children).slice(0, 200).forEach(el => el.remove());
       }*/
@@ -1460,7 +1443,6 @@
         document.querySelectorAll('#actions .temporary').forEach(el => el.remove());
       }
       */
-      
       const div = document.createElement('div');
       div.className = isTemporary ? 'action-item temporary' : 'action-item';
       const avatar = data.profilePictureUrl || `https://ui-avatars.com/api/?name=${data.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=128`;
@@ -1471,24 +1453,20 @@
           <span style="${color ? 'color:' + color : ''}">${sanitize(text)}</span>
         </div>
       `;
-
       // Thêm vào danh sách (Tin mới ở dưới cùng)
       actionsDiv.appendChild(div);
       scrollIfNeeded(actionsDiv.parentElement);
-
       // Xử lý xóa tự động cho tin Join
       if (isTemporary) {
         // Hiệu ứng mờ dần mượt mà
-        div.style.transition = 'opacity 1s ease'; 
+        div.style.transition = 'opacity 1s ease';
         div.style.opacity = '1';
-        
         setTimeout(() => {
           if (div.parentNode) {
             div.style.opacity = '0'; // Mờ dần trong 1s
-            
             setTimeout(() => {
               if (div.parentNode) div.remove(); // Xóa hẳn khỏi RAM
-            }, 1000); 
+            }, 1000);
           }
         }, 6000); // 6 giây đứng yên
       }
@@ -1517,8 +1495,10 @@
         // Lấy thông tin Streamer từ 'state' thay vì đợi sự kiện roomUser
         if (state.roomInfo && state.roomInfo.owner) {
           renderStreamerInfo(state.roomInfo.owner);
+        } else if (state.owner) {
+          renderStreamerInfo(state.owner);
         } else {
-          // Backup nếu SDK trả về cấu trúc phẳng
+          // Nếu là cấu trúc phẳng (server cũ), truyền cả object state
           renderStreamerInfo(state);
         }
         // Reset statistics khi kết nối mới
@@ -1553,21 +1533,32 @@
       // console.log("DỮ LIỆU STREAMER:", JSON.stringify(data, null, 2));
       if (!data) return;
       const displayName = data.nickname || data.displayName || 'Unknown';
-      const username = data.display_id || data.uniqueId || '';
+      const username = data.uniqueId || data.displayId || data.display_id || "";
       let avatarUrl = ""
       // Kiểm tra: hộp avatar_large tồn tại -> có danh sách url_list -> danh sách không rỗng
       if (data.avatar_large && data.avatar_large.url_list && data.avatar_large.url_list.length > 0) {
         // Lấy link ĐẦU TIÊN (index 0)
         avatarUrl = data.avatar_large.url_list[0];
+      } else {
+        avatarUrl = data.profilePictureUrl || "";
       }
       // Tạo Avatar nếu username trống, ui-avatars sẽ dùng name
       const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${data.uniqueId}&background=2196f3&color=fff&size=128`;
-      document.getElementById('currentLive').innerHTML = `
+      /*document.getElementById('currentLive').innerHTML = `
         <b style="color: var(--fg)">Live: </b>
         <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
         <b>${generateUsernameLink(data)}</b>
         <span style="color:#888;margin-left:4px">@${username}</span>
-      `;
+      `;*/
+      const container = document.getElementById('currentLive');
+      if (container) {
+        container.innerHTML = `
+        <b style="color: var(--fg)">Live: </b>
+        <img src="${avatar}" onerror="this.src='https://ui-avatars.com/api/?name=?'" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
+        <b>${generateUsernameLink(data)}</b>
+        <span style="color:#888;margin-left:4px">${username ? '@' + username : ''}</span>
+        `;
+      }
     }
     
     // -------- EVENT LISTENERS (app.js) --------
@@ -1597,7 +1588,7 @@
         renderStreamerInfo(msg.owner);
       }
     });*/
-
+    
     /**
      * Event: roomUser
      * Cập nhật số lượng người xem VÀ ghi nhận ID/Avatar khi VIP vào phòng
@@ -1607,18 +1598,16 @@
         viewerCount = msg.viewerCount;
         updateRoomStats();
       }
-
       // --- PHẦN THÊM VÀO ---
       // Nếu msg có thông tin người dùng (nickname hoặc uniqueId)
       // thì đó là một người cấp cao vừa join phòng mà 'member' bỏ sót.
       if (msg.uniqueId) {
-        // Chúng ta truyền msg vào để renderAction lấy avatar, nickname, uniqueId
+        // Truyền msg vào để renderAction lấy avatar, nickname, uniqueId
         // Dùng màu vàng (#f1c40f) để phân biệt với người thường join (#f39c12)
         // isTemporary = false để thông tin này không tự xóa nhanh như người thường
-        renderAction(msg, msg.label || 'đã xuất hiện!', '#f1c40f', false); 
+        renderAction(msg, msg.label || 'đã xuất hiện!', '#f1c40f', false);
       }
       // ---------------------
-
       if (msg.owner) {
         renderStreamerInfo(msg.owner);
       }
@@ -1636,23 +1625,20 @@
       if (joinMsgDelay > 1000) addDelay = 0;
       joinMsgDelay += addDelay;
       setTimeout(() => {
-        joinMsgDelay -= addDelay;        
-
+        joinMsgDelay -= addDelay;
         if (
           watchUsername &&
           msg.uniqueId?.toLowerCase() === watchUsername
-        ) {          
-          renderAction(msg, 'JOINED!','#ff0000', 
-                       false // không tự xóa
-                        );
+        ) {
+          renderAction(msg, 'JOINED!', '#ff0000',
+            false // không tự xóa
+          );
           showSpecialPopup(msg);
         }
-        
         // renderAction(msg, 'joined', '#21b2c2', true); // temporary = true
         renderAction(msg, 'joined', '#f39c12', true); // temporary = true
       }, joinMsgDelay);
     });
-    
     
     /**
      * Event: chat
@@ -1663,24 +1649,21 @@
       renderChat(msg, msg.comment);
     });
     */
-
+    
     /**
      * Event: chat
      * Tin nhắn chat mới từ viewers, lđể lấy icon team và biểu tượng hệ thống
      * CHỈ hiển thị trong cột CHAT
      */
-    
     connection.on('chat', (msg) => {
       // Lấy nội dung gốc
       let chatContent = msg.comment;
-      
       // Duyệt qua mảng emojis để lấy icon team và biểu tượng hệ thống
       if (msg.emojis && msg.emojis.length > 0) {
         msg.emojis.forEach(emoji => {
           if (emoji.image && emoji.image.url) {
             // Tạo thẻ img từ URL TikTok cung cấp
             const imgTag = `<img src="${emoji.image.url}" style="height:20px; vertical-align:middle; margin:0 2px;">`;
-            
             // Thay thế mã code hoặc nối thêm vào nội dung
             if (chatContent.includes(emoji.name)) {
               chatContent = chatContent.replaceAll(emoji.name, imgTag);
@@ -1690,11 +1673,9 @@
           }
         });
       }
-      
       // Truyền thẳng nội dung đã có thẻ <img> vào hàm render
       renderChat(msg, chatContent);
     });
-
     
     /**
      * Event: gift
@@ -1745,42 +1726,35 @@
     connection.on('streamEnd', () => {
       document.getElementById('stateText').textContent = 'Stream ended.';
     });
+    
     // -------- INITIALIZATION (app.js) --------
     // Khởi tạo room stats ban đầu
     updateRoomStats();
+    
     // ==========================================
     // END FILE: app.js
     // ==========================================
-
-
+    
     /* 24:02 ======================================
-   WATCH USER VIA HOTKEY (Ctrl+Shift+U)
-====================================== */
+    WATCH USER VIA HOTKEY (Ctrl+Shift+U)
+    ====================================== */
+    let watchUsername = '';
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+        openWatchInput();
+      }
+    });
 
-let watchUsername = '';
-
-document.addEventListener('keydown', function(e) {
-
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'u') {
-    e.preventDefault();
-    openWatchInput();
-  }
-
-});
-
-
-function openWatchInput() {
-
-  const oldOverlay = document.getElementById('watchUserOverlay');
-  if (oldOverlay) oldOverlay.remove();
-
-  const overlay = document.createElement('div');
-  overlay.id = 'watchUserOverlay';
-
-  overlay.innerHTML = `
-    <div class="watchBox">
+    function openWatchInput() {
+      const oldOverlay = document.getElementById('watchUserOverlay');
+      if (oldOverlay) oldOverlay.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'watchUserOverlay';
+      overlay.innerHTML = `
+      <div class="watchBox">
       <div class="watchBoxTitle">
-        Nhập Username hoặc link TikTok
+      Nhập Username hoặc link TikTok
       </div>
 
       <input 
@@ -1793,150 +1767,117 @@ function openWatchInput() {
 
       <div class="watchHint">
         Enter để lưu • ESC để đóng
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  const input = document.getElementById('watchUserField');
-  input.focus();
-
-  input.addEventListener('keydown', function(e) {
-
-    if (e.key === 'Enter') {
-      saveWatchUser(input.value);
-      overlay.remove();
+        </div>
+        </div>
+        `;
+      document.body.appendChild(overlay);
+      const input = document.getElementById('watchUserField');
+      input.focus();
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          saveWatchUser(input.value);
+          overlay.remove();
+        }
+        if (e.key === 'Escape') {
+          overlay.remove();
+        }
+      });
     }
 
-    if (e.key === 'Escape') {
-      overlay.remove();
+    function saveWatchUser(value) {
+      let cleaned = value.trim().toLowerCase();
+      if (!cleaned) return;
+      if (cleaned.includes('tiktok.com')) {
+        const match = cleaned.match(/@([a-z0-9._]+)/);
+        if (match && match[1]) {
+          cleaned = match[1];
+        }
+      }
+      if (cleaned.startsWith('@')) {
+        cleaned = cleaned.substring(1);
+      }
+      watchUsername = cleaned;
+      console.log("Log:", watchUsername);
     }
-
-  });
-
-}
-
-
-function saveWatchUser(value) {
-
-  let cleaned = value.trim().toLowerCase();
-  if (!cleaned) return;
-
-  if (cleaned.includes('tiktok.com')) {
-    const match = cleaned.match(/@([a-z0-9._]+)/);
-    if (match && match[1]) {
-      cleaned = match[1];
-    }
-  }
-
-  if (cleaned.startsWith('@')) {
-    cleaned = cleaned.substring(1);
-  }
-
-  watchUsername = cleaned;
-
-  console.log("Log:", watchUsername);
-}
-
-
-/* ======================================
-   SPECIAL USER POPUP
-====================================== */
-
-function showSpecialPopup(userData) {
-
-  const popup = document.createElement('div');
-  popup.className = 'specialPopup';
-
-  // Xếp chồng popup
-  const existingPopups = document.querySelectorAll('.specialPopup');
-  popup.style.top = (20 + existingPopups.length * 110) + 'px';
-  
-  const avatar = userData.profilePictureUrl ||
-    `https://ui-avatars.com/api/?name=${userData.uniqueId}&background=ff0000&color=fff&size=128`;
-
-  const displayName = userData.nickname || userData.displayName || "User";
-  const username = userData.uniqueId || "";
-
-  popup.innerHTML = `
-    <span class="popupClose">✕</span>
-    <img src="${avatar}">
-    <div class="popupContent">
-      <a href="https://www.tiktok.com/@${username}" target="_blank">
-        ${displayName}
-      </a>
-      <div class="popupTime">
-        Time: ${getCurrentTime()}
-      </div>
-    </div>
-  `;
-
-  popup.querySelector('.popupClose').onclick = function(e) {
-    e.stopPropagation();
-    popup.remove();
-    repositionPopups();
-  };
-
-  document.body.appendChild(popup);
-  enablePopupDrag(popup);
-}
-
-
-function repositionPopups() {
-  const popups = document.querySelectorAll('.specialPopup');
-  popups.forEach((el, index) => {
-    el.style.top = (20 + index * 110) + 'px';
-  });
-}
-
-    /* ===============================
-   DRAG & DROP FOR SPECIAL POPUP
-================================ */
-
-function enablePopupDrag(popup) {
-
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-
-  popup.addEventListener('mousedown', function(e) {
-
-    // Không drag khi click nút đóng
-    if (e.target.classList.contains('popupClose')) return;
-
-    isDragging = true;
-    popup.classList.add('dragging');
-
-    const rect = popup.getBoundingClientRect();
-
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-
-    // Khi bắt đầu kéo -> bỏ right để dùng left
-    popup.style.right = 'auto';
-    popup.style.left = rect.left + 'px';
-    popup.style.top = rect.top + 'px';
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-
-  function onMouseMove(e) {
-    if (!isDragging) return;
-
-    popup.style.left = (e.clientX - offsetX) + 'px';
-    popup.style.top = (e.clientY - offsetY) + 'px';
-  }
-
-  function onMouseUp() {
-    isDragging = false;
-    popup.classList.remove('dragging');
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-  }
-}
     
+    /* ======================================
+    SPECIAL USER POPUP
+    ====================================== */
+    function showSpecialPopup(userData) {
+      const popup = document.createElement('div');
+      popup.className = 'specialPopup';
+      // Xếp chồng popup
+      const existingPopups = document.querySelectorAll('.specialPopup');
+      popup.style.top = (20 + existingPopups.length * 110) + 'px';
+      const avatar = userData.profilePictureUrl ||
+        `https://ui-avatars.com/api/?name=${userData.uniqueId}&background=ff0000&color=fff&size=128`;
+      const displayName = userData.nickname || userData.displayName || "User";
+      const username = userData.uniqueId || "";
+      popup.innerHTML = `
+      <span class="popupClose">✕</span>
+      <img src="${avatar}">
+      <div class="popupContent">
+      <a href="https://www.tiktok.com/@${username}" target="_blank">
+      ${displayName}
+      </a>
+      
+      <div class="popupTime">
+      Time: ${getCurrentTime()}
+      </div>
+      </div>
+      `;
+      popup.querySelector('.popupClose').onclick = function(e) {
+        e.stopPropagation();
+        popup.remove();
+        repositionPopups();
+      };
+      document.body.appendChild(popup);
+      enablePopupDrag(popup);
+    }
+
+    function repositionPopups() {
+      const popups = document.querySelectorAll('.specialPopup');
+      popups.forEach((el, index) => {
+        el.style.top = (20 + index * 110) + 'px';
+      });
+    }
+    
+    /* ===============================
+    DRAG & DROP FOR SPECIAL POPUP
+    ================================ */
+    function enablePopupDrag(popup) {
+      let isDragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+      popup.addEventListener('mousedown', function(e) {
+        // Không drag khi click nút đóng
+        if (e.target.classList.contains('popupClose')) return;
+        isDragging = true;
+        popup.classList.add('dragging');
+        const rect = popup.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        // Khi bắt đầu kéo -> bỏ right để dùng left
+        popup.style.right = 'auto';
+        popup.style.left = rect.left + 'px';
+        popup.style.top = rect.top + 'px';
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+
+      function onMouseMove(e) {
+        if (!isDragging) return;
+        popup.style.left = (e.clientX - offsetX) + 'px';
+        popup.style.top = (e.clientY - offsetY) + 'px';
+      }
+
+      function onMouseUp() {
+        isDragging = false;
+        popup.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+    }
   </script>
 </body>
 
