@@ -1461,7 +1461,17 @@
      * data chứa: uniqueId, nickname, profilePictureUrl
      */
     function renderStreamerInfo(user) {
-      if (!user) return;
+      //if (!user) return;
+
+      if (!user) {
+    console.error("Hàm renderStreamerInfo nhận dữ liệu rỗng (user là null/undefined)!");
+    return;
+  }
+  
+  console.log("Dữ liệu user nhận được hợp lệ:", user);
+  console.log("Phần tử HTML 'currentLive':", document.getElementById('currentLive'));
+
+      
       // Lấy username (ưu tiên display_id theo biến thực tế của bạn, rồi đến uniqueId)
       const username = user.display_id || user.uniqueId || user.username || '';
       const displayName = user.nickname || user.displayName || 'Unknown';
