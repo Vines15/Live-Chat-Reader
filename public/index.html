@@ -1452,14 +1452,14 @@
      * @param {object} data - Dữ liệu streamer
      * data chứa: uniqueId, nickname, profilePictureUrl
      */
-    function renderStreamerInfo(hostData) {
+    /*function renderStreamerInfo(hostData) {
       // if (!data || (!data.nickname && !data.uniqueId)) return;
       // console.log("DỮ LIỆU STREAMER:", JSON.stringify(data, null, 2));
       if (!hostData) return;
       const user = hostData.roomInfo?.owner || hostData.owner || hostData;
       const username = user.display_id || user.uniqueId || user.username || '';
       const displayName = user.nickname || user.displayName || 'Unknown';
-      const avatarUrl = user.avatar_large?.url_list?.[0] ??
+      const avatar = user.avatar_large?.url_list?.[0] ??
         user.avatar_medium?.url_list?.[0] ??
         user.avatar_thumb?.url_list?.[0] ??
         user.profilePictureUrl ??
@@ -1474,7 +1474,63 @@
         <b>${generateUsernameLink(data)}</b>
         <span style="color:#888;margin-left:4px">@${username}</span>
       `;
+    }*/
+
+    function renderStreamerInfo(hostData) {
+  if (!hostData) return;
+
+  // === ĐOẠN DEBUG TỰ ĐỘNG QUÉT DỮ LIỆU ===
+  // Hàm này sẽ tự lùng sục mọi ngóc ngách trong object để tìm ID và Name của Streamer
+  function findProperty(obj, keys) {
+    if (!obj || typeof obj !== 'object') return null;
+    for (let key of keys) {
+      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+        return obj[key];
+      }
     }
+    for (let key in obj) {
+      let result = findProperty(obj[key], keys);
+      if (result) return result;
+    }
+    return null;
+  }
+
+  // 1. Tự động dò tìm thông tin dựa trên tất cả các biến thể trường có thể xuất hiện
+  const username = findProperty(hostData, ['display_id', 'uniqueId', 'username', 'id']) || '';
+  const displayName = findProperty(hostData, ['nickname', 'displayName', 'title', 'name']) || 'Unknown';
+  
+  // 2. Tìm avatar (Ưu tiên url_list, nếu không quét sâu tìm bất kỳ link ảnh nào)
+  let avatarUrl = "";
+  const foundAvatarObj = hostData.roomInfo?.owner?.avatar_large || hostData.owner?.avatar_large || hostData.avatar_large;
+  if (foundAvatarObj?.url_list?.[0]) {
+    avatarUrl = foundAvatarObj.url_list[0];
+  } else {
+    avatarUrl = findProperty(hostData, ['profilePictureUrl', 'avatar_url', 'avatar']) || '';
+  }
+
+  // Nếu không quét được ảnh thì dùng ảnh chữ dự phòng
+  const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+
+  // 3. Đóng gói dữ liệu để truyền vào hàm tạo link của bạn
+  const formattedData = {
+    uniqueId: username,
+    nickname: displayName
+  };
+
+  // 4. In ra Console để bạn kiểm tra xem cấu trúc thực tế là gì
+  console.log("=== KẾT QUẢ DÒ TÌM STREAMER ===");
+  console.log("Tìm thấy Username:", username);
+  console.log("Tìm thấy DisplayName:", displayName);
+  console.log("Dữ liệu gốc nhận được:", hostData);
+
+  // 5. Render ra màn hình
+  document.getElementById('currentLive').innerHTML = `
+    <b style="color: var(--fg)">Live: </b>
+    <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle" alt="${displayName}">
+    <b>${generateUsernameLink(formattedData)}</b>
+    <span style="color:#888;margin-left:4px">@${username}</span>
+  `;
+}
     // -------- EVENT LISTENERS (app.js) --------
     // Click button Connect
     document.getElementById('connect').onclick = connect;
