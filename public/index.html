@@ -6,8 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ <!-- <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script> -->
   <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
 
   <title>Live Chat Reader</title>
@@ -1476,41 +1476,69 @@
       `;
     }*/
 
+
     function renderStreamerInfo(hostData) {
   if (!hostData) return;
 
-  // Đi sâu vào tầng chứa dữ liệu streamer của bạn
-  const user = hostData.roomInfo?.owner || hostData.owner || hostData;
-
-  // Lấy chính xác uniqueId và nickname
-  const username = user.uniqueId || user.display_id || user.username || '';
-  const displayName = user.nickname || user.displayName || 'Unknown';
-  
-  // Trích xuất ảnh đại diện
+  let username = "";
+  let displayName = "";
   let avatarUrl = "";
-  if (user.avatar_large?.url_list?.[0]) {
-    avatarUrl = user.avatar_large.url_list[0];
-  } else if (user.avatar_medium?.url_list?.[0]) {
-    avatarUrl = user.avatar_medium.url_list[0];
-  } else if (user.avatar_thumb?.url_list?.[0]) {
-    avatarUrl = user.avatar_thumb.url_list[0];
-  } else if (user.profilePictureUrl) {
-    avatarUrl = user.profilePictureUrl;
+
+  // BỘ QUÉT TỰ ĐỘNG TOÀN DIỆN (Lục tìm mọi ngóc ngách dữ liệu)
+  function deepExtract(obj) {
+    if (!obj || typeof obj !== 'object') return;
+
+    // 1. Nếu va phải mảng url_list (đặc trưng chứa ảnh của TikTok), lấy luôn phần tử đầu làm avatar
+    if (Array.isArray(obj.url_list) && obj.url_list.length > 0 && !avatarUrl) {
+      avatarUrl = obj.url_list[0];
+    }
+
+    for (let key in obj) {
+      const val = obj[key];
+
+      if (typeof val === 'string' && val.trim() !== '') {
+        // Tìm uniqueId (Thường không chứa dấu cách, không có dấu tiếng Việt, có thể có dấu chấm/gạch dưới)
+        if ((key === 'uniqueId' || key === 'display_id' || key === 'username') && !username) {
+          username = val;
+        }
+        // Tìm nickname/displayName (Bỏ qua nếu gặp chữ "Unknown")
+        else if ((key === 'nickname' || key === 'displayName' || key === 'title') && !displayName && val !== 'Unknown') {
+          displayName = val;
+        }
+        // Tìm avatar từ chuỗi URL trực tiếp nếu chưa lấy được từ url_list
+        else if (!avatarUrl && (val.startsWith('http://') || val.startsWith('https://'))) {
+          if (val.includes('p16') || val.includes('avatar') || val.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
+            avatarUrl = val;
+          }
+        }
+      } 
+      // Nếu là object lồng nhau hoặc mảng, tiếp tục đào sâu xuống
+      else if (typeof val === 'object') {
+        deepExtract(val);
+      }
+    }
   }
 
+  // Chạy bộ quét trên toàn bộ cục hostData truyền vào
+  deepExtract(hostData);
+
+  // Sửa lỗi nếu quét sâu mà vẫn không ra (Đặt giá trị mặc định chuẩn)
+  username = username || "";
+  displayName = displayName || "Unknown Streamer";
   const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
 
-  // Chuyển đổi tên biến thành data theo yêu cầu của bạn
+  // Đóng gói đối tượng data theo đúng yêu cầu của bạn
   const data = {
     uniqueId: username,
     nickname: displayName
   };
 
-  // IN RA CONSOLE ĐỂ KIỂM TRA LỖI TRẢ VỀ CỦA OBJECT DATA
-  console.log("=== KIỂM TRA OBJECT DATA TRUYỀN VÀO GENERATE LINK ===");
-  console.log(data);
+  // IN LẠI CONSOLE ĐỂ THEO DÕI KẾT QUẢ QUÉT THỰC TẾ
+  console.log("=== KẾT QUẢ SAU KHI DÙNG BỘ QUÉT SÂU TOÀN DIỆN ===");
+  console.log("Data truyền vào link:", data);
+  console.log("Avatar tìm được:", avatarUrl);
 
-  // Cập nhật giao diện với biến data mới
+  // Tiến hành render ra giao diện
   document.getElementById('currentLive').innerHTML = `
     <b style="color: var(--fg)">Live: </b>
     <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle" alt="${displayName}">
@@ -1518,6 +1546,8 @@
     <span style="color:#888;margin-left:4px">@${username}</span>
   `;
 }
+
+    
     // -------- EVENT LISTENERS (app.js) --------
     // Click button Connect
     document.getElementById('connect').onclick = connect;
