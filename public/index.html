@@ -830,7 +830,7 @@
     </div>
     <div class="state-section">
       <div id="roomStats">
-        Chờ kết nối...
+        <!-- Chờ kết nối... -->
       </div>
     </div>
   </div>
@@ -1421,7 +1421,7 @@
       resetUI();
       document.getElementById('stateText').textContent = 'Đang kết nối...';
       // Kết nối với enableExtendedGiftInfo để lấy thông tin gift đầy đủ
-      let options = {};
+      let options = {enableExtendedGiftInfo: true};
       connection.connect(uniqueId, options).then(state => {
         // Kết nối thành công
         document.getElementById('stateText').textContent = `Connected to roomId: ${state.roomId}`;
