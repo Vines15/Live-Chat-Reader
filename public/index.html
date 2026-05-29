@@ -1430,20 +1430,29 @@
         document.getElementById('stateText').textContent = `Connected to roomId: ${roomInfo.roomId}`;
         let ownerData = null;
         // Lấy thông tin Streamer từ 'roomInfo'
+        
         if (roomInfo) {
-          if (roomInfo.data && roomInfo.data.owner) {
-            ownerData = roomInfo.data.owner;
-          } else if (roomInfo.owner) {
-            ownerData = roomInfo.owner;
-          } else if (roomInfo.roomInfo && roomInfo.roomInfo.owner) {
-            ownerData = roomInfo.roomInfo.owner;
-          }
-        }
-        if (ownerData) {
-          renderStreamerInfo(ownerData);
-        } else {
-          console.error("Không tìm thấy thông tin Streamer trong roomInfo:", roomInfo);
-        }
+    if (roomInfo.roomInfo) {
+      if (roomInfo.roomInfo.data && roomInfo.roomInfo.data.owner) {
+        ownerData = roomInfo.roomInfo.data.owner; 
+      } else if (roomInfo.roomInfo.owner) {
+        ownerData = roomInfo.roomInfo.owner;
+      }
+    } else if (roomInfo.data && roomInfo.data.owner) {
+      ownerData = roomInfo.data.owner;
+    } else if (roomInfo.owner) {
+      ownerData = roomInfo.owner;
+    }
+  }
+
+  
+  if (ownerData) {
+    console.log("Đã tìm thấy ownerData:", ownerData); 
+    renderStreamerInfo(ownerData);
+  } else {
+    console.error("Không tìm thấy thông tin Streamer trong roomInfo:", roomInfo);
+  }
+        
         // Reset statistics khi kết nối mới
         viewerCount = 0;
         likeCount = 0;
