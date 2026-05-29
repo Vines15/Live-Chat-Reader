@@ -1419,7 +1419,7 @@
       // Reset UI
       resetUI();
       document.getElementById('stateText').textContent = 'Đang kết nối...';
-      // Kết nối với enableExtendedGiftInfo để lấy thông tin gift đầy đủ
+      
       let options = {
         enableExtendedGiftInfo: true,
         fetchRoomInfoOnConnect: true,
@@ -1428,13 +1428,21 @@
       connection.connect(uniqueId, options).then(roomInfo => {
         // Kết nối thành công
         document.getElementById('stateText').textContent = `Connected to roomId: ${roomInfo.roomId}`;
+        let ownerData = null;
         // Lấy thông tin Streamer từ 'roomInfo'
-        if (roomInfo && roomInfo.owner) {
-          renderStreamerInfo(roomInfo.owner);
-        } else if (roomInfo && roomInfo.roomInfo && roomInfo.roomInfo.owner) {
-          renderStreamerInfo(roomInfo.roomInfo.owner);
+        if (roomInfo) {
+          if (roomInfo.data && roomInfo.data.owner) {
+            ownerData = roomInfo.data.owner;
+          } else if (roomInfo.owner) {
+            ownerData = roomInfo.owner;
+          } else if (roomInfo.roomInfo && roomInfo.roomInfo.owner) {
+            ownerData = roomInfo.roomInfo.owner;
+          }
+        }
+        if (ownerData) {
+          renderStreamerInfo(ownerData);
         } else {
-          renderStreamerInfo(roomInfo);
+          console.error("Không tìm thấy thông tin Streamer trong roomInfo:", roomInfo);
         }
         // Reset statistics khi kết nối mới
         viewerCount = 0;
@@ -1452,11 +1460,12 @@
      * @param {object} hostData - Dữ liệu streamer
      * data chứa: uniqueId, nickname, profilePictureUrl
      */
-    /*function renderStreamerInfo(hostData) {
-      if (!hostData || !hostData.roomInfo || !hostData.roomInfo.owner) return;
-      const user = hostData.roomInfo.owner;
-      const username = user.uniqueId || user.display_id || user.username || '';
+    function renderStreamerInfo(user) {
+      if (!user) return;
+      // Lấy username (ưu tiên display_id theo biến thực tế của bạn, rồi đến uniqueId)
+      const username = user.display_id || user.uniqueId || user.username || '';
       const displayName = user.nickname || user.displayName || 'Unknown';
+      // Lấy avatar theo thứ tự ưu tiên từ lớn đến nhỏ, dùng Optional Chaining (?.) để tránh crash code
       const avatar = user.avatar_large?.url_list?.[0] ??
         user.avatar_medium?.url_list?.[0] ??
         user.avatar_thumb?.url_list?.[0] ??
@@ -1471,78 +1480,69 @@
     <b>${generateUsernameLink(data)}</b>
     <span style="color:#888;margin-left:4px">@${username}</span>
   `;
-    }*/
-
-    function renderStreamerInfo(hostData) {
-  if (!hostData) return;
-
-  let username = "";
-  let displayName = "";
-  let avatarUrl = "";
-
-  // BỘ QUÉT TỰ ĐỘNG TOÀN DIỆN (Lục tìm mọi ngóc ngách dữ liệu)
-  function deepExtract(obj) {
-    if (!obj || typeof obj !== 'object') return;
-
-    // 1. Nếu va phải mảng url_list (đặc trưng chứa ảnh của TikTok), lấy luôn phần tử đầu làm avatar
-    if (Array.isArray(obj.url_list) && obj.url_list.length > 0 && !avatarUrl) {
-      avatarUrl = obj.url_list[0];
     }
 
-    for (let key in obj) {
-      const val = obj[key];
-
-      if (typeof val === 'string' && val.trim() !== '') {
-        // Tìm uniqueId (Thường không chứa dấu cách, không có dấu tiếng Việt, có thể có dấu chấm/gạch dưới)
-        if ((key === 'uniqueId' || key === 'display_id' || key === 'username') && !username) {
-          username = val;
+    /*function renderStreamerInfo(hostData) {
+      if (!hostData) return;
+      let username = "";
+      let displayName = "";
+      let avatarUrl = "";
+      // BỘ QUÉT TỰ ĐỘNG TOÀN DIỆN (Lục tìm mọi ngóc ngách dữ liệu)
+      function deepExtract(obj) {
+        if (!obj || typeof obj !== 'object') return;
+        // 1. Nếu va phải mảng url_list (đặc trưng chứa ảnh của TikTok), lấy luôn phần tử đầu làm avatar
+        if (Array.isArray(obj.url_list) && obj.url_list.length > 0 && !avatarUrl) {
+          avatarUrl = obj.url_list[0];
         }
-        // Tìm nickname/displayName (Bỏ qua nếu gặp chữ "Unknown")
-        else if ((key === 'nickname' || key === 'displayName' || key === 'title') && !displayName && val !== 'Unknown') {
-          displayName = val;
-        }
-        // Tìm avatar từ chuỗi URL trực tiếp nếu chưa lấy được từ url_list
-        else if (!avatarUrl && (val.startsWith('http://') || val.startsWith('https://'))) {
-          if (val.includes('p16') || val.includes('avatar') || val.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
-            avatarUrl = val;
+        for (let key in obj) {
+          const val = obj[key];
+          if (typeof val === 'string' && val.trim() !== '') {
+            // Tìm uniqueId (Thường không chứa dấu cách, không có dấu tiếng Việt, có thể có dấu chấm/gạch dưới)
+            if ((key === 'uniqueId' || key === 'display_id' || key === 'username') && !username) {
+              username = val;
+            }
+            // Tìm nickname/displayName (Bỏ qua nếu gặp chữ "Unknown")
+            else if ((key === 'nickname' || key === 'displayName' || key === 'title') && !displayName && val !== 'Unknown') {
+              displayName = val;
+            }
+            // Tìm avatar từ chuỗi URL trực tiếp nếu chưa lấy được từ url_list
+            else if (!avatarUrl && (val.startsWith('http://') || val.startsWith('https://'))) {
+              if (val.includes('p16') || val.includes('avatar') || val.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
+                avatarUrl = val;
+              }
+            }
+          }
+          // Nếu là object lồng nhau hoặc mảng, tiếp tục đào sâu xuống
+          else if (typeof val === 'object') {
+            deepExtract(val);
           }
         }
-      } 
-      // Nếu là object lồng nhau hoặc mảng, tiếp tục đào sâu xuống
-      else if (typeof val === 'object') {
-        deepExtract(val);
       }
-    }
-  }
-
-  // Chạy bộ quét trên toàn bộ cục hostData truyền vào
-  deepExtract(hostData);
-
-  // Sửa lỗi nếu quét sâu mà vẫn không ra (Đặt giá trị mặc định chuẩn)
-  username = username || "";
-  displayName = displayName || "Unknown Streamer";
-  const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
-
-  // Đóng gói đối tượng data theo đúng yêu cầu của bạn
-  const data = {
-    uniqueId: username,
-    nickname: displayName
-  };
-
-  // IN LẠI CONSOLE ĐỂ THEO DÕI KẾT QUẢ QUÉT THỰC TẾ
-  console.log("=== KẾT QUẢ SAU KHI DÙNG BỘ QUÉT SÂU TOÀN DIỆN ===");
-  console.log("Data truyền vào link:", data);
-  console.log("Avatar tìm được:", avatarUrl);
+      // Chạy bộ quét trên toàn bộ cục hostData truyền vào
+      deepExtract(hostData);
+      // Sửa lỗi nếu quét sâu mà vẫn không ra (Đặt giá trị mặc định chuẩn)
+      username = username || "";
+      displayName = displayName || "Unknown Streamer";
+      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+      // Đóng gói đối tượng data theo đúng yêu cầu của bạn
+      const data = {
+        uniqueId: username,
+        nickname: displayName
+      };
+      // IN LẠI CONSOLE ĐỂ THEO DÕI KẾT QUẢ QUÉT THỰC TẾ
+      console.log("=== KẾT QUẢ SAU KHI DÙNG BỘ QUÉT SÂU TOÀN DIỆN ===");
+      console.log("Data truyền vào link:", data);
+      console.log("Avatar tìm được:", avatarUrl);
       console.log("Cấu trúc gốc của hostData là:", hostData);
-
-  // Tiến hành render ra giao diện
-  document.getElementById('currentLive').innerHTML = `
+      // Tiến hành render ra giao diện
+      document.getElementById('currentLive').innerHTML = `
     <b style="color: var(--fg)">Live: </b>
     <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle" alt="${displayName}">
     <b>${generateUsernameLink(data)}</b>
     <span style="color:#888;margin-left:4px">@${username}</span>
   `;
-}
+    }
+    */
     
     // -------- EVENT LISTENERS (app.js) --------
     // Click button Connect
