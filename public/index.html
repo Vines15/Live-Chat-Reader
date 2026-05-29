@@ -1456,17 +1456,14 @@
       // if (!data || (!data.nickname && !data.uniqueId)) return;
       // console.log("DỮ LIỆU STREAMER:", JSON.stringify(data, null, 2));
       if (!hostData) return;
-      const username = hostData.uniqueId || '';
-      const displayName = hostData.nickname || 'Unknown';
-      let avatarUrl = ""
-      // Bóc tách avatar từ hostData
-      if (hostData.avatar_large && hostData.avatar_large.url_list && hostData.avatar_large.url_list.length > 0) {
-        avatarUrl = hostData.avatar_large.url_list[0];
-      } else if (hostData.profilePictureUrl) {
-        avatarUrl = hostData.profilePictureUrl;
-      }
-      // Ảnh dự phòng nếu không lấy được avatar từ TikTok
-      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+      const user = hostData.roomInfo?.owner || hostData.owner || hostData;
+      const username = user.display_id || user.uniqueId || user.username || '';
+      const displayName = user.nickname || user.displayName || 'Unknown';
+      const avatarUrl = user.avatar_large?.url_list?.[0] ??
+        user.avatar_medium?.url_list?.[0] ??
+        user.avatar_thumb?.url_list?.[0] ??
+        user.profilePictureUrl ??
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
       const data = {
         uniqueId: username,
         nickname: displayName
