@@ -814,9 +814,9 @@
 </head>
 
 <body>
-  <header><input id="username" placeholder="TikTok username">
+  <header><input id="username" placeholder="@LiveID">
     <button id="connect">Connect</button>
-    <button id="copyAll">Copy</button>
+    <!-- <button id="copyAll">Copy</button>-->
     <button id="clear">Clear</button>
     <label> <input type="checkbox" id="showId"> <span>ID</span> </label>
     <label> <input type="checkbox" id="hideTime"> <span>Time</span> </label>
@@ -874,72 +874,59 @@
      * Hỗ trợ tự động reconnect khi mất kết nối
      */
     class TikTokIOConnection {
-    constructor(backendUrl) {
+      constructor(backendUrl) {
         this.socket = io(backendUrl);
         this.uniqueId = null;
         this.options = null;
-
         this.socket.on('connect', () => {
-            console.info("Socket connected!");
-
-            // Reconnect to streamer if uniqueId already set (socket.io transport reconnect)
-            if (this.uniqueId) {
-                this.socket.emit('setUniqueId', this.uniqueId, this.options);
-            }
+          console.info("Socket connected!");
+          // Reconnect to streamer if uniqueId already set (socket.io transport reconnect)
+          if (this.uniqueId) {
+            this.socket.emit('setUniqueId', this.uniqueId, this.options);
+          }
         })
-
         this.socket.on('disconnect', () => console.warn("Socket disconnected!"))
-
         this.socket.on('streamEnd', () => {
-            console.warn("LIVE has ended!");
-            this.uniqueId = null;
+          console.warn("LIVE has ended!");
+          this.uniqueId = null;
         })
-
         this.socket.on('tiktokDisconnected', (errMsg) => {
-            console.warn(errMsg);
-            if (errMsg && errMsg.includes('LIVE has ended')) {
-                this.uniqueId = null;
-            }
+          console.warn(errMsg);
+          if (errMsg && errMsg.includes('LIVE has ended')) {
+            this.uniqueId = null;
+          }
         });
-    }
-
-    connect(uniqueId, options) {
+      }
+      connect(uniqueId, options) {
         this.uniqueId = uniqueId;
         this.options = options || {};
-
         // Clean up stale listeners from any previous connect() call
         this.socket.off('tiktokConnected');
         this.socket.off('tiktokDisconnected');
-
         // Re-add the permanent tiktokDisconnected handler
         this.socket.on('tiktokDisconnected', (errMsg) => {
-            console.warn(errMsg);
-            if (errMsg && errMsg.includes('LIVE has ended')) {
-                this.uniqueId = null;
-            }
+          console.warn(errMsg);
+          if (errMsg && errMsg.includes('LIVE has ended')) {
+            this.uniqueId = null;
+          }
         });
-
         this.socket.emit('setUniqueId', this.uniqueId, this.options);
-
         return new Promise((resolve, reject) => {
-            this.socket.once('tiktokConnected', resolve);
-            this.socket.once('tiktokDisconnected', reject);
-
-            setTimeout(() => {
-                reject('Connection Timeout');
-            }, 15000)
+          this.socket.once('tiktokConnected', resolve);
+          this.socket.once('tiktokDisconnected', reject);
+          setTimeout(() => {
+            reject('Connection Timeout');
+          }, 15000)
         })
-    }
-
-    disconnect() {
+      }
+      disconnect() {
         this.uniqueId = null;
         this.socket.emit('disconnect_tiktok');
-    }
-
-    on(eventName, eventHandler) {
+      }
+      on(eventName, eventHandler) {
         this.socket.on(eventName, eventHandler);
+      }
     }
-}
     // ==========================================
     // END FILE: connection.js
     // ==========================================
@@ -1054,7 +1041,6 @@
     // Ví dụ: "21/12/2025 21:37:08"
     /**
      * Cập nhật thống kê phòng live (viewers, likes, diamonds)
-     * Hiển thị trên cùng 1 row thay vì column
      */
     function updateRoomStats() {
       document.getElementById('roomStats').innerHTML = `
@@ -1069,10 +1055,10 @@
      * @returns {string} HTML anchor tag
      */
     function generateUsernameLink(data) {
-      const id_user = data.uniqueId || data.display_id || "";
-      const name_user = data.nickname || data.displayName || "User";
-      return `<a class="usernamelink" href="https://www.tiktok.com/@${id_user}" target="_blank"
-      rel="noopener noreferrer" style="color: var(--name); text-decoration: none;">${name_user}</a>`;
+      const userId = data.uniqueId || "";
+      const userName = data.nickname || data.displayName || "User";
+      return `<a class="usernamelink" href="https://www.tiktok.com/@${userId}" target="_blank"
+      rel="noopener noreferrer" style="color: var(--name); text-decoration: none;">${userName}</a>`;
     }
     /**
      * Kiểm tra xem gift có đang chờ streak kết thúc không
@@ -1434,16 +1420,21 @@
       resetUI();
       document.getElementById('stateText').textContent = 'Đang kết nối...';
       // Kết nối với enableExtendedGiftInfo để lấy thông tin gift đầy đủ
-      let options = {enableExtendedGiftInfo: true};
-      connection.connect(uniqueId, options).then(state => {
+      let options = {
+        enableExtendedGiftInfo: true,
+        fetchRoomInfoOnConnect: true,
+        enableWebcastResponseAndRawData: true
+      };
+      connection.connect(uniqueId, options).then(roomInfo => {
         // Kết nối thành công
-        document.getElementById('stateText').textContent = `Connected to roomId: ${state.roomId}`;
-        // Lấy thông tin Streamer từ 'state' thay vì đợi sự kiện roomUser
-        if (state.roomInfo && state.roomInfo.owner) {
-          renderStreamerInfo(state.roomInfo.owner);
+        document.getElementById('stateText').textContent = `Connected to roomId: ${roomInfo.roomId}`;
+        // Lấy thông tin Streamer từ 'roomInfo'
+        if (roomInfo && roomInfo.owner) {
+          renderStreamerInfo(roomInfo.owner);
+        } else if (roomInfo && roomInfo.roomInfo && roomInfo.roomInfo.owner) {
+          renderStreamerInfo(roomInfo.roomInfo.owner);
         } else {
-          // Backup nếu SDK trả về cấu trúc phẳng
-          renderStreamerInfo(state);
+          renderStreamerInfo(roomInfo);
         }
         // Reset statistics khi kết nối mới
         viewerCount = 0;
@@ -1461,20 +1452,25 @@
      * @param {object} data - Dữ liệu streamer
      * data chứa: uniqueId, nickname, profilePictureUrl
      */
-    function renderStreamerInfo(data) {
+    function renderStreamerInfo(hostData) {
       // if (!data || (!data.nickname && !data.uniqueId)) return;
       // console.log("DỮ LIỆU STREAMER:", JSON.stringify(data, null, 2));
-      if (!data) return;
-      const displayName = data.nickname || 'Unknown';
-      const username = data.uniqueId || '';
+      if (!hostData) return;
+      const username = hostData.uniqueId || '';
+      const displayName = hostData.nickname || 'Unknown';
       let avatarUrl = ""
-      // Kiểm tra: hộp avatar_large tồn tại -> có danh sách url_list -> danh sách không rỗng
-      if (data.avatar_large && data.avatar_large.url_list && data.avatar_large.url_list.length > 0) {
-        // Lấy link ĐẦU TIÊN (index 0)
-        avatarUrl = data.avatar_large.url_list[0];
+      // Bóc tách avatar từ hostData
+      if (hostData.avatar_large && hostData.avatar_large.url_list && hostData.avatar_large.url_list.length > 0) {
+        avatarUrl = hostData.avatar_large.url_list[0];
+      } else if (hostData.profilePictureUrl) {
+        avatarUrl = hostData.profilePictureUrl;
       }
-      // Tạo Avatar nếu username trống, ui-avatars sẽ dùng name
-      const avatar = avatarUrl || data.profilePictureUrl || `https://ui-avatars.com/api/?name=${data.uniqueId}&background=2196f3&color=fff&size=128`;
+      // Ảnh dự phòng nếu không lấy được avatar từ TikTok
+      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+      const data = {
+        uniqueId: username,
+        nickname: displayName
+      };
       document.getElementById('currentLive').innerHTML = `
         <b style="color: var(--fg)">Live: </b>
         <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
@@ -1628,18 +1624,21 @@
      * Hiển thị trong cột ACTIONS với màu khác nhau
      */
     connection.on('follow', (data) => {
-      const text = data.label ? data.label.replace('{0:user}', '') : 'đã follow';
+      // Lấy câu thông báo follow từ TikTok, nếu trống thì dùng 'đã follow' làm dự phòng
+      const text = (data.label || data.common?.displayText?.defaultPattern || data.common?.displayText?.key || 'đã follow').replace('{0:user}', '').trim();
       renderAction(data, text, '#ff005e');
     });
     connection.on('share', (data) => {
-      const text = data.label ? data.label.replace('{0:user}', '') : 'đã chia sẻ';
+      // Lấy câu thông báo share từ TikTok, nếu trống thì dùng 'đã chia sẻ' làm dự phòng
+      const text = (data.label || data.common?.displayText?.defaultPattern || data.common?.displayText?.key || 'đã chia sẻ').replace('{0:user}', '').trim();
       renderAction(data, text, '#2fb816');
     });
     // live Intro
-    connection.on('liveIntro', (data) => {
-      if (window.settings.showChats === "0") return;
-      renderStreamerInfo(data);
-    })
+    /*connection.on('liveIntro', (msg) => {
+      if (msg && msg.host) {
+        renderStreamerInfo(msg.host);
+      }
+    });*/
     /**
      * Event: streamEnd
      * Livestream đã kết thúc
