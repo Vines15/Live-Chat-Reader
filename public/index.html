@@ -1,10 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script> -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 
   <title>Live Chat Reader</title>
@@ -807,126 +810,86 @@
       navigation: auto;
     }
   </style>
-</head>
-<body>
 
-  <header>
-    <input id="username" placeholder="@LiveID">
+</head>
+
+<body>
+  <header><input id="username" placeholder="@LiveID">
     <button id="connect">Connect</button>
+    <!-- <button id="copyAll">Copy</button>-->
     <button id="clear">Clear</button>
     <label> <input type="checkbox" id="showId"> <span>ID</span> </label>
     <label> <input type="checkbox" id="hideTime"> <span>Time</span> </label>
     <label><input type="checkbox" id="theme"> Light</label>
+
     <span id="currentLive"></span>
   </header>
-
   <div class="state-info">
     <div class="state-section">
       <pre id="stateText">Disconnected</pre>
     </div>
     <div class="state-section">
-      <div id="roomStats"></div>
+      <div id="roomStats">
+        <!-- Chờ kết nối... -->
+      </div>
     </div>
   </div>
-
   <main class="main">
+    <!-- Column 1: CHAT (34%) - Chỉ chứa tin nhắn chat thuần túy -->
     <div class="panel">
       <h3>CHAT</h3>
       <div class="chatListContainer">
         <div id="chat"></div>
       </div>
-    </div>
+    </div><!-- Column 2: YÊU CẦU (28%) - Danh sách các yêu cầu được pin -->
     <div class="panel">
       <h3>YÊU CẦU</h3>
       <div class="chatListContainer">
         <div id="request"></div>
       </div>
-    </div>
+    </div><!-- Column 3: GIFTS (18.9%) - Danh sách quà tặng -->
     <div class="panel">
       <h3>GIFTS</h3>
       <div class="chatListContainer">
         <div id="gifts"></div>
       </div>
-    </div>
+    </div><!-- Column 4: ACTIONS (18.9%) - Member join, likes, shares -->
     <div class="panel">
       <h3>ACTIONS</h3>
       <div class="chatListContainer">
         <div id="actions"></div>
       </div>
     </div>
-  </main>
+  </main><!-- Socket.IO Client Library -->
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    // ==========================================================================
-    // KHỐI 1: CẤU HÌNH ỨNG DỤNG & ĐỊNH NGHĨA BIẾN TOÀN CỤC (STATE VARIABLES)
-    // ==========================================================================
-    
+    // ==========================================
+    // FILE: connection.js
+    // Mô tả: Wrapper for TikTok connection over Socket.IO with reconnect functionality
+    // ==========================================
     /**
-     * Cấu hình giới hạn tối đa hiển thị trên UI cho từng cột dữ liệu.
-     * Tránh việc phình to DOM gây tràn bộ nhớ RAM khi chạy live thời gian dài.
-     */
-    const UI_CONFIG = {
-      CHAT:    { MAX: 2000, BATCH: 200 },
-      GIFTS:   { MAX: 500,  BATCH: 100 },
-      ACTIONS: { MAX: 1000, BATCH: 100 }
-    };
-
-    // Khai báo các phần tử DOM cố định
-    const chatDiv        = document.getElementById('chat');
-    const reqDiv         = document.getElementById('request');
-    const giftsDiv       = document.getElementById('gifts');
-    const actionsDiv     = document.getElementById('actions');
-    const chatContainers = document.querySelectorAll('.chatListContainer');
-    const currentLiveDiv = document.getElementById('currentLive');
-    const stateText      = document.getElementById('stateText');
-    const usernameInput  = document.getElementById('username');
-
-    // Các biến lưu trữ trạng thái hiển thị và theo dõi người dùng
-    let showIdEnabled   = false;  // Trạng thái hiển thị User ID trên chat
-    let showTimeEnabled = false;  // Trạng thái hiển thị mốc thời gian nhận tin nhắn
-    let watchUsername   = '';     // Lưu trữ tên định danh User cần theo dõi đặc biệt
-    let giftDictionaryMap = {};   // Lưu trữ ánh xạ từ điển quà tặng tiếng Việt
-
-    // Số liệu thống kê thời gian thực của phòng LIVE
-    let viewerCount   = 0;
-    let likeCount     = 0;
-    let diamondsCount = 0;
-
-    // Các biểu tượng SVG đồ họa dùng trong UI
-    const pinIcon           = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 12V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2zm-2 0l-1 1-1-1V4h2v8z"/></svg>`;
-    const trashIcon         = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
-    const checkboxUnchecked = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>`;
-    const checkboxChecked   = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
-
-    // Thiết lập URL backend phù hợp theo giao thức khởi chạy ứng dụng
-    let backendUrl = location.protocol === 'file:' ? "https://tiktok-chat-reader.zerody.one/" : undefined;
-
-    // ==========================================================================
-    // KHỐI 2: LỚP ĐIỀU PHỐI KẾT NỐI TIKTOK (CONNECTION MANAGEMENT)
-    // ==========================================================================
-
-    /**
-     * Lớp Quản lý kết nối Socket.IO với kiến trúc TikTok Live Backend Proxy.
-     * Hỗ trợ tự động kết nối lại khi có sự cố đứt gãy transport.
+     * TikTokIOConnection Class
+     * Quản lý kết nối Socket.IO với TikTok Live backend
+     * Hỗ trợ tự động reconnect khi mất kết nối
      */
     class TikTokIOConnection {
       constructor(backendUrl) {
         this.socket = io(backendUrl);
         this.uniqueId = null;
         this.options = null;
-        
         this.socket.on('connect', () => {
           console.info("Socket connected!");
+          // Reconnect to streamer if uniqueId already set (socket.io transport reconnect)
           if (this.uniqueId) {
             this.socket.emit('setUniqueId', this.uniqueId, this.options);
           }
-        });
-        this.socket.on('disconnect', () => console.warn("Socket disconnected!"));
+        })
+        this.socket.on('disconnect', () => console.warn("Socket disconnected!"))
         this.socket.on('streamEnd', () => {
           console.warn("LIVE has ended!");
           this.uniqueId = null;
-        });
+        })
         this.socket.on('tiktokDisconnected', (errMsg) => {
           console.warn(errMsg);
           if (errMsg && errMsg.includes('LIVE has ended')) {
@@ -934,58 +897,136 @@
           }
         });
       }
-      
       connect(uniqueId, options) {
         this.uniqueId = uniqueId;
         this.options = options || {};
+        // Clean up stale listeners from any previous connect() call
         this.socket.off('tiktokConnected');
         this.socket.off('tiktokDisconnected');
-        
+        // Re-add the permanent tiktokDisconnected handler
         this.socket.on('tiktokDisconnected', (errMsg) => {
           console.warn(errMsg);
           if (errMsg && errMsg.includes('LIVE has ended')) {
             this.uniqueId = null;
           }
         });
-        
         this.socket.emit('setUniqueId', this.uniqueId, this.options);
         return new Promise((resolve, reject) => {
           this.socket.once('tiktokConnected', resolve);
           this.socket.once('tiktokDisconnected', reject);
-          setTimeout(() => reject('Connection Timeout'), 15000);
-        });
+          setTimeout(() => {
+            reject('Connection Timeout');
+          }, 15000)
+        })
       }
-      
       disconnect() {
         this.uniqueId = null;
         this.socket.emit('disconnect_tiktok');
       }
-      
       on(eventName, eventHandler) {
         this.socket.on(eventName, eventHandler);
       }
     }
-
-    // Khởi tạo thực thể kết nối toàn cục
-    const connection = new TikTokIOConnection(backendUrl);
-
-    // ==========================================================================
-    // KHỐI 3: CÁC HÀM BỔ TRỢ HỆ THỐNG VÀ XỬ LÝ DỮ LIỆU (UTILITIES)
-    // ==========================================================================
-
+    // ==========================================
+    // END FILE: connection.js
+    // ==========================================
+    // ==========================================
+    // FILE: app.js
+    // Mô tả: Main application logic for TikTok Live Chat Monitor
+    // ==========================================
+    // -------- CONFIGURATION (app.js) --------
     /**
-     * Không đánh giá/sửa đổi theo yêu cầu của người dùng.
+     * MAX: Số lượng tin nhắn tối đa cho mỗi container
+     * - Nếu = 0: Lưu toàn bộ tin nhắn (không giới hạn)
+     * - Nếu > 0: Khi vượt quá giới hạn, sẽ xóa BATCH = ? tin cũ nhất
+     * BATCH: Số lượng tin nhắn cần xóa
+     * Áp dụng cho: Chat, Gift, Actions
+     */
+    const UI_CONFIG = {
+      CHAT: {
+        MAX: 2000,
+        BATCH: 200
+      },
+      GIFTS: {
+        MAX: 500,
+        BATCH: 100
+      },
+      ACTIONS: {
+        MAX: 1000,
+        BATCH: 100
+      } // Mục tiêu 1k dòng cho Like/Share/Join, xóa 100 dòng
+    };
+    // -------- KHAI BÁO CÁC PHẦN TỬ GIAO DIỆN (DOM ELEMENTS) (app.js) --------
+    const chatDiv = document.getElementById('chat');
+    const reqDiv = document.getElementById('request');
+    const giftsDiv = document.getElementById('gifts');
+    const actionsDiv = document.getElementById('actions');
+    const chatContainers = document.querySelectorAll('.chatListContainer');
+    const currentLiveDiv = document.getElementById('currentLive'); // Thông tin streamer
+    const stateText = document.getElementById('stateText'); // Thông báo trạng thái kết nối
+    const usernameInput = document.getElementById('username'); // Ô nhập username
+    // -------- STATE VARIABLES (app.js) --------
+    let autoScroll = true; // Tự động scroll xuống cuối khi có tin mới
+    let showIdEnabled = false; // Hiển thị User ID
+    let showTimeEnabled = false; // Hiển thị thời gian
+    // TikTok Connection (sử dụng connection.js)
+    // Backend URL: sử dụng server proxy nếu chạy từ file://, ngược lại dùng cùng domain
+    let backendUrl = location.protocol === 'file:' ? "https://tiktok-chat-reader.zerody.one/" : undefined;
+    let connection = new TikTokIOConnection(backendUrl);
+    // Room Statistics (from app.js window.settings)
+    let viewerCount = 0; // Số người xem hiện tại
+    let likeCount = 0; // Tổng số like
+    let diamondsCount = 0; // Tổng số diamonds từ gifts
+    // -------- SVG ICONS (app.js) --------
+    const pinIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 12V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2zm-2 0l-1 1-1-1V4h2v8z"/>
+    </svg>`;
+    const trashIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+    </svg>`;
+    const checkboxUnchecked = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+    </svg>`;
+    const checkboxChecked = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+    </svg>`;
+    const moonIcon = `<svg class="theme-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>`;
+    const sunIcon = `<svg class="theme-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="5"/>
+      <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>`;
+
+    function resetUI() {
+      // Dùng trực tiếp các biến đã khai báo ở đầu file
+      chatDiv.innerHTML = '';
+      reqDiv.innerHTML = '';
+      giftsDiv.innerHTML = '';
+      actionsDiv.innerHTML = '';
+      currentLiveDiv.innerHTML = '';
+      stateText.innerHTML = '';
+      // Reset số liệu
+      viewerCount = 0;
+      likeCount = 0;
+      diamondsCount = 0;
+      updateRoomStats();
+      //console.log("🧹 Đã dọn dẹp toàn bộ dữ liệu phiên cũ.");
+    }
+    // -------- UTILITY FUNCTIONS (app.js) --------
+    /**
+     * Sanitize text để ngăn chặn XSS attacks
+     * Chuyển đổi < thành &lt; để hiển thị an toàn
      */
     function sanitize(text) {
       return text.replace(/</g, '&lt;');
     }
-
     /**
-     * Lấy mốc thời gian hiện tại chuẩn định dạng GMT+7 (DD/MM/YYYY HH:MM:SS)
-     * @returns {string} Chuỗi thời gian đã định dạng
+     * Lấy thời gian hiện tại theo định dạng HH:MM:SS
      */
     function getCurrentTime() {
       const d = new Date();
+      // Tính GMT+7
       const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
       const tz = new Date(utc + 7 * 3600000);
       const yyyy = tz.getFullYear();
@@ -996,35 +1037,70 @@
       const ss = String(tz.getSeconds()).padStart(2, '0');
       return `${dd}/${mm}/${yyyy} ${hh}:${min}:${ss}`;
     }
-
+    // console.log(fullTimestamp()); 
+    // Ví dụ: "21/12/2025 21:37:08"
     /**
-     * Tạo liên kết thẻ Anchor chuyển tiếp trực tiếp tới Hồ sơ cá nhân TikTok của User
-     * @param {object} data - Dữ liệu chứa thông tin định danh của người dùng
-     * @returns {string} Chuỗi HTML thẻ <a>
+     * Cập nhật thống kê phòng live (viewers, likes, diamonds)
+     */
+    function updateRoomStats() {
+      document.getElementById('roomStats').innerHTML = `
+        <div><strong>Viewers:</strong> <b>${viewerCount.toLocaleString()}</b></div>
+        <div><strong>Likes:</strong> <b>${likeCount.toLocaleString()}</b></div>
+        <div><strong>Diamonds:</strong> <b>${diamondsCount.toLocaleString()}</b></div>
+      `;
+    }
+    /**
+     * Tạo link username dẫn tới profile TikTok
+     * @param {object} data - Dữ liệu user chứa uniqueId
+     * @returns {string} HTML anchor tag
      */
     function generateUsernameLink(data) {
       const userId = data.uniqueId || "";
       const userName = data.nickname || data.displayName || "User";
-      return `<a class="usernamelink" href="https://www.tiktok.com/@${userId}" target="_blank" rel="noopener noreferrer" style="color: var(--name); text-decoration: none;">${userName}</a>`;
+      return `<a class="usernamelink" href="https://www.tiktok.com/@${userId}" target="_blank"
+      rel="noopener noreferrer" style="color: var(--name); text-decoration: none;">${userName}</a>`;
     }
-
     /**
-     * Kiểm tra trạng thái quà tặng xem có đang trong tiến trình đếm chuỗi Combo (Streak) hay không
-     * @param {object} data - Payload thông tin quà tặng
-     * @returns {boolean} True nếu chuỗi combo chưa kết thúc
+     * Kiểm tra xem gift có đang chờ streak kết thúc không
+     * @param {object} data - Dữ liệu gift
+     * @returns {boolean} true nếu đang pending streak
      */
     function isPendingStreak(data) {
       return data.giftType === 1 && !data.repeatEnd;
     }
-
     /**
-     * Tải bất đồng bộ từ điển quà tặng Tiếng Việt từ tệp JSON cấu hình cấu trúc nội bộ.
+     * Xóa các tin nhẵn cũ ở trên đầu
+     */
+    function checkAndCleanUI(container, config, direction = 'top') {
+      if (config.MAX > 0 && container.children.length > config.MAX) {
+        let toRemove = config.BATCH;
+        while (toRemove > 0 && container.children.length > 0) {
+          // Xóa phần tử cũ nhất dựa trên hướng thêm vào
+          const target = (direction === 'top') ? container.firstChild : container.lastChild;
+          if (target) {
+            container.removeChild(target);
+          } else {
+            break;
+          }
+          toRemove--;
+        }
+      }
+    }
+    // Khai báo biến từ điển quà tặng toàn cục
+    let giftDictionaryMap = {};
+    /**
+     * Tải từ điển quà tặng tiếng Việt từ file JSON
+     * Đảm bảo file vi-VN.json nằm trong thư mục public
      */
     async function loadGiftDictionary() {
       try {
+        // Fetch trực tiếp từ thư mục public
         const response = await fetch('./vi-VN.json');
-        if (!response.ok) throw new Error(`Không thể tải file: ${response.statusText}`);
+        if (!response.ok) {
+          throw new Error(`Không thể tải file: ${response.statusText}`);
+        }
         const data = await response.json();
+        // Kiểm tra xem dữ liệu có phải là Object không trước khi gán
         if (data && typeof data === 'object') {
           giftDictionaryMap = data;
           console.log("✅ [Dictionary] Đã nạp từ điển quà tặng tiếng Việt thành công.");
@@ -1035,135 +1111,126 @@
         console.error("❌ [Dictionary] Lỗi khi nạp file vi-VN.json:", err);
       }
     }
+    // Gọi hàm nạp từ điển ngay khi khởi động app
     loadGiftDictionary();
-
-    // ==========================================================================
-    // KHỐI 4: QUẢN LÝ HIỆU NĂNG GIAO DIỆN (UI PERFORMANCE & RENDERING)
-    // ==========================================================================
-
+    // -------- AUTO SCROLL LOGIC (app.js) --------
     /**
-     * TỐI ƯU HÓA THUẬT TOÁN: Xóa hàng loạt phần tử vượt ngưỡng cấu hình bằng cơ chế DOM Range.
-     * Giảm số lượng Reflow từ N lần (vòng lặp cũ) xuống DUY NHẤT 1 lần tác động cấu trúc cây DOM.
-     * @param {HTMLElement} container - Phân khu giao diện chứa các phần tử cần dọn dẹp
-     * @param {object} config - Cấu hình MAX và BATCH của phân khu tương ứng
-     * @param {string} direction - Hướng dọn dẹp ('top' là xóa tin cũ đầu tiên, 'bottom' xóa ở cuối)
-     */
-    function checkAndCleanUI(container, config, direction = 'top') {
-      const currentLength = container.children.length;
-      if (config.MAX > 0 && currentLength > config.MAX) {
-        const toRemove = Math.min(config.BATCH, currentLength);
-        const range = document.createRange();
-        
-        if (direction === 'top') {
-          range.setStartBefore(container.firstChild);
-          range.setEndAfter(container.children[toRemove - 1]);
-        } else {
-          range.setStartBefore(container.children[currentLength - toRemove]);
-          range.setEndAfter(container.lastChild);
-        }
-        range.deleteContents();
-      }
-    }
-
-    /**
-     * Khởi tạo trình theo dõi thanh cuộn độc lập cho mỗi Panel dữ liệu.
-     * Hỗ trợ tự động kích hoạt hoặc vô hiệu hóa Auto-Scroll khi người dùng thao tác cuộn thủ công lên trên.
+     * Theo dõi scroll position của mỗi container
+     * Nếu user scroll lên xem lại, tắt auto-scroll
+     * Nếu user scroll xuống cuối, bật lại auto-scroll
      */
     chatContainers.forEach(container => {
+      // Khởi tạo trạng thái mặc định cho từng container
       container._autoScrollEnabled = true;
       container.addEventListener('scroll', () => {
+        // Kiểm tra xem đã cuộn xuống sát đáy chưa (sai số 10px)
         const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 10;
+        // Lưu trạng thái vào chính container đó
         container._autoScrollEnabled = atBottom;
       });
     });
-
     /**
-     * Thực hiện cuộn mượt mà xuống đáy phân khu nếu trạng thái AutoScroll đang được cho phép.
-     * @param {HTMLElement} containerParent - Phần tử cha chứa thanh cuộn thực tế
+     * Scroll container xuống cuối nếu autoScroll đang bật
+     * @param {HTMLElement} container - Container cần scroll
      */
-    function scrollIfNeeded(containerParent) {
-      if (containerParent._autoScrollEnabled) {
-        containerParent.scrollTo({
-          top: containerParent.scrollHeight,
-          behavior: 'smooth'
+    function scrollIfNeeded(container) {
+      // Chỉ cuộn nếu thuộc tính riêng của container này là true
+      if (container._autoScrollEnabled) {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth' // Giúp cuộn mượt mà hơn
         });
       }
     }
-
+    // -------- BUTTON HANDLERS (app.js) --------
     /**
-     * ĐỒNG BỘ HIỂN THỊ: Cập nhật trạng thái ẩn hiện các thẻ ID và Mốc thời gian theo cấu hình Checkbox.
+     * Xóa toàn bộ nội dung của tất cả các container
      */
-    function updateElementsVisibility() {
-      const idDisplay   = showIdEnabled ? 'inline' : 'none';
-      const timeDisplay = showTimeEnabled ? 'inline' : 'none';
-      
-      document.querySelectorAll('.uid').forEach(u => u.style.display = idDisplay);
-      document.querySelectorAll('.time').forEach(t => t.style.display = timeDisplay);
-    }
-
-    /**
-     * Cập nhật số liệu thống kê phòng LIVE thời gian thực lên giao diện Header.
-     */
-    function updateRoomStats() {
-      document.getElementById('roomStats').innerHTML = `
-        <div><strong>Viewers:</strong> <b>${viewerCount.toLocaleString()}</b></div>
-        <div><strong>Likes:</strong> <b>${likeCount.toLocaleString()}</b></div>
-        <div><strong>Diamonds:</strong> <b>${diamondsCount.toLocaleString()}</b></div>
-      `;
-    }
-
-    /**
-     * Đặt lại toàn bộ giao diện và làm sạch số liệu phòng về trạng thái khởi tạo.
-     */
-    function resetUI() {
+    document.getElementById('clear').onclick = () => {
       chatDiv.innerHTML = '';
       reqDiv.innerHTML = '';
       giftsDiv.innerHTML = '';
       actionsDiv.innerHTML = '';
       currentLiveDiv.innerHTML = '';
       stateText.innerHTML = '';
-      viewerCount = 0;
-      likeCount = 0;
-      diamondsCount = 0;
-      updateRoomStats();
-    }
-
-    // Thiết lập cơ chế Event Delegation duy nhất cho bảng Yêu Cầu Ghim để giải phóng RAM tối đa
-    reqDiv.addEventListener('click', function(e) {
-      const targetBtn = e.target.closest('.del');
-      if (targetBtn) {
-        targetBtn.closest('.req').remove();
-        return;
-      }
-      const targetCheck = e.target.closest('.checkbox-icon');
-      if (targetCheck) {
-        const reqItem = targetCheck.closest('.req');
-        const isCurrentlyDone = reqItem.classList.toggle('done');
-        targetCheck.innerHTML = isCurrentlyDone ? checkboxChecked : checkboxUnchecked;
-      }
-    });
-
-    // ==========================================================================
-    // KHỐI 5: CÁC HÀM RENDER DỮ LIỆU CHUYÊN BIỆT (CORE LOGIC RENDERING)
-    // ==========================================================================
-
+      usernameInput.value = '';
+    };
     /**
-     * Đẩy tin nhắn hội thoại thuần túy vào Panel CHAT.
+     * Copy toàn bộ nội dung yêu cầu vào clipboard
+     */
+    /*document.getElementById('copyAll').onclick = () => {
+      const text = reqDiv.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyAll');
+        const originalText = btn.textContent;
+        btn.textContent = 'Đã copy!';
+        setTimeout(() => btn.textContent = originalText, 1500);
+      });
+    };*/
+    // -------- TOGGLE VISIBILITY (app.js) --------
+    /**
+     * Cập nhật hiển thị của User ID và Time dựa trên checkbox
+     */
+    function updateElementsVisibility() {
+      document.querySelectorAll('.uid').forEach(u => {
+        u.style.display = showIdEnabled ? 'inline' : 'none';
+      });
+      document.querySelectorAll('.time').forEach(t => {
+        t.style.display = showTimeEnabled ? 'inline' : 'none';
+      });
+    }
+    /**
+     * Khởi tạo trạng thái ban đầu của các checkbox
+     */
+    function setInitialDisplay() {
+      const showIdCheckbox = document.getElementById('showId');
+      const hideTimeCheckbox = document.getElementById('hideTime');
+      showIdCheckbox.checked = false;
+      hideTimeCheckbox.checked = false;
+      showIdEnabled = false;
+      showTimeEnabled = false;
+      updateElementsVisibility();
+      showIdCheckbox.onchange = (e) => {
+        showIdEnabled = e.target.checked;
+        updateElementsVisibility();
+      };
+      hideTimeCheckbox.onchange = (e) => {
+        showTimeEnabled = e.target.checked;
+        updateElementsVisibility();
+      };
+    }
+    setInitialDisplay();
+    // -------- THEME TOGGLE (app.js) --------
+    // Light/Dark Mode
+    const themeCheckbox = document.getElementById('theme');
+    themeCheckbox.onchange = (e) => {
+      document.documentElement.classList.toggle('light', e.target.checked);
+    };
+    // -------- RENDER CHAT FUNCTIONS (app.js) --------
+    /**
+     * Thêm tin nhắn chat mới vào container CHAT
+     * Chỉ chứa tin nhắn thuần túy, không có actions
+     * @param {object} data - Dữ liệu user
+     * @param {string} text - Nội dung tin nhắn
+     * @param {string} color - Màu chữ (optional)
      */
     function renderChat(data, text, color = '') {
+      // DEBUG: Log dữ liệu người chat và nội dung tin nhắn, // Clone để xem cấu trúc thật
+      // console.log("💬 CHAT DATA:", { user: JSON.parse(JSON.stringify(data)), rawText: text });
       checkAndCleanUI(chatDiv, UI_CONFIG.CHAT, 'top');
-      
+      /**if (MAX_MESSAGES > 0 && chatDiv.children.length > MAX_MESSAGES) {
+        Array.from(chatDiv.children).slice(0, 200).forEach(el => el.remove());
+      }*/
       const div = document.createElement('div');
       div.className = 'msg';
-      
       const msgData = {
         avatar: data.profilePictureUrl || `https://ui-avatars.com/api/?name=${data.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=128`,
         time: getCurrentTime(),
         nickname: data.nickname || data.displayName || data.uniqueId,
         userId: data.uniqueId || data.userId,
+        // message: sanitize(text)
         message: text
       };
-      
       div.innerHTML = `
         <div class="chat-head">
           <img class="avatar" src="${msgData.avatar}" alt="${msgData.nickname}">
@@ -1174,16 +1241,23 @@
         </div>
         <div style="${color ? 'color:' + color : ''}">${msgData.message}</div>
       `;
-      
+      // Click vào icon pin để thêm vào danh sách yêu cầu
+      // div.querySelector('.arrow').onclick = () => addRequest(msgData, div);
+      // Truyền cả dữ liệu gốc (data) và nội dung tin nhắn (text)
       div.querySelector('.arrow').onclick = () => addRequest(data, text, div);
       chatDiv.appendChild(div);
       scrollIfNeeded(chatDiv.parentElement);
     }
-
+    // -------- ADD REQUEST FUNCTION (app.js) --------
     /**
-     * Đưa một tin nhắn hội thoại vào danh mục YÊU CẦU được ghim.
+     * Thêm tin nhắn vào danh sách yêu cầu (pin message)
+     * @param {object} msg - Dữ liệu tin nhắn
+     * @param {HTMLElement} chatEl - Element tin nhắn gốc để đánh dấu đã pin
      */
+    //function addRequest(msg, chatEl) {
     function addRequest(data, text, chatEl) {
+      // DEBUG: Log dữ liệu tin nhắn khi được đưa vào danh sách yêu cầu
+      // console.log("📌 PINNED REQUEST:", JSON.stringify(msg, null, 2));
       chatEl.classList.add('selected');
       const d = document.createElement('div');
       d.className = 'req';
@@ -1195,30 +1269,68 @@
         <span class="checkbox-icon">${checkboxUnchecked}</span>
         <button class="del">${trashIcon}</button>
       `;
+      const checkboxIcon = d.querySelector('.checkbox-icon');
+      let isChecked = false;
+      // Toggle trạng thái hoàn thành (done/undone)
+      checkboxIcon.onclick = () => {
+        isChecked = !isChecked;
+        checkboxIcon.innerHTML = isChecked ? checkboxChecked : checkboxUnchecked;
+        d.classList.toggle('done', isChecked);
+      };
+      // Xóa yêu cầu
+      d.querySelector('.del').onclick = () => d.remove();
       reqDiv.appendChild(d);
       scrollIfNeeded(reqDiv.parentElement);
     }
-
+    // -------- RENDER GIFT FUNCTION (app.js) --------
     /**
-     * Điều phối thông tin quà tặng hiển thị real-time trong Panel GIFTS, xử lý thay đổi combo.
+     * Thêm gift mới vào container GIFTS
+     * Hỗ trợ update gift streak (combo) theo real-time
+     * @param {object} data - Dữ liệu gift
      */
     function renderGift(data) {
+      // DEBUG: Log dữ liệu Gift (Tên quà, ID quà, Diamond, Combo)
+      // console.log("🎁 GIFT RECEIVED:", JSON.stringify(data, null, 2));
+      // Tra cứu tên tiếng Việt từ từ điển dựa trên giftId
       const giftKey = `live_gift_${data.giftId}`;
-      const giftNameVN = giftDictionaryMap[giftKey];
+      const giftNameVN = giftDictionaryMap[giftKey]; // KHÔNG để || data.giftName ở đây để logic dự phòng phía dưới chạy đúng
       checkAndCleanUI(giftsDiv, UI_CONFIG.GIFTS, 'top');
-      
+      /*if (MAX_GIFTS > 0 && giftsDiv.children.length > MAX_GIFTS) {
+        Array.from(giftsDiv.children).slice(0, 100).forEach(el => el.remove());
+      }*/
+      // Tạo unique ID cho streak (userId + giftId)
       const streakId = data.userId.toString() + '_' + data.giftId;
       const existingStreak = giftsDiv.querySelector(`[data-streakid="${streakId}"]`);
-      
       const div = document.createElement('div');
       div.className = 'gift-item';
+      // Nếu gift đang pending streak, gắn data attribute để update sau
       if (isPendingStreak(data)) {
         div.setAttribute('data-streakid', streakId);
       }
-      
+      /*
+      div.innerHTML = `
+        <img class="avatar" src="${data.profilePictureUrl}" alt="${data.uniqueId}">
+        <div class="gift-details">
+          <div class="gift-sender">${generateUsernameLink(data)}</div>
+          <div class="gift-desc">${sanitize(data.describe || '')}</div>
+          <div class="gift-info-row">
+            <img class="gift-icon" src="${data.giftPictureUrl}" alt="${data.giftName}">
+            <div class="gift-stats">
+              <div>Name: <b>${sanitize(data.giftName)}</b> (ID: ${data.giftId})</div>
+              <div>Repeat: <b style="${isPendingStreak(data) ? 'color:red' : ''}">x${data.repeatCount.toLocaleString()}</b></div>
+              <div>Cost: <b>${(data.diamondCount * data.repeatCount).toLocaleString()} Diamonds</b></div>
+            </div>
+          </div>
+        </div>
+      `;
+      */
+      // Nếu có giftNameVN thì hiện "đã gửi + tên", nếu không có thì hiện describe gốc
+      // Nếu có giftNameVN → dùng tiếng Việt 
+      // Nếu chưa có → fallback sang tên tiếng Anh
+      // Nếu không dùng describe hoặc chuỗi mặc định
+      // const displayDesc = giftNameVN ? 'đã gửi ${giftNameVN}' : (data.describe || 'đã gửi quà');
       const giftDisplayName = giftNameVN || data.giftName || `Gift #${data.giftId}`;
       const displayDesc = `đã gửi ${giftDisplayName}`;
-      
       div.innerHTML = `
         <img class="avatar" src="${data.profilePictureUrl}" alt="${data.uniqueId}">
         <div class="gift-details">
@@ -1234,7 +1346,7 @@
           </div>
         </div>
       `;
-      
+      // Nếu đã có streak này, replace để update số lượng combo
       if (existingStreak) {
         existingStreak.replaceWith(div);
       } else {
@@ -1242,18 +1354,33 @@
       }
       scrollIfNeeded(giftsDiv.parentElement);
     }
-
+    // -------- RENDER ACTION FUNCTION (app.js) --------
     /**
-     * TỐI ƯU HÓA BỘ NHỚ: Đẩy các hành vi tương tác hệ thống (Like, Share, Join) vào Panel ACTIONS.
-     * Sử dụng sự kiện 'transitionend' để tự hủy phần tử temporary thay vì lồng nhiều hàm setTimeout, giải phóng RAM triệt để.
+     * Thêm action event (member join, likes, shares) vào container ACTIONS
+     * @param {object} data - Dữ liệu user
+     * @param {string} text - Nội dung action
+     * @param {string} color - Màu chữ
+     * @param {boolean} isTemporary - Đánh dấu là tin tạm thời (sẽ bị xóa khi có tin mới)
+     * Màu sắc đề xuất: Like (#447dd4), Join (#f39c12), Follow (#ff005e)   
      */
     function renderAction(data, text, color = '', isTemporary = false) {
+      // DEBUG: Log các hành động hệ thống
+      // console.log("⚡ ACTION EVENT:", { type: text, user: JSON.parse(JSON.stringify(data)), temp: isTemporary });
       checkAndCleanUI(actionsDiv, UI_CONFIG.ACTIONS, 'top');
-      
+      /* if (MAX_MESSAGES > 0 && actionsDiv.children.length > MAX_MESSAGES) {
+        Array.from(actionsDiv.children).slice(0, 200).forEach(el => el.remove());
+      }*/
+      /**
+       * Xóa các tin nhắn tạm thời (temporary) trước khi thêm tin mới
+       * Áp dụng cho member join để tránh spam
+       
+      if (!isTemporary) {
+        document.querySelectorAll('#actions .temporary').forEach(el => el.remove());
+      }
+      */
       const div = document.createElement('div');
       div.className = isTemporary ? 'action-item temporary' : 'action-item';
       const avatar = data.profilePictureUrl || `https://ui-avatars.com/api/?name=${data.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=128`;
-      
       div.innerHTML = `
         <img class="avatar" src="${avatar}" alt="${data.uniqueId}">
         <div class="action-content">
@@ -1261,79 +1388,229 @@
           <span style="${color ? 'color:' + color : ''}">${sanitize(text)}</span>
         </div>
       `;
-      
+      // Thêm vào danh sách (Tin mới ở dưới cùng)
       actionsDiv.appendChild(div);
       scrollIfNeeded(actionsDiv.parentElement);
-      
+      // Xử lý xóa tự động cho tin Join
       if (isTemporary) {
+        // Hiệu ứng mờ dần mượt mà
         div.style.transition = 'opacity 1s ease';
         div.style.opacity = '1';
-        
-        // 6 giây đứng yên sau đó mờ dần
         setTimeout(() => {
-          if (div.parentNode) div.style.opacity = '0';
-        }, 6000);
-        
-        // Giải phóng RAM cực sạch ngay sau khi CSS hoàn tất hiệu ứng mờ
-        div.addEventListener('transitionend', () => {
-          if (div.parentNode) div.remove();
-        });
+          if (div.parentNode) {
+            div.style.opacity = '0'; // Mờ dần trong 1s
+            setTimeout(() => {
+              if (div.parentNode) div.remove(); // Xóa hẳn khỏi RAM
+            }, 1000);
+          }
+        }, 6000); // 6 giây đứng yên
       }
     }
-
+    // -------- CONNECTION FUNCTION (app.js) --------
     /**
-     * Kết xuất thông tin hồ sơ của Streamer/Chủ phòng LIVE lên thanh công cụ điều hướng Header.
+     * Kết nối tới TikTok Live của username được nhập
+     */
+    function connect() {
+      const uniqueId = document.getElementById('username').value.trim();
+      if (uniqueId === '') {
+        document.getElementById('stateText').textContent = 'Vui lòng nhập username!';
+        return;
+      }
+      // Reset UI
+      resetUI();
+      document.getElementById('stateText').textContent = 'Đang kết nối...';
+      let options = {
+        enableExtendedGiftInfo: true,
+        fetchRoomInfoOnConnect: true,
+        //enableWebcastResponseAndRawData: true
+      };
+      connection.connect(uniqueId, options).then(roomInfo => {
+        // Kết nối thành công
+        document.getElementById('stateText').textContent = `Connected to roomId: ${roomInfo.roomId}`;
+        let ownerData = null;
+        // Lấy thông tin Streamer từ 'roomInfo'
+        /*if (roomInfo) {
+          if (roomInfo.roomInfo) {
+            if (roomInfo.roomInfo.data && roomInfo.roomInfo.data.owner) {
+              ownerData = roomInfo.roomInfo.data.owner;
+            } else if (roomInfo.roomInfo.owner) {
+              ownerData = roomInfo.roomInfo.owner;
+            }
+          } else if (roomInfo.data && roomInfo.data.owner) {
+            ownerData = roomInfo.data.owner;
+          } else if (roomInfo.owner) {
+            ownerData = roomInfo.owner;
+          }
+        }*/
+        ownerData = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
+        if (ownerData) {
+          //console.log("Đã tìm thấy ownerData:", ownerData); 
+          renderStreamerInfo(ownerData);
+        } else {
+          //console.error("Không tìm thấy thông tin Streamer trong roomInfo:", roomInfo);
+          console.log("Không tìm thấy thông tin Streamer");
+        }
+        // Reset statistics khi kết nối mới
+        viewerCount = 0;
+        likeCount = 0;
+        diamondsCount = 0;
+        updateRoomStats();
+      }).catch(errorMessage => {
+        // Kết nối thất bại
+        document.getElementById('stateText').textContent = errorMessage;
+      });
+    }
+    // Hàm hiển thị thông tin streamer
+    /**
+     * Hiển thị thông tin streamer hiện tại
+     * @param {object} hostData - Dữ liệu streamer
+     * data chứa: uniqueId, nickname, profilePictureUrl
      */
     function renderStreamerInfo(user) {
-      if (!user) return;
-      
+      //if (!user) return;
+      if (!user) {
+        // console.error("Hàm renderStreamerInfo nhận dữ liệu rỗng (user là null/undefined)!");
+        return;
+      }
+      // console.log("Dữ liệu user nhận được hợp lệ:", user);
+      // console.log("Phần tử HTML 'currentLive':", document.getElementById('currentLive'));
+      // Lấy username (ưu tiên display_id theo biến thực tế của bạn, rồi đến uniqueId)
       const username = user.display_id || user.uniqueId || user.username || '';
       const displayName = user.nickname || user.displayName || 'Unknown';
-      
+      // Lấy avatar theo thứ tự ưu tiên từ lớn đến nhỏ, dùng Optional Chaining (?.) để tránh crash code
       const avatar = user.avatar_large?.url_list?.[0] ??
-                     user.avatar_medium?.url_list?.[0] ??
-                     user.avatar_thumb?.url_list?.[0] ??
-                     `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+        user.avatar_medium?.url_list?.[0] ??
+        user.avatar_thumb?.url_list?.[0] ??
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
       const data = {
         uniqueId: username,
         nickname: displayName
       };
-      
       chatDiv.innerHTML = '';
       reqDiv.innerHTML = '';
       giftsDiv.innerHTML = '';
       actionsDiv.innerHTML = '';
-      
       document.getElementById('currentLive').innerHTML = `
-        <b style="color: var(--fg)">Live: </b>
-        <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle" alt="${displayName}">
-        <b>${generateUsernameLink(data)}</b>
-        <span style="color:#888;margin-left:4px">@${username}</span>
-      `;
+    <b style="color: var(--fg)">Live: </b>
+    <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle" alt="${displayName}">
+    <b>${generateUsernameLink(data)}</b>
+    <span style="color:#888;margin-left:4px">@${username}</span>
+  `;
     }
-
-    // ==========================================================================
-    // KHỐI 6: LẮNG NGHE VÀ XỬ LÝ SỰ KIỆN TỪ CỔNG KẾT NỐI (TIKTOK LIVE EVENTS)
-    // ==========================================================================
-
+    /*function renderStreamerInfo(hostData) {
+      if (!hostData) return;
+      let username = "";
+      let displayName = "";
+      let avatarUrl = "";
+      // BỘ QUÉT TỰ ĐỘNG TOÀN DIỆN (Lục tìm mọi ngóc ngách dữ liệu)
+      function deepExtract(obj) {
+        if (!obj || typeof obj !== 'object') return;
+        // 1. Nếu va phải mảng url_list (đặc trưng chứa ảnh của TikTok), lấy luôn phần tử đầu làm avatar
+        if (Array.isArray(obj.url_list) && obj.url_list.length > 0 && !avatarUrl) {
+          avatarUrl = obj.url_list[0];
+        }
+        for (let key in obj) {
+          const val = obj[key];
+          if (typeof val === 'string' && val.trim() !== '') {
+            // Tìm uniqueId (Thường không chứa dấu cách, không có dấu tiếng Việt, có thể có dấu chấm/gạch dưới)
+            if ((key === 'uniqueId' || key === 'display_id' || key === 'username') && !username) {
+              username = val;
+            }
+            // Tìm nickname/displayName (Bỏ qua nếu gặp chữ "Unknown")
+            else if ((key === 'nickname' || key === 'displayName' || key === 'title') && !displayName && val !== 'Unknown') {
+              displayName = val;
+            }
+            // Tìm avatar từ chuỗi URL trực tiếp nếu chưa lấy được từ url_list
+            else if (!avatarUrl && (val.startsWith('http://') || val.startsWith('https://'))) {
+              if (val.includes('p16') || val.includes('avatar') || val.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
+                avatarUrl = val;
+              }
+            }
+          }
+          // Nếu là object lồng nhau hoặc mảng, tiếp tục đào sâu xuống
+          else if (typeof val === 'object') {
+            deepExtract(val);
+          }
+        }
+      }
+      // Chạy bộ quét trên toàn bộ cục hostData truyền vào
+      deepExtract(hostData);
+      // Sửa lỗi nếu quét sâu mà vẫn không ra (Đặt giá trị mặc định chuẩn)
+      username = username || "";
+      displayName = displayName || "Unknown Streamer";
+      const avatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+      // Đóng gói đối tượng data theo đúng yêu cầu của bạn
+      const data = {
+        uniqueId: username,
+        nickname: displayName
+      };
+      // IN LẠI CONSOLE ĐỂ THEO DÕI KẾT QUẢ QUÉT THỰC TẾ
+      console.log("=== KẾT QUẢ SAU KHI DÙNG BỘ QUÉT SÂU TOÀN DIỆN ===");
+      console.log("Data truyền vào link:", data);
+      console.log("Avatar tìm được:", avatarUrl);
+      console.log("Cấu trúc gốc của hostData là:", hostData);
+      // Tiến hành render ra giao diện
+      document.getElementById('currentLive').innerHTML = `
+    <b style="color: var(--fg)">Live: </b>
+    <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle" alt="${displayName}">
+    <b>${generateUsernameLink(data)}</b>
+    <span style="color:#888;margin-left:4px">@${username}</span>
+  `;
+    }
+    */
+    // -------- EVENT LISTENERS (app.js) --------
+    // Click button Connect
+    document.getElementById('connect').onclick = connect;
+    // Nhấn Enter trong input username để connect
+    document.getElementById('username').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        connect();
+      }
+    });
+    // -------- TIKTOK LIVE EVENTS (app.js) --------
     /**
-     * Sự kiện: roomUser -> Cập nhật số lượng người xem đồng thời.
+     * Event: roomUser
+     * Cập nhật số lượng người xem trong phòng
+     */
+    /*connection.on('roomUser', (msg) => {
+      if (typeof msg.viewerCount === 'number') {
+        viewerCount = msg.viewerCount;
+        updateRoomStats();
+      }
+      // Chỉ cập nhật info nếu trong msg có chứa object owner (chủ phòng)
+      // Điều này loại bỏ hoàn toàn việc lấy nhầm avatar của người xem (viewer)
+      // (Một số bản SDK trả về thông tin chủ phòng trong roomUser.owner)
+      if (msg.owner) {
+        renderStreamerInfo(msg.owner);
+      }
+    });*/
+    /**
+     * Event: roomUser
+     * Cập nhật số lượng người xem VÀ ghi nhận ID/Avatar khi VIP vào phòng
      */
     connection.on('roomUser', (msg) => {
       if (typeof msg.viewerCount === 'number') {
         viewerCount = msg.viewerCount;
         updateRoomStats();
       }
+      // --- PHẦN THÊM VÀO ---
+      // Nếu msg có thông tin người dùng (nickname hoặc uniqueId)
+      // thì đó là một người cấp cao vừa join phòng mà 'member' bỏ sót.
       if (msg.uniqueId) {
+        // Chúng ta truyền msg vào để renderAction lấy avatar, nickname, uniqueId
+        // Dùng màu vàng (#f1c40f) để phân biệt với người thường join (#f39c12)
+        // isTemporary = false để thông tin này không tự xóa nhanh như người thường
         renderAction(msg, msg.label || 'đã xuất hiện!', '#f1c40f', false);
       }
+      // ---------------------
       if (msg.owner) {
         renderStreamerInfo(msg.owner);
       }
     });
-
     /**
-     * Sự kiện: member -> Tạo độ trễ phân phối để chống nghẽn UI khi lưu lượng truy cập cao.
+     * Event: member
+     * Hiển thị khi có người join vào live
+     * Sử dụng delay để tránh spam khi có nhiều người join cùng lúc
      */
     let joinMsgDelay = 0;
     connection.on('member', (msg) => {
@@ -1341,105 +1618,156 @@
       if (joinMsgDelay > 500) addDelay = 100;
       if (joinMsgDelay > 1000) addDelay = 0;
       joinMsgDelay += addDelay;
-      
       setTimeout(() => {
         joinMsgDelay -= addDelay;
-        if (watchUsername && msg.uniqueId?.toLowerCase() === watchUsername) {
-          renderAction(msg, 'JOINED!', '#ff0000', false);
+        if (
+          watchUsername &&
+          msg.uniqueId?.toLowerCase() === watchUsername
+        ) {
+          renderAction(msg, 'JOINED!', '#ff0000',
+            false // không tự xóa
+          );
           showSpecialPopup(msg);
         }
-        renderAction(msg, 'joined', '#f39c12', true);
+        // renderAction(msg, 'joined', '#21b2c2', true); // temporary = true
+        renderAction(msg, 'joined', '#f39c12', true); // temporary = true
       }, joinMsgDelay);
     });
-
     /**
-     * TỐI ƯU HÓA CPU: Loại bỏ tiến trình kiểm tra lặp chuỗi dôi dư trước khi chuyển đổi Emoji hệ thống.
+     * Event: chat
+     * Tin nhắn chat mới từ viewers
+     * CHỈ hiển thị trong cột CHAT
+     */
+    /*connection.on('chat', (msg) => {
+      renderChat(msg, msg.comment);
+    });
+    */
+    /**
+     * Event: chat
+     * Tin nhắn chat mới từ viewers, lđể lấy icon team và biểu tượng hệ thống
+     * CHỈ hiển thị trong cột CHAT
      */
     connection.on('chat', (msg) => {
+      // Lấy nội dung gốc
       let chatContent = msg.comment;
+      // Duyệt qua mảng emojis để lấy icon team và biểu tượng hệ thống
       if (msg.emojis && msg.emojis.length > 0) {
         msg.emojis.forEach(emoji => {
           if (emoji.image && emoji.image.url) {
+            // Tạo thẻ img từ URL TikTok cung cấp
             const imgTag = `<img src="${emoji.image.url}" style="height:20px; vertical-align:middle; margin:0 2px;">`;
-            chatContent = chatContent.replaceAll(emoji.name, imgTag);
-            if (!msg.comment.includes(emoji.name)) {
+            // Thay thế mã code hoặc nối thêm vào nội dung
+            if (chatContent.includes(emoji.name)) {
+              chatContent = chatContent.replaceAll(emoji.name, imgTag);
+            } else {
               chatContent += imgTag;
             }
           }
         });
       }
+      // Truyền thẳng nội dung đã có thẻ <img> vào hàm render
       renderChat(msg, chatContent);
     });
-
     /**
-     * Sự kiện: gift -> Tích lũy số lượng Diamonds thu về từ khán giả.
+     * Event: gift
+     * Quà tặng mới từ viewers
+     * Cập nhật tổng diamonds và hiển thị trong cột GIFTS
      */
     connection.on('gift', (data) => {
+      // Chỉ cộng diamonds khi gift streak kết thúc (không còn pending)
       if (!isPendingStreak(data) && data.diamondCount > 0) {
         diamondsCount += (data.diamondCount * data.repeatCount);
         updateRoomStats();
       }
       renderGift(data);
     });
-
     /**
-     * Sự kiện: like -> Phản hồi lượt tương tác thả tim.
+     * Event: like
+     * Cập nhật tổng số like và hiển thị action trong ACTIONS column
      */
     connection.on('like', (msg) => {
       if (typeof msg.totalLikeCount === 'number') {
         likeCount = msg.totalLikeCount;
         updateRoomStats();
       }
+      // Hiển thị like action trong cột ACTIONS
       if (typeof msg.likeCount === 'number') {
-        renderAction(msg, `đã thả ❤️ x${msg.likeCount}`, '#447dd4');
+        // renderAction(msg, msg.label.replace('{0:user}', '').replace('likes', `${msg.likeCount} likes`), '#447dd4');
+        // renderAction(msg, `liked the LIVE x${msg.likeCount}`, '#447dd4');
+        // renderAction(msg, `❤️ x${msg.likeCount}`, '#ff4b5c');
+        renderAction(msg, `đã thả ❤️ x${msg.likeCount}`, '#447dd4'); // temporary = true
       }
     });
-
     /**
-     * Sự kiện: follow -> Ghi nhận lượt theo dõi mới.
+     * Event: social
+     * Share và Follow actions
+     * Hiển thị trong cột ACTIONS với màu khác nhau
      */
     connection.on('follow', (data) => {
+      // Lấy câu thông báo follow từ TikTok, nếu trống thì dùng 'đã follow' làm dự phòng
       const text = (data.label || data.common?.displayText?.defaultPattern || data.common?.displayText?.key || 'đã follow').replace('{0:user}', '').trim();
       renderAction(data, text, '#ff005e');
     });
-
-    /**
-     * Sự kiện: share -> Ghi nhận lượt chia sẻ phòng LIVE.
-     */
     connection.on('share', (data) => {
+      // Lấy câu thông báo share từ TikTok, nếu trống thì dùng 'đã chia sẻ' làm dự phòng
       const text = (data.label || data.common?.displayText?.defaultPattern || data.common?.displayText?.key || 'đã chia sẻ').replace('{0:user}', '').trim();
       renderAction(data, text, '#2fb816');
     });
-
+    // live Intro
+    /*connection.on('liveIntro', (msg) => {
+      if (msg && msg.host) {
+        renderStreamerInfo(msg.host);
+      }
+    });*/
     /**
-     * Sự kiện: streamEnd -> Ngắt liên kết khi phiên Live kết thúc.
+     * Event: streamEnd
+     * Livestream đã kết thúc
      */
     connection.on('streamEnd', () => {
       document.getElementById('stateText').textContent = 'Stream ended.';
     });
+    // -------- INITIALIZATION (app.js) --------
+    // Khởi tạo room stats ban đầu
+    updateRoomStats();
+    // ==========================================
+    // END FILE: app.js
+    // ==========================================
+    /* 24:02 ======================================
+   WATCH USER VIA HOTKEY (Ctrl+Shift+U)
+====================================== */
+    let watchUsername = '';
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+        openWatchInput();
+      }
+    });
 
-    // ==========================================================================
-    // KHỐI 7: TÍNH NĂNG THEO DÕI NÂNG CAO (SPECIAL USER WATCH & POPUP DRAG)
-    // ==========================================================================
-
-    /**
-     * Mở biểu mẫu nhập liệu User cần theo dõi đặc biệt qua Hotkey (Ctrl + Shift + U).
-     */
     function openWatchInput() {
       const oldOverlay = document.getElementById('watchUserOverlay');
       if (oldOverlay) oldOverlay.remove();
-      
       const overlay = document.createElement('div');
       overlay.id = 'watchUserOverlay';
       overlay.innerHTML = `
-        <div class="watchBox">
-          <div class="watchBoxTitle">Nhập Username hoặc link TikTok</div>
-          <input type="text" id="watchUserField" placeholder="vd: username hoặc https://tiktok.com/@username" value="${watchUsername}" autofocus>
-          <div class="watchHint">Enter để lưu • ESC để đóng</div>
-        </div>
-      `;
+    <div class="watchBox">
+      <div class="watchBoxTitle">
+        Nhập Username hoặc link TikTok
+      </div>
+
+      <input 
+        type="text"
+        id="watchUserField"
+        placeholder="vd: username hoặc https://tiktok.com/@username"
+        value="${watchUsername}"
+        autofocus
+      >
+
+      <div class="watchHint">
+        Enter để lưu • ESC để đóng
+      </div>
+    </div>
+  `;
       document.body.appendChild(overlay);
-      
       const input = document.getElementById('watchUserField');
       input.focus();
       input.addEventListener('keydown', function(e) {
@@ -1453,15 +1781,14 @@
       });
     }
 
-    /**
-     * Chuẩn hóa và lưu trữ chuỗi định danh người dùng được đưa vào danh sách giám sát.
-     */
     function saveWatchUser(value) {
       let cleaned = value.trim().toLowerCase();
       if (!cleaned) return;
       if (cleaned.includes('tiktok.com')) {
         const match = cleaned.match(/@([a-z0-9._]+)/);
-        if (match && match[1]) cleaned = match[1];
+        if (match && match[1]) {
+          cleaned = match[1];
+        }
       }
       if (cleaned.startsWith('@')) {
         cleaned = cleaned.substring(1);
@@ -1469,30 +1796,31 @@
       watchUsername = cleaned;
       console.log("Log:", watchUsername);
     }
-
-    /**
-     * Hiển thị bảng Popup cảnh báo nổi trên bề mặt ứng dụng khi phát hiện User đặc biệt truy cập.
-     */
+    /* ======================================
+       SPECIAL USER POPUP
+    ====================================== */
     function showSpecialPopup(userData) {
       const popup = document.createElement('div');
       popup.className = 'specialPopup';
-      
+      // Xếp chồng popup
       const existingPopups = document.querySelectorAll('.specialPopup');
       popup.style.top = (20 + existingPopups.length * 110) + 'px';
-      
-      const avatar = userData.profilePictureUrl || `https://ui-avatars.com/api/?name=${userData.uniqueId}&background=ff0000&color=fff&size=128`;
+      const avatar = userData.profilePictureUrl ||
+        `https://ui-avatars.com/api/?name=${userData.uniqueId}&background=ff0000&color=fff&size=128`;
       const displayName = userData.nickname || userData.displayName || "User";
       const username = userData.uniqueId || "";
-      
       popup.innerHTML = `
-        <span class="popupClose">✕</span>
-        <img src="${avatar}">
-        <div class="popupContent">
-          <a href="https://www.tiktok.com/@${username}" target="_blank">${displayName}</a>
-          <div class="popupTime">Time: ${getCurrentTime()}</div>
-        </div>
-      `;
-      
+    <span class="popupClose">✕</span>
+    <img src="${avatar}">
+    <div class="popupContent">
+      <a href="https://www.tiktok.com/@${username}" target="_blank">
+        ${displayName}
+      </a>
+      <div class="popupTime">
+        Time: ${getCurrentTime()}
+      </div>
+    </div>
+  `;
       popup.querySelector('.popupClose').onclick = function(e) {
         e.stopPropagation();
         popup.remove();
@@ -1502,34 +1830,31 @@
       enablePopupDrag(popup);
     }
 
-    /**
-     * Sắp xếp, căn chỉnh lại tọa độ Y của các Popup còn lại trên màn hình khi có một hộp popup bị đóng.
-     */
     function repositionPopups() {
-      document.querySelectorAll('.specialPopup').forEach((el, index) => {
+      const popups = document.querySelectorAll('.specialPopup');
+      popups.forEach((el, index) => {
         el.style.top = (20 + index * 110) + 'px';
       });
     }
-
-    /**
-     * Kích hoạt khả năng phản hồi tương tác Kéo & Thả tự do (Drag and Drop) cho thực thể hộp thoại Popup.
-     */
+    /* ===============================
+   DRAG & DROP FOR SPECIAL POPUP
+================================ */
     function enablePopupDrag(popup) {
       let isDragging = false;
-      let offsetX = 0; let offsetY = 0;
-      
+      let offsetX = 0;
+      let offsetY = 0;
       popup.addEventListener('mousedown', function(e) {
+        // Không drag khi click nút đóng
         if (e.target.classList.contains('popupClose')) return;
         isDragging = true;
         popup.classList.add('dragging');
         const rect = popup.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
-        
+        // Khi bắt đầu kéo -> bỏ right để dùng left
         popup.style.right = 'auto';
         popup.style.left = rect.left + 'px';
         popup.style.top = rect.top + 'px';
-        
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
       });
@@ -1547,76 +1872,7 @@
         document.removeEventListener('mouseup', onMouseUp);
       }
     }
-
-    // Lắng nghe tổ hợp phím nóng kích hoạt hệ thống giám sát người dùng
-    document.addEventListener('keydown', function(e) {
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'u') {
-        e.preventDefault();
-        openWatchInput();
-      }
-    });
-
-    // ==========================================================================
-    // KHỐI 8: KHỞI TẠO VÀ ĐIỀU KHIỂN ĐẦU VÀO GIAO DIỆN (INITIALIZATION & HANDLERS)
-    // ==========================================================================
-
-    /**
-     * Thực hiện gửi tín hiệu thiết lập kết nối luồng livestream tới proxy backend dựa trên chuỗi ID nhập vào.
-     */
-    function connect() {
-      const uniqueId = usernameInput.value.trim();
-      if (uniqueId === '') {
-        stateText.textContent = 'Vui lòng nhập username!';
-        return;
-      }
-      resetUI();
-      stateText.textContent = 'Đang kết nối...';
-      
-      let options = {
-        enableExtendedGiftInfo: true,
-        fetchRoomInfoOnConnect: true
-      };
-      
-      connection.connect(uniqueId, options).then(roomInfo => {
-        stateText.textContent = `Connected to roomId: ${roomInfo.roomId}`;
-        const ownerData = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
-        if (ownerData) {
-          renderStreamerInfo(ownerData);
-        } else {
-          console.log("Không tìm thấy thông tin Streamer");
-        }
-        viewerCount = 0; likeCount = 0; diamondsCount = 0;
-        updateRoomStats();
-      }).catch(errorMessage => {
-        stateText.textContent = errorMessage;
-      });
-    }
-
-    // Đăng ký trình xử lý các nút bấm và hộp kiểm tra đầu vào (Form controls)
-    document.getElementById('connect').onclick = connect;
-    usernameInput.addEventListener('keyup', (e) => {
-      if (e.key === 'Enter') connect();
-    });
-
-    document.getElementById('clear').onclick = () => {
-      chatDiv.innerHTML = ''; reqDiv.innerHTML = ''; giftsDiv.innerHTML = ''; actionsDiv.innerHTML = '';
-      currentLiveDiv.innerHTML = ''; stateText.innerHTML = ''; usernameInput.value = '';
-    };
-
-    const showIdCheckbox   = document.getElementById('showId');
-    const hideTimeCheckbox = document.getElementById('hideTime');
-    const themeCheckbox    = document.getElementById('theme');
-
-    showIdCheckbox.checked   = false;
-    hideTimeCheckbox.checked = false;
-
-    showIdCheckbox.onchange = (e) => { showIdEnabled = e.target.checked; updateElementsVisibility(); };
-    hideTimeCheckbox.onchange = (e) => { showTimeEnabled = e.target.checked; updateElementsVisibility(); };
-    themeCheckbox.onchange = (e) => { document.documentElement.classList.toggle('light', e.target.checked); };
-
-    // Chạy cấu hình và số liệu ban đầu
-    updateElementsVisibility();
-    updateRoomStats();
   </script>
 </body>
+
 </html>
