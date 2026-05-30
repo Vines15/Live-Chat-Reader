@@ -1442,7 +1442,7 @@
             ownerData = roomInfo.owner;
           }
         }*/
-        let ownerData = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
+        ownerData = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
         if (ownerData) {
           //console.log("Đã tìm thấy ownerData:", ownerData); 
           renderStreamerInfo(ownerData);
