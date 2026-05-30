@@ -1418,41 +1418,42 @@
       }
       // Reset UI
       resetUI();
-      document.getElementById('stateText').textContent = 'Đang kết nối...';
+      if (typeof connection !== 'undefined') {
+    connection.removeAllListeners();
+  }
       
+      document.getElementById('stateText').textContent = 'Đang kết nối...';
       let options = {
         enableExtendedGiftInfo: true,
         fetchRoomInfoOnConnect: true,
         enableWebcastResponseAndRawData: true
       };
+      
       connection.connect(uniqueId, options).then(roomInfo => {
         // Kết nối thành công
         document.getElementById('stateText').textContent = `Connected to roomId: ${roomInfo.roomId}`;
         let ownerData = null;
         // Lấy thông tin Streamer từ 'roomInfo'
-        
         if (roomInfo) {
-    if (roomInfo.roomInfo) {
-      if (roomInfo.roomInfo.data && roomInfo.roomInfo.data.owner) {
-        ownerData = roomInfo.roomInfo.data.owner; 
-      } else if (roomInfo.roomInfo.owner) {
-        ownerData = roomInfo.roomInfo.owner;
-      }
-    } else if (roomInfo.data && roomInfo.data.owner) {
-      ownerData = roomInfo.data.owner;
-    } else if (roomInfo.owner) {
-      ownerData = roomInfo.owner;
-    }
-  }
-
-  
-  if (ownerData) {
-    console.log("Đã tìm thấy ownerData:", ownerData); 
-    renderStreamerInfo(ownerData);
-  } else {
-    console.error("Không tìm thấy thông tin Streamer trong roomInfo:", roomInfo);
-  }
-        
+          if (roomInfo.roomInfo) {
+            if (roomInfo.roomInfo.data && roomInfo.roomInfo.data.owner) {
+              ownerData = roomInfo.roomInfo.data.owner;
+            } else if (roomInfo.roomInfo.owner) {
+              ownerData = roomInfo.roomInfo.owner;
+            }
+          } else if (roomInfo.data && roomInfo.data.owner) {
+            ownerData = roomInfo.data.owner;
+          } else if (roomInfo.owner) {
+            ownerData = roomInfo.owner;
+          }
+        }
+        if (ownerData) {
+          //console.log("Đã tìm thấy ownerData:", ownerData); 
+          renderStreamerInfo(ownerData);
+        } else {
+          //console.error("Không tìm thấy thông tin Streamer trong roomInfo:", roomInfo);
+          console.log("Không tìm thấy thông tin Streamer");
+        }
         // Reset statistics khi kết nối mới
         viewerCount = 0;
         likeCount = 0;
@@ -1471,16 +1472,12 @@
      */
     function renderStreamerInfo(user) {
       //if (!user) return;
-
       if (!user) {
-    console.error("Hàm renderStreamerInfo nhận dữ liệu rỗng (user là null/undefined)!");
-    return;
-  }
-  
-  console.log("Dữ liệu user nhận được hợp lệ:", user);
-  console.log("Phần tử HTML 'currentLive':", document.getElementById('currentLive'));
-
-      
+        // console.error("Hàm renderStreamerInfo nhận dữ liệu rỗng (user là null/undefined)!");
+        return;
+      }
+      // console.log("Dữ liệu user nhận được hợp lệ:", user);
+      // console.log("Phần tử HTML 'currentLive':", document.getElementById('currentLive'));
       // Lấy username (ưu tiên display_id theo biến thực tế của bạn, rồi đến uniqueId)
       const username = user.display_id || user.uniqueId || user.username || '';
       const displayName = user.nickname || user.displayName || 'Unknown';
@@ -1500,7 +1497,6 @@
     <span style="color:#888;margin-left:4px">@${username}</span>
   `;
     }
-
     /*function renderStreamerInfo(hostData) {
       if (!hostData) return;
       let username = "";
@@ -1562,7 +1558,6 @@
   `;
     }
     */
-    
     // -------- EVENT LISTENERS (app.js) --------
     // Click button Connect
     document.getElementById('connect').onclick = connect;
