@@ -1418,17 +1418,12 @@
       }
       // Reset UI
       resetUI();
-      if (typeof connection !== 'undefined') {
-    connection.removeAllListeners();
-  }
-      
       document.getElementById('stateText').textContent = 'Đang kết nối...';
       let options = {
         enableExtendedGiftInfo: true,
         fetchRoomInfoOnConnect: true,
         enableWebcastResponseAndRawData: true
       };
-      
       connection.connect(uniqueId, options).then(roomInfo => {
         // Kết nối thành công
         document.getElementById('stateText').textContent = `Connected to roomId: ${roomInfo.roomId}`;
