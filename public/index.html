@@ -1264,20 +1264,26 @@
       
       actionsDiv.appendChild(div);
       scrollIfNeeded(actionsDiv.parentElement);
-      
+
       if (isTemporary) {
+        // Thiết lập trạng thái hiển thị ban đầu
         div.style.transition = 'opacity 1s ease';
         div.style.opacity = '1';
         
-        // 6 giây đứng yên sau đó mờ dần
+        // Tạo một bộ đếm thời gian duy nhất quản lý toàn bộ vòng đời của phần tử tạm thời
         setTimeout(() => {
-          if (div.parentNode) div.style.opacity = '0';
-        }, 6000);
-        
-        // Giải phóng RAM cực sạch ngay sau khi CSS hoàn tất hiệu ứng mờ
-        div.addEventListener('transitionend', () => {
-          if (div.parentNode) div.remove();
-        });
+          // Kích hoạt hiệu ứng mờ dần (mất 1 giây)
+          if (div.parentNode) {
+            div.style.opacity = '0';
+            
+            // Đợi đúng 1 giây sau khi mờ hẳn thì xóa hoàn toàn khỏi RAM
+            setTimeout(() => {
+              if (div.parentNode) {
+                div.remove();
+              }
+            }, 1000);
+          }
+        }, 6000); // 6 giây đứng yên dữ liệu
       }
     }
 
