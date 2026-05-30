@@ -1429,7 +1429,7 @@
         document.getElementById('stateText').textContent = `Connected to roomId: ${roomInfo.roomId}`;
         let ownerData = null;
         // Lấy thông tin Streamer từ 'roomInfo'
-        if (roomInfo) {
+        /*if (roomInfo) {
           if (roomInfo.roomInfo) {
             if (roomInfo.roomInfo.data && roomInfo.roomInfo.data.owner) {
               ownerData = roomInfo.roomInfo.data.owner;
@@ -1441,7 +1441,8 @@
           } else if (roomInfo.owner) {
             ownerData = roomInfo.owner;
           }
-        }
+        }*/
+        let ownerData = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
         if (ownerData) {
           //console.log("Đã tìm thấy ownerData:", ownerData); 
           renderStreamerInfo(ownerData);
@@ -1485,10 +1486,10 @@
         uniqueId: username,
         nickname: displayName
       };
-      chatDiv.innerHTML = '';
-      reqDiv.innerHTML = '';
-      giftsDiv.innerHTML = '';
-      actionsDiv.innerHTML = '';
+      //chatDiv.innerHTML = '';
+      //reqDiv.innerHTML = '';
+      //giftsDiv.innerHTML = '';
+      //actionsDiv.innerHTML = '';
       document.getElementById('currentLive').innerHTML = `
     <b style="color: var(--fg)">Live: </b>
     <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle" alt="${displayName}">
