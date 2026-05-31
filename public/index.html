@@ -5,124 +5,803 @@
   <title>TikTok Live Chat Monitor - Pro</title>
   <style>
     /* ==========================================================================
-       KHỐI THÀNH PHẦN 1: GIAO DIỆN & BIẾN ĐỔI THEME CSS (Giữ nguyên gốc)
+       KHỐI THÀNH PHẦN 1: GIAO DIỆN & BIẾN ĐỔI THEME CSS
        ========================================================================== */
     :root {
-      --bg: #121212; --panel-bg: #1e1e1e; --fg: #ffffff; --border: #333333;
-      --name: #4fc3f7; --text: #e0e0e0; --time: #757575; --uid: #9e9e9e;
+      --bg: #0f0f23;
+      --fg: #e8e8e8;
+      --card: #1a1a2e;
+      --header-bg: #16213e;
+      --name: #4fc3f7;
+      --uid: #90a4ae;
+      --orange: #ff9800;
+      --border: #2d3748;
+      --hover: #252545;
+      --shadow: rgba(0, 0, 0, 0.3);
     }
-    .light {
-      --bg: #f5f5f5; --panel-bg: #ffffff; --fg: #000000; --border: #cccccc;
-      --name: #0288d1; --text: #212121; --time: #666666; --uid: #757575;
+
+    html.light {
+      --bg: #f5f7fa;
+      --fg: #2d3748;
+      --card: #ffffff;
+      --header-bg: #ffffff;
+      --name: #1976d2;
+      --uid: #64748b;
+      --border: #e2e8f0;
+      --hover: #f1f5f9;
+      --shadow: rgba(0, 0, 0, 0.1);
     }
+
+    html.light body {
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
     body {
-      margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg); color: var(--fg); display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow: hidden;
     }
+
     header {
-      display: flex; align-items: center; gap: 10px; padding: 10px; background-color: var(--panel-bg);
-      border-bottom: 1px solid var(--border); flex-wrap: wrap;
+      padding: 10px 20px;
+      background: var(--header-bg);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 2px 8px var(--shadow);
+      border-bottom: 1px solid var(--border);
     }
-    input, button {
-      padding: 6px 12px; border: 1px solid var(--border); background-color: var(--bg);
-      color: var(--fg); border-radius: 4px; font-size: 14px;
+
+    #username {
+      padding: 8px 14px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      background: var(--card);
+      color: var(--fg);
+      font-size: 14px;
+      min-width: 220px;
+      transition: border-color 0.3s;
     }
-    button { cursor: pointer; background-color: var(--panel-bg); }
-    button:hover { opacity: 0.9; }
-    label { display: flex; align-items: center; gap: 4px; font-size: 14px; cursor: pointer; user-select: none; }
-    #currentLive { margin-left: auto; display: flex; align-items: center; font-size: 14px; }
-    
+
+    #username:focus {
+      outline: none;
+      border-color: #2196f3;
+    }
+
+    button {
+      border: none !important;
+      padding: 5px 15px !important;
+      color: white !important;
+      border-radius: 6px !important;
+      cursor: pointer !important;
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 4px var(--shadow) !important;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px var(--shadow) !important;
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    #connect {
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    }
+
+    #connect:hover {
+      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    }
+
+    #copyAll {
+      background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    }
+
+    #copyAll:hover {
+      background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+    }
+
+    #clear {
+      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    }
+
+    #clear:hover {
+      background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    input[type="checkbox"] {
+      width: 44px;
+      height: 22px;
+      appearance: none;
+      background: #cbd5e0;
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    input[type="checkbox"]::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input[type="checkbox"]:checked {
+      background: #2196f3;
+    }
+
+    input[type="checkbox"]:checked::before {
+      transform: translateX(22px);
+    }
+
+    #currentLive {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--card);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-left: auto;
+    }
+
+    #currentLive img {
+      box-shadow: 0 2px 4px var(--shadow);
+    }
+
+    #currentLive b {
+      color: var(--name);
+    }
+
+    #themeToggle {
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    #themeToggle:hover {
+      background: var(--hover);
+    }
+
+    #themeToggle input[type="checkbox"] {
+      display: none;
+    }
+
+    .theme-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--fg);
+    }
+
     .state-info {
-      display: flex; border-bottom: 1px solid var(--border); background-color: var(--panel-bg); font-size: 13px;
+      display: flex;
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
     }
-    .state-section { flex: 1; padding: 8px 12px; border-right: 1px solid var(--border); }
-    .state-section:last-child { border-right: none; }
-    #stateText { margin: 0; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
-    #roomStats { display: flex; gap: 20px; }
-    #roomStats b { color: var(--name); }
-    
-    .main { flex: 1; display: flex; overflow: hidden; }
+
+    .state-section {
+      flex: 0 0 62.05%;
+      background: var(--card);
+      padding: 8px 8px 8px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .state-section pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      color: var(--fg);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    #roomStats {
+      color: var(--fg);
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #roomStats>div {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    #roomStats strong {
+      color: var(--fg);
+      font-weight: 500;
+    }
+
+    #roomStats b {
+      color: var(--name);
+      font-weight: 700;
+    }
+
+    .main {
+      display: flex;
+      height: calc(100% - 110px);
+      gap: 1px;
+      background: var(--border);
+      overflow: hidden;
+      margin: 0 0 10px 0;
+    }
+
     .panel {
-      display: flex; flex-direction: column; border-right: 1px solid var(--border); background-color: var(--panel-bg);
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
-    .panel:nth-child(1) { width: 34%; }
-    .panel:nth-child(2) { width: 28%; }
-    .panel:nth-child(3) { width: 18.9%; }
-    .panel:nth-child(4) { width: 18.9%; border-right: none; }
+
+    /* Tỷ lệ cột: 34% - 28% - 18.9% - 18.9% */
+    .panel:nth-child(1) {
+      flex: 0 0 34%;
+    }
+
+    /* CHAT */
+    .panel:nth-child(2) {
+      flex: 0 0 28%;
+    }
+
+    /* YÊU CẦU */
+    .panel:nth-child(3) {
+      flex: 0 0 18.9%;
+    }
+
+    /* GIFTS */
+    .panel:nth-child(4) {
+      flex: 0 0 18.9%;
+    }
+
+    /* ACTIONS */
     .panel h3 {
-      margin: 0; padding: 10px; font-size: 14px; border-bottom: 1px solid var(--border);
-      background-color: var(--bg); letter-spacing: 1px; text-align: center;
+      margin: 0;
+      padding: 5px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: var(--header-bg);
+      border-bottom: 2px solid var(--border);
+      text-transform: uppercase;
     }
-    .chatListContainer { flex: 1; overflow-y: auto; padding: 10px; position: relative; }
-    
-    /* Các mục hiển thị dòng dữ liệu */
-    .msg, .gift-item, .action-item, .req {
-      margin-bottom: 12px; font-size: 14px; line-height: 1.4; word-break: break-word;
+
+    .chatListContainer {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      scroll-behavior: smooth;
     }
-    .chat-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
-    .avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-    .time { color: var(--time); font-size: 12px; font-family: monospace; }
-    .name { font-weight: bold; }
-    .uid { color: var(--uid); font-size: 12px; }
-    
-    /* Thành phần tương tác ghim/xóa */
-    .arrow, .checkbox-icon, .del { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-    .arrow svg, .checkbox-icon svg, .del svg { width: 16px; height: 16px; fill: currentColor; }
-    .arrow { margin-left: auto; color: var(--time); }
-    .arrow:hover { color: var(--fg); }
-    
+
+    .chatListContainer::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chatListContainer::-webkit-scrollbar-track {
+      background: var(--card);
+    }
+
+    .chatListContainer::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .chatListContainer::-webkit-scrollbar-thumb:hover {
+      background: var(--uid);
+    }
+
+    .msg {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    .msg:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+      transform: translateX(2px);
+    }
+
+    .msg.selected {
+      background: rgba(255, 152, 0, 0.15);
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+    }
+
+    .msg.temporary {
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    .chat-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+      flex-wrap: wrap;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      box-shadow: 0 2px 4px var(--shadow);
+    }
+
+    .time {
+      font-size: 11px;
+      opacity: 0.7;
+      background: var(--hover);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .name {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .uid {
+      font-size: 12px;
+      color: var(--uid);
+      opacity: 0.8;
+    }
+
+    .arrow {
+      margin-left: auto;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.3s;
+      padding: 6px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .arrow:hover {
+      opacity: 1;
+      background: var(--hover);
+      transform: scale(1.15);
+    }
+
+    .arrow svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--orange);
+    }
+
+    #chat .msg>div:last-child {
+      padding-left: 40px;
+      line-height: 1.5;
+      color: var(--fg);
+    }
+
     .req {
-      display: flex; align-items: flex-start; gap: 8px; padding: 8px;
-      background-color: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      position: relative;
+      padding: 8px 10px;
+      padding-right: 80px;
+      margin-bottom: 10px;
+      background: var(--card);
+      border: 1px solid #f93740;
+      border-radius: 8px;
+      line-height: 1.6;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+      color: var(--fg);
     }
-    .req > div { flex: 1; }
-    .req-nickname { font-weight: bold; }
-    .checkbox-icon { color: var(--time); margin-top: 2px; }
-    .checkbox-icon:hover { color: var(--fg); }
-    .del { background: none; border: none; color: #e57373; padding: 0; margin-top: 2px; }
-    .del:hover { color: #f44336; }
-    .done .req-message { text-decoration: line-through; opacity: 0.6; }
-    .done .checkbox-icon { color: #4caf50; }
-    .selected { background-color: rgba(79, 195, 247, 0.1); border-radius: 4px; }
-    
-    /* Giao diện hiển thị cột quà tặng */
-    .gift-item { display: flex; gap: 10px; background-color: var(--bg); padding: 8px; border: 1px solid var(--border); border-radius: 4px; }
-    .gift-details { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-    .gift-sender { font-weight: bold; }
-    .gift-desc { font-style: italic; color: var(--time); font-size: 13px; }
-    .gift-info-row { display: flex; align-items: center; gap: 8px; }
-    .gift-icon { width: 40px; height: 40px; object-fit: contain; }
-    .gift-stats { font-size: 12px; color: var(--text); }
-    
-    /* Giao diện hiển thị cột hành động */
-    .action-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-    .action-content { flex: 1; }
-    .action-username { font-weight: bold; }
-    
-    /* Giao diện Watch User Hotkey */
+
+    .req:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .req .req-nickname {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .req .req-message {
+      color: #f50e0e;
+      transition: color 0.3s ease;
+    }
+
+    /* Khi được check - TOÀN BỘ đổi màu xanh */
+    .req.done {
+      border-color: #10b981;
+    }
+
+    .req.done .req-nickname {
+      color: var(--name);
+    }
+
+    .req.done .req-message {
+      color: #10b981;
+    }
+
+    .req .checkbox-icon {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.3s;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .req .checkbox-icon:hover {
+      opacity: 1;
+      background: var(--hover);
+    }
+
+    .req .checkbox-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: #ef4444;
+      transition: fill 0.3s ease;
+    }
+
+    .req.done .checkbox-icon svg {
+      fill: #10b981;
+    }
+
+    .req .del {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none !important;
+      border: none !important;
+      cursor: pointer;
+      padding: 6px !important;
+      border-radius: 4px;
+      transition: all 0.3s;
+      opacity: 0.6;
+      box-shadow: none !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .req .del:hover {
+      opacity: 1;
+      background: rgba(244, 67, 54, 0.15) !important;
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    .req .del svg {
+      width: 16px;
+      height: 16px;
+      fill: #f44336;
+    }
+
+    .gift-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    .gift-item:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+      transform: translateX(2px);
+    }
+
+    .gift-item .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+    }
+
+    .gift-details {
+      flex: 1;
+    }
+
+    .gift-sender {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .gift-desc {
+      font-size: 12px;
+      color: var(--uid);
+      margin-bottom: 8px;
+    }
+
+    .gift-info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gift-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--hover);
+    }
+
+    .gift-stats {
+      flex: 1;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .gift-stats b {
+      color: var(--name);
+    }
+
+    .gift-repeat-pending {
+      color: #ef4444;
+      font-weight: 700;
+    }
+
+    /* Action item styling for member join, likes, shares */
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+      font-size: 13px;
+    }
+
+    .action-item:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .action-item.temporary {
+      opacity: 0.6;
+      /*font-style: italic;*/
+      color: #f39c12;
+    }
+
+    .action-item .avatar {
+      width: 28px;
+      height: 28px;
+    }
+
+    .action-content {
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .action-username {
+      color: var(--name);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        flex-direction: column;
+      }
+
+      .panel:nth-child(1),
+      .panel:nth-child(2),
+      .panel:nth-child(3),
+      .panel:nth-child(4) {
+        flex: 1 1 auto;
+      }
+
+      header {
+        padding: 12px;
+      }
+
+      #username {
+        min-width: 100%;
+      }
+
+      label {
+        font-size: 12px;
+      }
+    }
+
+    /* 24:02 ===============================
+   WATCH USER HOTKEY OVERLAY
+================================ */
     #watchUserOverlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
     }
+
     .watchBox {
-      background: var(--panel-bg); border: 1px solid var(--border); padding: 20px; border-radius: 8px; width: 350px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      background: var(--card);
+      color: var(--fg);
+      padding: 22px 26px;
+      border-radius: 12px;
+      min-width: 340px;
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 40px var(--shadow);
     }
-    .watchBoxTitle { font-weight: bold; font-size: 15px; }
-    #watchUserField { width: 100%; box-sizing: border-box; padding: 8px; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; }
-    .watchHint { font-size: 12px; color: var(--time); text-align: right; }
-    
-    /* Giao diện Hộp thoại Popup đặc biệt */
+
+    .watchBoxTitle {
+      margin-bottom: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--fg);
+    }
+
+    .watchBox input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      outline: none;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--fg);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .watchBox input::placeholder {
+      color: var(--uid);
+    }
+
+    .watchBox input:focus {
+      border-color: var(--name);
+      box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
+    }
+
+    .watchHint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--uid);
+    }
+
+    /* ===============================
+   SPECIAL USER POPUP
+================================ */
     .specialPopup {
-      position: fixed; right: 20px; width: 280px; height: 90px; background: var(--panel-bg); border: 2px solid #ff0000; border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 99999; cursor: move; user-select: none; box-sizing: border-box;
+      position: fixed;
+      right: 20px;
+      min-width: 300px;
+      max-width: 360px;
+      background: linear-gradient(135deg, #ff0000, #ff6600);
+      color: #fff;
+      padding: 16px 18px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: popupSlide 0.35s ease;
+      z-index: 9999;
+      font-family: inherit;
+      cursor: grab;
     }
-    .specialPopup.dragging { opacity: 0.8; border-style: dashed; }
-    .specialPopup img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
-    .popupContent { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
-    .popupContent a { font-weight: bold; color: #ff0000; text-decoration: none; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .popupContent a:hover { text-decoration: underline; }
-    .popupTime { font-size: 11px; color: var(--time); font-family: monospace; }
-    .popupClose { position: absolute; top: 4px; right: 8px; cursor: pointer; color: var(--time); font-size: 14px; font-weight: bold; }
-    .popupClose:hover { color: var(--fg); }
+
+    .specialPopup img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      object-fit: cover;
+    }
+
+    .specialPopup a {
+      color: #fff;
+      font-weight: 600;
+      text-decoration: underline;
+      word-break: break-word;
+    }
+
+    .specialPopup .popupContent {
+      flex: 1;
+    }
+
+    .specialPopup .popupTime {
+      font-size: 13px;
+      margin-top: 6px;
+      opacity: 0.9;
+    }
+
+    .specialPopup .popupClose {
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .specialPopup .popupClose:hover {
+      opacity: 0.7;
+    }
+
+    @keyframes popupSlide {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .specialPopup.dragging {
+      cursor: grabbing;
+      user-select: none;
+    }
+    @view-transition {
+      navigation: auto;
+    }
 
     /* ==========================================================================
        THÀNH PHẦN THÊM MỚI: CSS GIAO DIỆN BẢNG XẾP HẠNG THỜI GIAN THỰC
