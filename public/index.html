@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,936 +13,957 @@
     /* ==========================================================================
    CHƯƠNG I: CẤU HÌNH HỆ THỐNG & BIẾN MÔI TRƯỜNG (THEME)
    ========================================================================== */
-:root {
-  --bg: #0f0f23;
-  --fg: #e8e8e8;
-  --card: #1a1a2e;
-  --header-bg: #16213e;
-  --name: #4fc3f7;
-  --uid: #90a4ae;
-  --orange: #ff9800;
-  --border: #2d3748;
-  --hover: #252545;
-  --shadow: rgba(0, 0, 0, 0.3);
-}
+    :root {
+      --bg: #0f0f23;
+      --fg: #e8e8e8;
+      --card: #1a1a2e;
+      --header-bg: #16213e;
+      --name: #4fc3f7;
+      --uid: #90a4ae;
+      --orange: #ff9800;
+      --border: #2d3748;
+      --hover: #252545;
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
 
-html.light {
-  --bg: #f5f7fa;
-  --fg: #2d3748;
-  --card: #ffffff;
-  --header-bg: #ffffff;
-  --name: #1976d2;
-  --uid: #64748b;
-  --border: #e2e8f0;
-  --hover: #f1f5f9;
-  --shadow: rgba(0, 0, 0, 0.1);
-}
+    html.light {
+      --bg: #f5f7fa;
+      --fg: #2d3748;
+      --card: #ffffff;
+      --header-bg: #ffffff;
+      --name: #1976d2;
+      --uid: #64748b;
+      --border: #e2e8f0;
+      --hover: #f1f5f9;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
 
-* {
-  box-sizing: border-box;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--bg);
-  color: var(--fg);
-  overflow: hidden;
-}
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow: hidden;
+    }
 
-html.light body {
-  background: var(--bg);
-  color: var(--fg);
-}
+    html.light body {
+      background: var(--bg);
+      color: var(--fg);
+    }
 
-@view-transition {
-  navigation: auto;
-}
+    @view-transition {
+      navigation: auto;
+    }
 
-/* Kích thước thanh cuộn cho toàn bộ hệ thống container */
-.chatListContainer::-webkit-scrollbar,
-.rankList::-webkit-scrollbar {
-  width: 8px;
-}
+    /* Kích thước thanh cuộn cho toàn bộ hệ thống container */
+    .chatListContainer::-webkit-scrollbar,
+    .rankList::-webkit-scrollbar {
+      width: 8px;
+    }
 
-/* Nền đường ray thanh cuộn */
-.chatListContainer::-webkit-scrollbar-track,
-.rankList::-webkit-scrollbar-track {
-  background: var(--card);
-}
+    /* Nền đường ray thanh cuộn */
+    .chatListContainer::-webkit-scrollbar-track,
+    .rankList::-webkit-scrollbar-track {
+      background: var(--card);
+    }
 
-/* Cục cuộn (Thumb) trạng thái bình thường */
-.chatListContainer::-webkit-scrollbar-thumb,
-.rankList::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
-}
+    /* Cục cuộn (Thumb) trạng thái bình thường */
+    .chatListContainer::-webkit-scrollbar-thumb,
+    .rankList::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
 
-/* Cục cuộn (Thumb) khi di chuột vào (Hover) */
-.chatListContainer::-webkit-scrollbar-thumb:hover,
-.rankList::-webkit-scrollbar-thumb:hover {
-  background: var(--uid);
-}
+    /* Cục cuộn (Thumb) khi di chuột vào (Hover) */
+    .chatListContainer::-webkit-scrollbar-thumb:hover,
+    .rankList::-webkit-scrollbar-thumb:hover {
+      background: var(--uid);
+    }
 
-
-/* ==========================================================================
+    /* ==========================================================================
    CHƯƠNG II: KHỐI HEADER VÀ THÀNH PHẦN ĐIỀU KHIỂN (CONTROLS)
    ========================================================================== */
-header {
-  padding: 10px 20px;
-  background: var(--header-bg);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  box-shadow: 0 2px 8px var(--shadow);
-  border-bottom: 1px solid var(--border);
-}
+    header {
+      padding: 10px 20px;
+      background: var(--header-bg);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 2px 8px var(--shadow);
+      border-bottom: 1px solid var(--border);
+    }
 
-#username {
-  padding: 8px 14px;
-  border: 2px solid var(--border);
-  border-radius: 6px;
-  background: var(--card);
-  color: var(--fg);
-  font-size: 14px;
-  min-width: 220px;
-  transition: border-color 0.3s;
-}
+    #username {
+      padding: 8px 14px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      background: var(--card);
+      color: var(--fg);
+      font-size: 14px;
+      min-width: 220px;
+      transition: border-color 0.3s;
+    }
 
-#username:focus {
-  outline: none;
-  border-color: #2196f3;
-}
+    #username:focus {
+      outline: none;
+      border-color: #2196f3;
+    }
 
-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  user-select: none;
-}
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
 
-/* Khối các nút nhấn (Buttons) */
-button {
-  border: none !important;
-  padding: 5px 15px !important;
-  color: white !important;
-  border-radius: 6px !important;
-  cursor: pointer !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 2px 4px var(--shadow) !important;
-}
+    /* Khối các nút nhấn (Buttons) */
+    button {
+      border: none !important;
+      padding: 5px 15px !important;
+      color: white !important;
+      border-radius: 6px !important;
+      cursor: pointer !important;
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 4px var(--shadow) !important;
+    }
 
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px var(--shadow) !important;
-}
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px var(--shadow) !important;
+    }
 
-button:active {
-  transform: translateY(0);
-}
+    button:active {
+      transform: translateY(0);
+    }
 
-#connect {
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-}
+    #connect {
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    }
 
-#connect:hover {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-}    
+    #connect:hover {
+      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    }
 
-#clear {
-  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-}
+    #clear {
+      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    }
 
-#clear:hover {
-  background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
-}
+    #clear:hover {
+      background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    }
 
-#showGiftsRank, #copyAll {
-  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
-}
+    #showGiftsRank,
+    #copyAll {
+      background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    }
 
-#showGiftsRank:hover, #copyAll:hover {
-  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
-}
+    #showGiftsRank:hover,
+    #copyAll:hover {
+      background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+    }
 
-#showLikesRank {
-  background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-}
+    #showLikesRank {
+      background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+    }
 
-#showLikesRank:hover {
-  background: linear-gradient(135deg, #ff4b2b 0%, #e63917 100%);
-}
+    #showLikesRank:hover {
+      background: linear-gradient(135deg, #ff4b2b 0%, #e63917 100%);
+    }
 
-/* Khối Checkbox tùy chỉnh dạng công tắc Switch */
-input[type="checkbox"] {
-  width: 44px;
-  height: 22px;
-  appearance: none;
-  background: #cbd5e0;
-  border-radius: 20px;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.3s;
-}
+    /* Khối Checkbox tùy chỉnh dạng công tắc Switch */
+    input[type="checkbox"] {
+      width: 44px;
+      height: 22px;
+      appearance: none;
+      background: #cbd5e0;
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-input[type="checkbox"]::before {
-  content: '';
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: white;
-  top: 2px;
-  left: 2px;
-  transition: transform 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
+    input[type="checkbox"]::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
 
-input[type="checkbox"]:checked {
-  background: #2196f3;
-}
+    input[type="checkbox"]:checked {
+      background: #2196f3;
+    }
 
-input[type="checkbox"]:checked::before {
-  transform: translateX(22px);
-}
+    input[type="checkbox"]:checked::before {
+      transform: translateX(22px);
+    }
 
-/* Khối Thông tin phòng Live hiện tại */
-#currentLive {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: var(--card);
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  margin-left: auto;
-}
+    /* Khối Thông tin phòng Live hiện tại */
+    #currentLive {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--card);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-left: auto;
+    }
 
-#currentLive img {
-  box-shadow: 0 2px 4px var(--shadow);
-}
+    #currentLive img {
+      box-shadow: 0 2px 4px var(--shadow);
+    }
 
-#currentLive b {
-  color: var(--name);
-}
+    #currentLive b {
+      color: var(--name);
+    }
 
-/* Nút chuyển đổi giao diện sáng tối */
-#themeToggle {
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  transition: background 0.3s;
-}
+    /* Nút chuyển đổi giao diện sáng tối */
+    #themeToggle {
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
 
-#themeToggle:hover {
-  background: var(--hover);
-}
+    #themeToggle:hover {
+      background: var(--hover);
+    }
 
-#themeToggle input[type="checkbox"] {
-  display: none;
-}
+    #themeToggle input[type="checkbox"] {
+      display: none;
+    }
 
-.theme-icon {
-  width: 24px;
-  height: 24px;
-  fill: var(--fg);
-}
+    .theme-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--fg);
+    }
 
-
-/* ==========================================================================
+    /* ==========================================================================
    CHƯƠNG III: KHỐI THÔNG TIN TRẠNG THÁI (STATE BAR) & THỐNG KÊ (STATS)
    ========================================================================== */
-.state-info {
-  display: flex;
-  gap: 1px;
-  background: var(--border);
-  border-bottom: 1px solid var(--border);
-}
+    .state-info {
+      display: flex;
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
 
-.state-section {
-  flex: 0 0 62.05%;
-  background: var(--card);
-  padding: 8px 8px 8px 16px;
-  font-size: 13px;
-  line-height: 1.6;
-}
+    .state-section {
+      flex: 0 0 62.05%;
+      background: var(--card);
+      padding: 8px 8px 8px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
 
-.state-section pre {
-  margin: 0;
-  font-family: 'Courier New', monospace;
-  color: var(--fg);
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
+    .state-section pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      color: var(--fg);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
 
-#roomStats {
-  color: var(--fg);
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-}
+    #roomStats {
+      color: var(--fg);
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
-#roomStats>div {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
+    #roomStats>div {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
 
-#roomStats strong {
-  color: var(--fg);
-  font-weight: 500;
-}
+    #roomStats strong {
+      color: var(--fg);
+      font-weight: 500;
+    }
 
-#roomStats b {
-  color: var(--name);
-  font-weight: 700;
-}
+    #roomStats b {
+      color: var(--name);
+      font-weight: 700;
+    }
 
-
-/* ==========================================================================
+    /* ==========================================================================
    CHƯƠNG IV: BỐ CỤC CHÍNH (MAIN LAYOUT) & CÁC PANEL THÀNH PHẦN
    ========================================================================== */
-.main {
-  display: flex;
-  height: calc(100% - 110px);
-  gap: 1px;
-  background: var(--border);
-  overflow: hidden;
-  margin: 0 0 10px 0;
-}
+    .main {
+      display: flex;
+      height: calc(100% - 110px);
+      gap: 1px;
+      background: var(--border);
+      overflow: hidden;
+      margin: 0 0 10px 0;
+    }
 
-.panel {
-  background: var(--card);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+    .panel {
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-/* Phân chia tỷ lệ chiều rộng các cột panel: 34% - 28% - 18.9% - 18.9% */
-.panel:nth-child(1) { flex: 0 0 34%; }   /* Cột 1: ACTIONS */
-.panel:nth-child(2) { flex: 0 0 28%; }   /* Cột 2: CHAT */
-.panel:nth-child(3) { flex: 0 0 18.9%; } /* Cột 3: YÊU CẦU */
-.panel:nth-child(4) { flex: 0 0 18.9%; } /* Cột 4: GIFTS */
+    /* Phân chia tỷ lệ chiều rộng các cột panel: 34% - 28% - 18.9% - 18.9% */
+    .panel:nth-child(1) {
+      flex: 0 0 34%;
+    }
 
-.panel h3 {
-  margin: 0;
-  padding: 5px;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  background: var(--header-bg);
-  border-bottom: 2px solid var(--border);
-  text-transform: uppercase;
-}
+    /* Cột 1: ACTIONS */
+    .panel:nth-child(2) {
+      flex: 0 0 28%;
+    }
 
-.chatListContainer {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-  scroll-behavior: smooth;
-}
+    /* Cột 2: CHAT */
+    .panel:nth-child(3) {
+      flex: 0 0 18.9%;
+    }
 
+    /* Cột 3: YÊU CẦU */
+    .panel:nth-child(4) {
+      flex: 0 0 18.9%;
+    }
 
-/* ==========================================================================
+    /* Cột 4: GIFTS */
+    .panel h3 {
+      margin: 0;
+      padding: 5px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: var(--header-bg);
+      border-bottom: 2px solid var(--border);
+      text-transform: uppercase;
+    }
+
+    .chatListContainer {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      scroll-behavior: smooth;
+    }
+
+    /* ==========================================================================
    CHƯƠNG V: CHI TIẾT THÀNH PHẦN TRONG PANEL (ITEMS STYLE)
    ========================================================================== */
+    /* --- THÀNH PHẦN CHAT LIST --- */
+    .msg {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+    }
 
-/* --- THÀNH PHẦN CHAT LIST --- */
-.msg {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 5px;
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px var(--shadow);
-}
+    .msg:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+      transform: translateX(2px);
+    }
 
-.msg:hover {
-  background: var(--hover);
-  box-shadow: 0 2px 6px var(--shadow);
-  transform: translateX(2px);
-}
+    .msg.selected {
+      background: rgba(255, 152, 0, 0.15);
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+    }
 
-.msg.selected {
-  background: rgba(255, 152, 0, 0.15);
-  border-color: var(--orange);
-  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
-}
+    .msg.temporary {
+      opacity: 0.6;
+      font-style: italic;
+    }
 
-.msg.temporary {
-  opacity: 0.6;
-  font-style: italic;
-}
+    .chat-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+      flex-wrap: wrap;
+    }
 
-.chat-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 2px;
-  flex-wrap: wrap;
-}
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      box-shadow: 0 2px 4px var(--shadow);
+    }
 
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  box-shadow: 0 2px 4px var(--shadow);
-}
+    .time {
+      font-size: 11px;
+      opacity: 0.7;
+      background: var(--hover);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
 
-.time {
-  font-size: 11px;
-  opacity: 0.7;
-  background: var(--hover);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
+    .name {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+    }
 
-.name {
-  color: var(--name);
-  font-weight: 600;
-  font-size: 14px;
-}
+    .uid {
+      font-size: 12px;
+      color: var(--uid);
+      opacity: 0.8;
+    }
 
-.uid {
-  font-size: 12px;
-  color: var(--uid);
-  opacity: 0.8;
-}
+    .arrow {
+      margin-left: auto;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.3s;
+      padding: 6px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.arrow {
-  margin-left: auto;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: all 0.3s;
-  padding: 6px 8px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .arrow:hover {
+      opacity: 1;
+      background: var(--hover);
+      transform: scale(1.15);
+    }
 
-.arrow:hover {
-  opacity: 1;
-  background: var(--hover);
-  transform: scale(1.15);
-}
+    .arrow svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--orange);
+    }
 
-.arrow svg {
-  width: 18px;
-  height: 18px;
-  fill: var(--orange);
-}
+    #chat .msg>div:last-child {
+      padding-left: 40px;
+      line-height: 1.5;
+      color: var(--fg);
+    }
 
-#chat .msg>div:last-child {
-  padding-left: 40px;
-  line-height: 1.5;
-  color: var(--fg);
-}
+    /* --- THÀNH PHẦN REQUEST (YÊU CẦU) --- */
+    .req {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      position: relative;
+      padding: 8px 10px;
+      padding-right: 80px;
+      margin-bottom: 10px;
+      background: var(--card);
+      border: 1px solid #f93740;
+      border-radius: 8px;
+      line-height: 1.6;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+      color: var(--fg);
+    }
 
-/* --- THÀNH PHẦN REQUEST (YÊU CẦU) --- */
-.req {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  position: relative;
-  padding: 8px 10px;
-  padding-right: 80px;
-  margin-bottom: 10px;
-  background: var(--card);
-  border: 1px solid #f93740;
-  border-radius: 8px;
-  line-height: 1.6;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px var(--shadow);
-  color: var(--fg);
-}
+    .req:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+    }
 
-.req:hover {
-  background: var(--hover);
-  box-shadow: 0 2px 6px var(--shadow);
-}
+    .req .req-nickname {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
 
-.req .req-nickname {
-  color: var(--name);
-  font-weight: 600;
-  font-size: 14px;
-  transition: color 0.3s ease;
-}
+    .req .req-message {
+      color: #f50e0e;
+      transition: color 0.3s ease;
+    }
 
-.req .req-message {
-  color: #f50e0e;
-  transition: color 0.3s ease;
-}
+    .req.done {
+      border-color: #10b981;
+    }
 
-.req.done {
-  border-color: #10b981;
-}
+    .req.done .req-nickname {
+      color: var(--name);
+    }
 
-.req.done .req-nickname {
-  color: var(--name);
-}
+    .req.done .req-message {
+      color: #10b981;
+    }
 
-.req.done .req-message {
-  color: #10b981;
-}
+    .req .checkbox-icon {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.3s;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.req .checkbox-icon {
-  position: absolute;
-  right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.3s;
-  opacity: 0.7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .req .checkbox-icon:hover {
+      opacity: 1;
+      background: var(--hover);
+    }
 
-.req .checkbox-icon:hover {
-  opacity: 1;
-  background: var(--hover);
-}
+    .req .checkbox-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: #ef4444;
+      transition: fill 0.3s ease;
+    }
 
-.req .checkbox-icon svg {
-  width: 20px;
-  height: 20px;
-  fill: #ef4444;
-  transition: fill 0.3s ease;
-}
+    .req.done .checkbox-icon svg {
+      fill: #10b981;
+    }
 
-.req.done .checkbox-icon svg {
-  fill: #10b981;
-}
+    .req .del {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none !important;
+      border: none !important;
+      cursor: pointer;
+      padding: 6px !important;
+      border-radius: 4px;
+      transition: all 0.3s;
+      opacity: 0.6;
+      box-shadow: none !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.req .del {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none !important;
-  border: none !important;
-  cursor: pointer;
-  padding: 6px !important;
-  border-radius: 4px;
-  transition: all 0.3s;
-  opacity: 0.6;
-  box-shadow: none !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .req .del:hover {
+      opacity: 1;
+      background: rgba(244, 67, 54, 0.15) !important;
+      transform: translateY(-50%) scale(1.2);
+    }
 
-.req .del:hover {
-  opacity: 1;
-  background: rgba(244, 67, 54, 0.15) !important;
-  transform: translateY(-50%) scale(1.2);
-}
+    .req .del svg {
+      width: 16px;
+      height: 16px;
+      fill: #f44336;
+    }
 
-.req .del svg {
-  width: 16px;
-  height: 16px;
-  fill: #f44336;
-}
+    /* --- THÀNH PHẦN GIFT LIST (QUÀ TẶNG) --- */
+    .gift-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+    }
 
-/* --- THÀNH PHẦN GIFT LIST (QUÀ TẶNG) --- */
-.gift-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px;
-  margin-bottom: 8px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px var(--shadow);
-}
+    .gift-item:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+      transform: translateX(2px);
+    }
 
-.gift-item:hover {
-  background: var(--hover);
-  box-shadow: 0 2px 6px var(--shadow);
-  transform: translateX(2px);
-}
+    .gift-item .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+    }
 
-.gift-item .avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-}
+    .gift-details {
+      flex: 1;
+    }
 
-.gift-details {
-  flex: 1;
-}
+    .gift-sender {
+      color: var(--name);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
 
-.gift-sender {
-  color: var(--name);
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
+    .gift-desc {
+      font-size: 12px;
+      color: var(--uid);
+      margin-bottom: 8px;
+    }
 
-.gift-desc {
-  font-size: 12px;
-  color: var(--uid);
-  margin-bottom: 8px;
-}
+    .gift-info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-.gift-info-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+    .gift-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--hover);
+    }
 
-.gift-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 8px;
-  border: 2px solid var(--border);
-  background: var(--hover);
-}
+    .gift-stats {
+      flex: 1;
+      font-size: 12px;
+      line-height: 1.6;
+    }
 
-.gift-stats {
-  flex: 1;
-  font-size: 12px;
-  line-height: 1.6;
-}
+    .gift-stats b {
+      color: var(--name);
+    }
 
-.gift-stats b {
-  color: var(--name);
-}
+    .gift-repeat-pending {
+      color: #ef4444;
+      font-weight: 700;
+    }
 
-.gift-repeat-pending {
-  color: #ef4444;
-  font-weight: 700;
-}
+    /* --- THÀNH PHẦN ACTION LIST (MEMBER JOIN, LIKES, SHARES) --- */
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px var(--shadow);
+      font-size: 13px;
+    }
 
-/* --- THÀNH PHẦN ACTION LIST (MEMBER JOIN, LIKES, SHARES) --- */
-.action-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  margin-bottom: 6px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px var(--shadow);
-  font-size: 13px;
-}
+    .action-item:hover {
+      background: var(--hover);
+      box-shadow: 0 2px 6px var(--shadow);
+    }
 
-.action-item:hover {
-  background: var(--hover);
-  box-shadow: 0 2px 6px var(--shadow);
-}
+    .action-item.temporary {
+      opacity: 0.6;
+      color: #f39c12;
+    }
 
-.action-item.temporary {
-  opacity: 0.6;
-  color: #f39c12;
-}
+    .action-item .avatar {
+      width: 28px;
+      height: 28px;
+    }
 
-.action-item .avatar {
-  width: 28px;
-  height: 28px;
-}
+    .action-content {
+      flex: 1;
+      line-height: 1.4;
+    }
 
-.action-content {
-  flex: 1;
-  line-height: 1.4;
-}
+    .action-username {
+      color: var(--name);
+      font-weight: 600;
+    }
 
-.action-username {
-  color: var(--name);
-  font-weight: 600;
-}
-
-
-/* ==========================================================================
+    /* ==========================================================================
    CHƯƠNG VI: LỚP PHỦ OVERLAY & CÁC CỬA SỔ POPUP BẬT LÊN
    ========================================================================== */
+    /* --- HOTKEY OVERLAY (WATCH USER) --- */
+    #watchUserOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
 
-/* --- HOTKEY OVERLAY (WATCH USER) --- */
-#watchUserOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-}
+    .watchBox {
+      background: var(--card);
+      color: var(--fg);
+      padding: 22px 26px;
+      border-radius: 12px;
+      min-width: 340px;
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 40px var(--shadow);
+    }
 
-.watchBox {
-  background: var(--card);
-  color: var(--fg);
-  padding: 22px 26px;
-  border-radius: 12px;
-  min-width: 340px;
-  border: 1px solid var(--border);
-  box-shadow: 0 15px 40px var(--shadow);
-}
+    .watchBoxTitle {
+      margin-bottom: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--fg);
+    }
 
-.watchBoxTitle {
-  margin-bottom: 12px;
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--fg);
-}
+    .watchBox input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      outline: none;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--fg);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-.watchBox input {
-  width: 100%;
-  padding: 9px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  outline: none;
-  font-size: 14px;
-  background: var(--bg);
-  color: var(--fg);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
+    .watchBox input::placeholder {
+      color: var(--uid);
+    }
 
-.watchBox input::placeholder {
-  color: var(--uid);
-}
+    .watchBox input:focus {
+      border-color: var(--name);
+      box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
+    }
 
-.watchBox input:focus {
-  border-color: var(--name);
-  box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
-}
+    .watchHint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--uid);
+    }
 
-.watchHint {
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--uid);
-}
+    /* --- POPUP THÔNG BÁO ĐẶC BIỆT (SPECIAL USER) --- */
+    .specialPopup {
+      position: fixed;
+      right: 20px;
+      min-width: 300px;
+      max-width: 360px;
+      background: linear-gradient(135deg, #ff0000, #ff6600);
+      color: #fff;
+      padding: 16px 18px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: popupSlide 0.35s ease;
+      z-index: 9999;
+      font-family: inherit;
+      cursor: grab;
+    }
 
-/* --- POPUP THÔNG BÁO ĐẶC BIỆT (SPECIAL USER) --- */
-.specialPopup {
-  position: fixed;
-  right: 20px;
-  min-width: 300px;
-  max-width: 360px;
-  background: linear-gradient(135deg, #ff0000, #ff6600);
-  color: #fff;
-  padding: 16px 18px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  animation: popupSlide 0.35s ease;
-  z-index: 9999;
-  font-family: inherit;
-  cursor: grab;
-}
+    .specialPopup.dragging {
+      cursor: grabbing;
+      user-select: none;
+    }
 
-.specialPopup.dragging {
-  cursor: grabbing;
-  user-select: none;
-}
+    .specialPopup img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      object-fit: cover;
+    }
 
-.specialPopup img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  object-fit: cover;
-}
+    .specialPopup a {
+      color: #fff;
+      font-weight: 600;
+      text-decoration: underline;
+      word-break: break-word;
+    }
 
-.specialPopup a {
-  color: #fff;
-  font-weight: 600;
-  text-decoration: underline;
-  word-break: break-word;
-}
+    .specialPopup .popupContent {
+      flex: 1;
+    }
 
-.specialPopup .popupContent {
-  flex: 1;
-}
+    .specialPopup .popupTime {
+      font-size: 13px;
+      margin-top: 6px;
+      opacity: 0.9;
+    }
 
-.specialPopup .popupTime {
-  font-size: 13px;
-  margin-top: 6px;
-  opacity: 0.9;
-}
+    .specialPopup .popupClose {
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-.specialPopup .popupClose {
-  position: absolute;
-  top: 6px;
-  right: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
+    .specialPopup .popupClose:hover {
+      opacity: 0.7;
+    }
 
-.specialPopup .popupClose:hover {
-  opacity: 0.7;
-}
+    @keyframes popupSlide {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
 
-@keyframes popupSlide {
-  from {
-    opacity: 0;
-    transform: translateX(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
 
-/* --- BẢNG XẾP HẠNG THỜI GIAN THỰC (REALTIME RANKING) --- */
-#list_gifts_rank, 
-#list_likes_rank {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
+    /* --- BẢNG XẾP HẠNG THỜI GIAN THỰC (REALTIME RANKING) --- */
+    #list_gifts_rank,
+    #list_likes_rank {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
 
-.rankPopup {
-  position: fixed; 
-  top: 15%; 
-  left: 35%; 
-  width: 320px; 
-  height: 420px;
-  background: var(--card); 
-  border: 1px solid var(--name); 
-  border-radius: 8px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.6); 
-  z-index: 99999; 
-  display: flex;
-  flex-direction: column; 
-  overflow: hidden; 
-  box-sizing: border-box; 
-  cursor: move;
-}
+    .rankPopup {
+      position: fixed;
+      top: 15%;
+      left: 35%;
+      width: 320px;
+      height: 420px;
+      background: var(--card);
+      border: 1px solid var(--name);
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-sizing: border-box;      
+    }
 
-.rankHeader {
-  padding: 10px; 
-  background: var(--bg); 
-  border-bottom: 1px solid var(--border);
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  font-weight: bold;
-}
+    .rankHeader {
+      padding: 10px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      cursor: move;
+    }
 
-.rankClose { 
-  cursor: pointer; 
-  font-size: 16px; 
-  color: var(--time); 
-  font-weight: bold; 
-}
+    .rankClose {
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--time);
+      font-weight: bold;
+    }
 
-.rankClose:hover { 
-  color: var(--fg); 
-}
+    .rankClose:hover {
+      color: var(--fg);
+    }
 
-.rankList { 
-  flex: 1; 
-  overflow-y: auto; 
-  padding: 10px; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 8px; 
-}
+    .rankList {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-.rankItem {
-  display: flex; 
-  align-items: center; 
-  gap: 10px; 
-  padding: 6px 8px;
-  background: var(--bg); 
-  border: 1px solid var(--border); 
-  border-radius: 4px; 
-  font-size: 13px;
-  /* Kế thừa hiệu ứng trượt mượt mà khi di chuyển vị trí (order) */
-  transition: order 0.4s ease-in-out, all 0.4s ease-in-out;
-}
+    .rankItem {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 13px;
+      /* Kế thừa hiệu ứng trượt mượt mà khi di chuyển vị trí (order) */
+      transition: order 0.4s ease-in-out, all 0.4s ease-in-out;
+    }
 
-.rankNumber { 
-  font-weight: bold; 
-  color: var(--time); 
-  width: 20px; 
-  text-align: center; 
-}
+    .rankNumber {
+      font-weight: bold;
+      color: var(--time);
+      width: 20px;
+      text-align: center;
+    }
 
-.rankItem:nth-child(1) .rankNumber { color: #ffd700; font-size: 15px; }
-.rankItem:nth-child(2) .rankNumber { color: #c0c0c0; font-size: 14px; }
-.rankItem:nth-child(3) .rankNumber { color: #cd7f32; font-size: 14px; }
+    .rankItem:nth-child(1) .rankNumber {
+      color: #ffd700;
+      font-size: 15px;
+    }
 
-.rankAvatar { 
-  width: 28px; 
-  height: 28px; 
-  border-radius: 50%; 
-  object-fit: cover; 
-}
+    .rankItem:nth-child(2) .rankNumber {
+      color: #c0c0c0;
+      font-size: 14px;
+    }
 
-.rankInfo { 
-  flex: 1; 
-  display: flex; 
-  flex-direction: column; 
-  min-width: 0; 
-}
+    .rankItem:nth-child(3) .rankNumber {
+      color: #cd7f32;
+      font-size: 14px;
+    }
 
-.rankName { 
-  font-weight: bold; 
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-}
+    .rankAvatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
 
-.rankValue { 
-  font-size: 12px; 
-  color: var(--name); 
-  font-weight: bold; 
-}
+    .rankInfo {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
 
+    .rankName {
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-/* ==========================================================================
+    .rankValue {
+      font-size: 12px;
+      color: var(--name);
+      font-weight: bold;
+    }
+
+    /* ==========================================================================
    CHƯƠNG VII: GIAO DIỆN PHẢN HỒI THEO KÍCH THƯỚC MÀN HÌNH (MEDIA QUERIES)
    ========================================================================== */
-@media (max-width: 768px) {
-  .main {
-    flex-direction: column;
-  }
+    @media (max-width: 768px) {
+      .main {
+        flex-direction: column;
+      }
 
-  .panel:nth-child(1),
-  .panel:nth-child(2),
-  .panel:nth-child(3),
-  .panel:nth-child(4) {
-    flex: 1 1 auto;
-  }
+      .panel:nth-child(1),
+      .panel:nth-child(2),
+      .panel:nth-child(3),
+      .panel:nth-child(4) {
+        flex: 1 1 auto;
+      }
 
-  header {
-    padding: 12px;
-  }
+      header {
+        padding: 12px;
+      }
 
-  #username {
-    min-width: 100%;
-  }
+      #username {
+        min-width: 100%;
+      }
 
-  label {
-    font-size: 12px;
-  }
-}
+      label {
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 
@@ -1376,29 +1398,30 @@ input[type="checkbox"]:checked::before {
         }, 6000);
       }
     }
-    
+
     function renderStreamerInfo(streamerData) {
       if (!streamerData) return;
       const streamerInfo = {
         uid: streamerData.id_str || '',
         username: streamerData.display_id || '',
-        nickname: streamerData.nickname || 'Unknown',    
-        avatar: streamerData.avatar_large?.url_list?.[0] ?? 
-                streamerData.avatar_medium?.url_list?.[0] ?? 
-                streamerData.avatar_thumb?.url_list?.[0] ?? 
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(streamerData.nickname)}&background=2196f3&color=fff&size=128`
+        nickname: streamerData.nickname || 'Unknown',
+        avatar: streamerData.avatar_large?.url_list?.[0] ??
+          streamerData.avatar_medium?.url_list?.[0] ??
+          streamerData.avatar_thumb?.url_list?.[0] ??
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(streamerData.nickname)}&background=2196f3&color=fff&size=128`
       };
-
-        // console.log("🎯 Đã lấy được Streamer Info:", streamerInfo);
-        
-        chatDiv.innerHTML = ''; reqDiv.innerHTML = ''; giftsDiv.innerHTML = ''; actionsDiv.innerHTML = '';
-        currentLiveDiv.innerHTML = `
+      // console.log("🎯 Đã lấy được Streamer Info:", streamerInfo);
+      chatDiv.innerHTML = '';
+      reqDiv.innerHTML = '';
+      giftsDiv.innerHTML = '';
+      actionsDiv.innerHTML = '';
+      currentLiveDiv.innerHTML = `
           <b style="color: var(--fg)">Live: </b>
           <img src="${streamerInfo.avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
           <b>${generateUsernameLink({uniqueId: streamerInfo.username, nickname: streamerInfo.nickname})}</b>
           <span style="color:#888;margin-left:4px">@${streamerInfo.username}</span>
         `;
-      }
+    }
     /*
     function renderStreamerInfo(user) {
       if (!user) return;
