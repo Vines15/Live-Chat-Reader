@@ -1402,9 +1402,9 @@
         chatDiv.innerHTML = ''; reqDiv.innerHTML = ''; giftsDiv.innerHTML = ''; actionsDiv.innerHTML = '';
         currentLiveDiv.innerHTML = `
           <b style="color: var(--fg)">Live: </b>
-          <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
-          <b>${generateUsernameLink({uniqueId: username, nickname: nickname})}</b>
-          <span style="color:#888;margin-left:4px">@${username}</span>
+          <img src="${streamerInfo.avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
+          <b>${generateUsernameLink({uniqueId: streamerInfo.username, nickname: streamerInfo.nickname})}</b>
+          <span style="color:#888;margin-left:4px">@${streamerInfo.username}</span>
         `;
       }
     /*
