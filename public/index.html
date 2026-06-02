@@ -848,6 +848,22 @@
     .rankInfo { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .rankName { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rankValue { font-size: 12px; color: var(--name); font-weight: bold; }
+    
+#list_gifts_rank, 
+#list_likes_rank {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+
+.rankItem {
+  display: flex;
+  align-items: center;
+  
+  /* Tạo hiệu ứng trượt lên/xuống mượt mà trong 0.4 giây khi số order thay đổi */
+  transition: order 0.4s ease-in-out, all 0.4s ease-in-out;
+}
   </style>
 </head>
 <body>
@@ -1140,7 +1156,7 @@
       sortedGifts.forEach((item, idx) => {
         const avatar = item.user.profilePictureUrl || `https://ui-avatars.com/api/?name=${item.user.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=64`;
         html += `
-          <div class="rankItem">
+          <div class="rankItem" style="order: ${idx + 1}">
             <span class="rankNumber">${idx + 1}</span>
             <img class="rankAvatar" src="${avatar}">
             <div class="rankInfo">
@@ -1161,7 +1177,7 @@
       sortedLikes.forEach((item, idx) => {
         const avatar = item.user.profilePictureUrl || `https://ui-avatars.com/api/?name=${item.user.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=64`;
         html += `
-          <div class="rankItem">
+          <div class="rankItem" style="order: ${idx + 1}">
             <span class="rankNumber">${idx + 1}</span>
             <img class="rankAvatar" src="${avatar}">
             <div class="rankInfo">
@@ -1276,11 +1292,19 @@
       }
     }
 
-    function renderStreamerInfo(user) {
-      if (!user) return;
-      const username = user.display_id || user.uniqueId || user.username || '';
-      const displayName = user.nickname || user.displayName || 'Unknown';
-      const avatar = user.avatar_large?.url_list?.[0] ?? user.avatar_medium?.url_list?.[0] ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+    function renderStreamerInfo(streamerData) {
+      if (!streamerData) return;
+     const streamerInfo = {
+    uid: streamerData.id_str || '',
+    username: streamerData.display_id || '',
+    nickname: streamerData.nickname || 'Unknown',    
+    avatar: streamerData.avatar_large?.url_list?.[0] ?? 
+            streamerData.avatar_medium?.url_list?.[0] ?? 
+            streamerData.avatar_thumb?.url_list?.[0] ?? 
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(streamerData.nickname || 'Idol')}&background=2196f3&color=fff&size=128`
+  };
+
+      // console.log("🎯 Đã lấy được Streamer Info:", streamerInfo);
       
       chatDiv.innerHTML = ''; reqDiv.innerHTML = ''; giftsDiv.innerHTML = ''; actionsDiv.innerHTML = '';
       currentLiveDiv.innerHTML = `
@@ -1478,8 +1502,8 @@ function cloneUserData(msg) {
       stateText.textContent = 'Đang kết nối...';
       connection.connect(uniqueId, { enableExtendedGiftInfo: true, fetchRoomInfoOnConnect: true }).then(roomInfo => {
         stateText.textContent = `Connected to roomId: ${roomInfo.roomId}`;
-        const owner = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
-        if (owner) renderStreamerInfo(owner);
+        const streamerInfo = roomInfo?.roomInfo?.data?.owner || roomInfo?.data?.owner;
+        if (streamerInfo) renderStreamerInfo(streamerInfo);
         viewerCount = 0; likeCount = 0; diamondsCount = 0; updateRoomStats();
       }).catch(err => { stateText.textContent = err; });
     }
