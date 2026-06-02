@@ -70,20 +70,27 @@ io.on('connection', (socket) => {
         // Notify client when stream ends
         tiktokConnectionWrapper.connection.on('streamEnd', () => socket.emit('streamEnd'));
 
-        // Redirect message events
-        tiktokConnectionWrapper.connection.on('roomUser', msg => socket.emit('roomUser', msg));
+        // Redirect message events        
         tiktokConnectionWrapper.connection.on('member', msg => socket.emit('member', msg));
         tiktokConnectionWrapper.connection.on('chat', msg => socket.emit('chat', msg));
         tiktokConnectionWrapper.connection.on('gift', msg => socket.emit('gift', msg));
-        tiktokConnectionWrapper.connection.on('follow', msg => socket.emit('follow', msg));
-        tiktokConnectionWrapper.connection.on('share', msg => socket.emit('share', msg));
-        tiktokConnectionWrapper.connection.on('like', msg => socket.emit('like', msg));
+        tiktokConnectionWrapper.connection.on('roomUser', msg => socket.emit('roomUser', msg));
+        tiktokConnectionWrapper.connection.on('like', msg => socket.emit('like', msg));      
+        tiktokConnectionWrapper.connection.on('social', msg => socket.emit('social', msg));
         tiktokConnectionWrapper.connection.on('questionNew', msg => socket.emit('questionNew', msg));
         tiktokConnectionWrapper.connection.on('linkMicBattle', msg => socket.emit('linkMicBattle', msg));
         tiktokConnectionWrapper.connection.on('linkMicArmies', msg => socket.emit('linkMicArmies', msg));
         tiktokConnectionWrapper.connection.on('liveIntro', msg => socket.emit('liveIntro', msg));
         tiktokConnectionWrapper.connection.on('emote', msg => socket.emit('emote', msg));
-        tiktokConnectionWrapper.connection.on('envelope', msg => socket.emit('envelope', msg));
+        tiktokConnectionWrapper.connection.on('envelope', msg => socket.emit('envelope', msg));                   
+        tiktokConnectionWrapper.connection.on('superFan', msg => socket.emit('superFan', msg));
+        tiktokConnectionWrapper.connection.on('superFanJoin', msg => socket.emit('superFanJoin', msg));
+        tiktokConnectionWrapper.connection.on('superFanBox', msg => socket.emit('superFanBox', msg));      
+
+        // Redirect custom events
+        tiktokConnectionWrapper.connection.on('follow', msg => socket.emit('follow', msg));
+        tiktokConnectionWrapper.connection.on('share', msg => socket.emit('share', msg));  
+        tiktokConnectionWrapper.connection.on('goalUpdate', msg => socket.emit('goalUpdate', msg));  
     });
 
     socket.on('disconnect_tiktok', () => {
