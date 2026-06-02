@@ -1498,14 +1498,23 @@ function cloneUserData(msg) {
     function connect() {
       const uniqueId = usernameInput.value.trim();
       if (uniqueId === '') { stateText.textContent = 'Vui lòng nhập username!'; return; }
+
       resetUI();
+
       stateText.textContent = 'Đang kết nối...';
+
       connection.connect(uniqueId, { enableExtendedGiftInfo: true, fetchRoomInfoOnConnect: true }).then(roomInfo => {
+
         stateText.textContent = `Connected to roomId: ${roomInfo.roomId}`;
-        const streamerInfo = roomInfo?.roomInfo?.data?.owner || roomInfo?.data?.owner;
-        if (streamerInfo) renderStreamerInfo(streamerInfo);
+
+        const owner = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
+
+        if (owner) renderStreamerInfo(owner);
+
         viewerCount = 0; likeCount = 0; diamondsCount = 0; updateRoomStats();
+
       }).catch(err => { stateText.textContent = err; });
+
     }
 
     document.getElementById('connect').onclick = connect;
