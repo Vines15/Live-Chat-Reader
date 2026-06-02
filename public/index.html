@@ -107,15 +107,7 @@
 
     #connect:hover {
       background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-    }
-
-    #copyAll {
-      background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
-    }
-
-    #copyAll:hover {
-      background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
-    }
+    }    
 
     #clear {
       background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
@@ -124,6 +116,22 @@
     #clear:hover {
       background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
     }
+
+    /* Gộp chung nút Quà tặng và nút Copy (Màu xanh lá) */
+#showGiftsRank, #copyAll {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+#showGiftsRank:hover, #copyAll:hover {
+  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+}
+
+/* Tách riêng nút Thả tim sang tông màu Hồng/Đỏ ❤️ */
+#showLikesRank {
+  background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+}
+#showLikesRank:hover {
+  background: linear-gradient(135deg, #ff4b2b 0%, #e63917 100%);
+}
 
     label {
       display: flex;
@@ -310,22 +318,30 @@
       scroll-behavior: smooth;
     }
 
-    .chatListContainer::-webkit-scrollbar {
-      width: 8px;
-    }
+    /* Kích thước thanh cuộn cho cả 2 danh sách */
+.chatListContainer::-webkit-scrollbar,
+.rankList::-webkit-scrollbar {
+  width: 8px;
+}
 
-    .chatListContainer::-webkit-scrollbar-track {
-      background: var(--card);
-    }
+/* Nền đường ray thanh cuộn */
+.chatListContainer::-webkit-scrollbar-track,
+.rankList::-webkit-scrollbar-track {
+  background: var(--card);
+}
 
-    .chatListContainer::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
-    }
+/* Cục cuộn (Thumb) trạng thái bình thường */
+.chatListContainer::-webkit-scrollbar-thumb,
+.rankList::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
 
-    .chatListContainer::-webkit-scrollbar-thumb:hover {
-      background: var(--uid);
-    }
+/* Cục cuộn (Thumb) khi di chuột vào (Hover) */
+.chatListContainer::-webkit-scrollbar-thumb:hover,
+.rankList::-webkit-scrollbar-thumb:hover {
+  background: var(--uid);
+}
 
     .msg {
       background: var(--card);
@@ -821,7 +837,7 @@
     .rankList { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
     .rankItem {
       display: flex; align-items: center; gap: 10px; padding: 6px 8px;
-      background: var(--bg); border: 1px solid var(--border); border-radius: 4px; font-size: 13px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 2px; font-size: 13px;
     }
     .rankNumber { font-weight: bold; color: var(--time); width: 20px; text-align: center; }
     .rankItem:nth-child(1) .rankNumber { color: #ffd700; font-size: 15px; }
@@ -1128,11 +1144,11 @@
             <img class="rankAvatar" src="${avatar}">
             <div class="rankInfo">
               <span class="rankName">${generateUsernameLink(item.user)}</span>
-              <span class="rankValue">${item.totalDiamonds.toLocaleString()} Diamonds</span>
+              <span class="rankValue">${item.totalDiamonds.toLocaleString()} 💎 (Diamonds)</span>
             </div>
           </div>`;
       });
-      container.innerHTML = html || '<div style="text-align:center;color:var(--time);padding-top:20px;">Chưa có dữ liệu quà tặng</div>';
+      container.innerHTML = html || '<div style="text-align:center;color:var(--time);padding-top:20px;">Chưa có dữ liệu</div>';
     }
 
     function renderLikesRankList() {
@@ -1149,11 +1165,11 @@
             <img class="rankAvatar" src="${avatar}">
             <div class="rankInfo">
               <span class="rankName">${generateUsernameLink(item.user)}</span>
-              <span class="rankValue">${item.totalLikes.toLocaleString()} Likes</span>
+              <span class="rankValue">${item.totalLikes.toLocaleString()} ❤️ (Likes)</span>
             </div>
           </div>`;
       });
-      container.innerHTML = html || '<div style="text-align:center;color:var(--time);padding-top:20px;">Chưa có dữ liệu lượt thích</div>';
+      container.innerHTML = html || '<div style="text-align:center;color:var(--time);padding-top:20px;">Chưa có dữ liệu</div>';
     }
 
     // ==========================================================================
@@ -1246,7 +1262,7 @@
       actionsDiv.appendChild(div);
       scrollIfNeeded(actionsDiv.parentElement);
       
-      // SỬA LỖI: Tiến trình tự hủy an toàn, chống tràn rò rỉ RAM khi bị dọn dẹp cưỡng bức
+      // Tiến trình tự hủy an toàn, chống tràn rò rỉ RAM khi bị dọn dẹp cưỡng bức
       if (isTemporary) {
         div.style.transition = 'opacity 1s ease';
         div.style.opacity = '1';
@@ -1318,9 +1334,11 @@
         const totalCost = data.diamondCount * data.repeatCount;
         diamondsCount += totalCost;
         updateRoomStats();
+
+        const cleanUser = cloneUserData(msg);
         
         // CẬP NHẬT RANKING: Cộng dồn kim cương
-        updateGiftsRanking(data, totalCost);
+        updateGiftsRanking(cleanUser, totalCost);
       }
       renderGift(data);
     });
@@ -1329,12 +1347,29 @@
       if (typeof msg.totalLikeCount === 'number') { likeCount = msg.totalLikeCount; updateRoomStats(); }
       if (typeof msg.likeCount === 'number') {
         renderAction(msg, `đã thả ❤️ x${msg.likeCount}`, '#447dd4');
+
+        const cleanUser = cloneUserData(msg);
         
         // CẬP NHẬT RANKING: Tích lũy số lượt like
-        updateLikesRanking(msg, msg.likeCount);
+        updateLikesRanking(cleanUser, msg.likeCount);
       }
     });
-
+    
+    
+    /**
+ * Trích xuất và đóng băng dữ liệu User để chống ghi đè ô nhớ trong RAM
+ * @param {Object} msg - Gói tin gốc từ Socket
+ * @return {Object} Bản sao độc lập chứa thông tin User
+ */
+function cloneUserData(msg) {
+  return {
+    uniqueId: msg.uniqueId || "",
+    userId: msg.userId || "",
+    nickname: msg.nickname || "",
+    profilePictureUrl: msg.profilePictureUrl || `https://ui-avatars.com/api/?name=${(msg.uniqueId || 'U').charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=64`
+  };
+}
+    
     connection.on('follow', (data) => {
       const text = (data.label || data.common?.displayText?.defaultPattern || 'đã follow').replace('{0:user}', '').trim();
       renderAction(data, text, '#ff005e');
@@ -1460,8 +1495,8 @@
     };
 
     // Điều hướng các nút xếp hạng mới
-    document.getElementById('showGiftsRank').onclick = () => { createRankingPopup('gifts_rank', 'Xếp Hạng Tặng Quà'); renderGiftsRankList(); };
-    document.getElementById('showLikesRank').onclick = () => { createRankingPopup('likes_rank', 'Xếp Hạng Thả Tim'); renderLikesRankList(); };
+    document.getElementById('showGiftsRank').onclick = () => { createRankingPopup('gifts_rank', 'Gift Leaderboard'); renderGiftsRankList(); };
+    document.getElementById('showLikesRank').onclick = () => { createRankingPopup('likes_rank', 'Likes Leaderboard'); renderLikesRankList(); };
 
     // Điều hướng Checkbox trạng thái hiển thị
     const showIdCheckbox   = document.getElementById('showId');
