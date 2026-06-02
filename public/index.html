@@ -1384,17 +1384,18 @@
         }, 6000);
       }
     }
-    /*  function renderStreamerInfo(streamerData) {
-        if (!streamerData) return;
-       const streamerInfo = {
-      uid: streamerData.id_str || '',
-      username: streamerData.display_id || '',
-      nickname: streamerData.nickname || 'Unknown',    
-      avatar: streamerData.avatar_large?.url_list?.[0] ?? 
-              streamerData.avatar_medium?.url_list?.[0] ?? 
-              streamerData.avatar_thumb?.url_list?.[0] ?? 
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(streamerData.nickname || 'Idol')}&background=2196f3&color=fff&size=128`
-    };
+    
+    function renderStreamerInfo(streamerData) {
+      if (!streamerData) return;
+      const streamerInfo = {
+        uid: streamerData.id_str || '',
+        username: streamerData.display_id || '',
+        nickname: streamerData.nickname || 'Unknown',    
+        avatar: streamerData.avatar_large?.url_list?.[0] ?? 
+                streamerData.avatar_medium?.url_list?.[0] ?? 
+                streamerData.avatar_thumb?.url_list?.[0] ?? 
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(streamerData.nickname)}&background=2196f3&color=fff&size=128`
+      };
 
         // console.log("🎯 Đã lấy được Streamer Info:", streamerInfo);
         
@@ -1402,31 +1403,30 @@
         currentLiveDiv.innerHTML = `
           <b style="color: var(--fg)">Live: </b>
           <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
-          <b>${generateUsernameLink({uniqueId: username, nickname: displayName})}</b>
+          <b>${generateUsernameLink({uniqueId: username, nickname: nickname})}</b>
           <span style="color:#888;margin-left:4px">@${username}</span>
         `;
-      }*/
+      }
+    /*
     function renderStreamerInfo(user) {
       if (!user) return;
       const username = user.display_id || user.uniqueId || user.username || '';
       const displayName = user.nickname || user.displayName || 'Unknown';
       const avatar = user.avatar_large?.url_list?.[0] ?? user.avatar_medium?.url_list?.[0] ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2196f3&color=fff&size=128`;
+      
       chatDiv.innerHTML = '';
       reqDiv.innerHTML = '';
       giftsDiv.innerHTML = '';
       actionsDiv.innerHTML = '';
+      
       currentLiveDiv.innerHTML = `
-
-        <b style="color: var(--fg)">Live: </b>
-
+      <b style="color: var(--fg)">Live: </b>
         <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
-
         <b>${generateUsernameLink({uniqueId: username, nickname: displayName})}</b>
-
         <span style="color:#888;margin-left:4px">@${username}</span>
-
-      `;
+        `;
     }
+    */
     // ==========================================================================
     // KHỐI KHỞI TẠO 6: LẮNG NGHE SỰ KIỆN KẾT NỐI TIKTOK LIVE SOCKET
     // ==========================================================================
