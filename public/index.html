@@ -820,131 +820,131 @@
     }
 
     /* --- BẢNG XẾP HẠNG THỜI GIAN THỰC (REALTIME RANKING) --- */
-    #list_gifts_rank,
-    #list_likes_rank {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
+    /* hợp nhất và đồng bộ vùng chứa danh sách */
+#list_gifts_rank,
+#list_likes_rank,
+.rankList {
+  flex: 1;
+  overflow-y: scroll; /* Ép luôn hiện thanh cuộn để giữ cố định chiều rộng (hoặc dùng auto) */
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  scrollbar-gutter: stable both-edges; /* Giữ khung cuộn cố định, không bị giật khi có scrollbar */
+}
 
-    .rankPopup {
-      position: fixed;
-      /*top: 15%;
-      left: 35%;*/
-      width: 360px;
-      height: 420px;
-      background: var(--card);
-      border: 1px solid var(--name);
-      border-radius: 8px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-sizing: border-box;      
-    }
+.rankPopup {
+  position: fixed;
+  width: 360px;
+  height: 420px;
+  background: var(--card);
+  border: 1px solid var(--name);
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;      
+}
 
-    .rankHeader {
-      padding: 10px;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      cursor: move;
-    }
+.rankHeader {
+  padding: 10px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  cursor: move;
+  flex-shrink: 0; /* Đảm bảo tiêu đề không bị ép nhỏ khi nội dung dưới quá dài */
+}
 
-    .rankClose {
-      cursor: pointer;
-      font-size: 16px;
-      color: var(--time);
-      font-weight: bold;
-    }
+.rankClose {
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--time);
+  font-weight: bold;
+}
 
-    .rankClose:hover {
-      color: var(--fg);
-    }
+.rankClose:hover {
+  color: var(--fg);
+}
 
-    .rankList {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      /*view-transition-name: rank-list-container;*/
-    }
+.rankItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+  flex-shrink: 0; /* Khóa cứng chiều cao của hàng, không cho trình duyệt tự ý bóp nghẹt */
+  contain: layout; /* Giúp trình duyệt tối ưu hóa việc tính toán vị trí riêng lẻ */
+}
 
-    .rankItem {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 8px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 13px;
-      /* Kế thừa hiệu ứng trượt mượt mà khi di chuyển vị trí (order) */
-      /* transition: order 0.8s ease-in-out, all 0.8s ease-in-out; */
-    }
+.rankNumber {
+  font-weight: bold;
+  color: var(--time);
+  width: 20px;
+  text-align: center;
+}
 
-    .rankNumber {
-      font-weight: bold;
-      color: var(--time);
-      width: 20px;
-      text-align: center;
-    }
+/* SỬA LỖI: Sử dụng thuộc tính inline-style order để gán màu chính xác thay vì :nth-child */
+.rankItem[style*="order: 1 "] .rankNumber,
+.rankItem[style*="order: 1;"] .rankNumber {
+  color: #ffd700;
+  font-size: 15px;
+}
 
-    .rankItem:nth-child(1) .rankNumber {
-      color: #ffd700;
-      font-size: 15px;
-    }
+.rankItem[style*="order: 2 "] .rankNumber,
+.rankItem[style*="order: 2;"] .rankNumber {
+  color: #c0c0c0;
+  font-size: 14px;
+}
 
-    .rankItem:nth-child(2) .rankNumber {
-      color: #c0c0c0;
-      font-size: 14px;
-    }
+.rankItem[style*="order: 3 "] .rankNumber,
+.rankItem[style*="order: 3;"] .rankNumber {
+  color: #cd7f32;
+  font-size: 14px;
+}
 
-    .rankItem:nth-child(3) .rankNumber {
-      color: #cd7f32;
-      font-size: 14px;
-    }
+.rankAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 
-    .rankAvatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
+.rankInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 
-    .rankInfo {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
+.rankName {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-    .rankName {
-      font-weight: bold;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+.rankValue {
+  font-size: 12px;
+  color: var(--name);
+  font-weight: bold;
+}
 
-    .rankValue {
-      font-size: 12px;
-      color: var(--name);
-      font-weight: bold;
-    }
-
-    /* Thiết lập thời gian và độ mượt cho toàn bộ hoạt ảnh đổi chỗ bảng xếp hạng */
+/* Cấu hình xử lý hoạt ảnh trượt mượt của View Transitions */
 ::view-transition-group(*) {
   animation-duration: 0.4s;
   animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  contain: paint; /* Giới hạn không gian hiển thị hoạt ảnh trong khung nhìn thấy */
 }
 
-/* Khử hiệu ứng mờ nhòe (fade) mặc định của trình duyệt để tập trung vào hiệu ứng trượt vị trí */
 ::view-transition-old(*),
 ::view-transition-new(*) {
   animation: none;
