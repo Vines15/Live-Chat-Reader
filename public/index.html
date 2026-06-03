@@ -820,136 +820,122 @@
     }
 
     /* --- BẢNG XẾP HẠNG THỜI GIAN THỰC (REALTIME RANKING) --- */
-    /* ==========================================================================
-   HỆ THỐNG CSS BẢNG XẾP HẠNG REAL-TIME (ĐÃ SỬA LỖI TRÀN & NHÁY)
-   ========================================================================== */
+    #list_gifts_rank,
+    #list_likes_rank {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
 
-.rankPopup {
-  position: fixed;
-  width: 360px;
-  height: 420px;
-  background: var(--card);
-  border: 1px solid var(--name);
-  border-radius: 8px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-  z-index: 99999;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Khóa chặt không cho bất cứ thứ gì lọt ra ngoài phạm vi 420px */
-  box-sizing: border-box;      
-}
+    .rankPopup {
+      position: fixed;
+      /*top: 15%;
+      left: 35%;*/
+      width: 360px;
+      height: 420px;
+      background: var(--card);
+      border: 1px solid var(--name);
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-sizing: border-box;      
+    }
 
-.rankHeader {
-  padding: 10px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  cursor: move;
-  flex-shrink: 0; /* Giữ nguyên độ cao tiêu đề, không cho danh sách chèn ép */
-}
+    .rankHeader {
+      padding: 10px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      cursor: move;
+    }
 
-.rankClose {
-  cursor: pointer;
-  font-size: 16px;
-  color: var(--time);
-  font-weight: bold;
-}
+    .rankClose {
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--time);
+      font-weight: bold;
+    }
 
-.rankClose:hover {
-  color: var(--fg);
-}
+    .rankClose:hover {
+      color: var(--fg);
+    }
 
-/* KHUNG CUỘN NỘI BỘ: Nơi chứa các rankItem */
-.rankList {
-  flex: 1;
-  overflow-y: auto; /* Bật cuộn nội bộ tự động khi danh sách vượt ngưỡng */
-  overflow-x: hidden;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-sizing: border-box;
-  scrollbar-gutter: stable; /* Giữ không gian thanh cuộn cố định, tránh giật chiều rộng */
-}
+    .rankList {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-.rankItem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 8px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 13px;
-  flex-shrink: 0; /* Ép các hàng giữ nguyên chiều cao, tuyệt đối không co bóp bóp méo */
-  contain: layout;
-}
+    .rankItem {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 13px;
+      /* Kế thừa hiệu ứng trượt mượt mà khi di chuyển vị trí (order) */
+      transition: order 0.8s ease-in-out, all 0.8s ease-in-out;
+    }
 
-.rankNumber {
-  font-weight: bold;
-  color: var(--time); /* Màu mặc định xám nhạt cho hạng từ 4 trở đi */
-  width: 20px;
-  text-align: center;
-}
+    .rankNumber {
+      font-weight: bold;
+      color: var(--time);
+      width: 20px;
+      text-align: center;
+    }
 
-/* ĐỒNG BỘ MÀU SẮC HẠNG CHUẨN (Sử dụng data-attribute thay cho order) */
-.rankItem[data-rank="1"] .rankNumber {
-  color: #ffd700 !important; /* Vàng Gold */
-  font-size: 16px;
-}
+    .rankItem:nth-child(1) .rankNumber {
+      color: #ffd700;
+      font-size: 15px;
+    }
 
-.rankItem[data-rank="2"] .rankNumber {
-  color: #ffffff !important; /* Đổi thành Trắng/Bạc sáng rực rỡ để phân biệt với hạng dưới */
-  text-shadow: 0 0 6px rgba(255,255,255,0.6);
-  font-size: 15px;
-}
+    .rankItem:nth-child(2) .rankNumber {
+      color: #c0c0c0;
+      font-size: 14px;
+    }
 
-.rankItem[data-rank="3"] .rankNumber {
-  color: #cd7f32 !important; /* Đồng Bronze */
-  font-size: 14px;
-}
+    .rankItem:nth-child(3) .rankNumber {
+      color: #cd7f32;
+      font-size: 14px;
+    }
 
-.rankAvatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-}
+    .rankAvatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
 
-.rankInfo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
+    .rankInfo {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
 
-.rankName {
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    .rankName {
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-.rankValue {
-  font-size: 12px;
-  color: var(--name);
-  font-weight: bold;
-}
-
-/* CƠ CHẾ HOẠT ẢNH TRƯỢT MƯỢT CỦA VIEW TRANSITIONS */
-::view-transition-group(*) {
-  animation-duration: 0.35s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-::view-transition-old(*),
-::view-transition-new(*) {
-  animation: none;
-  mix-blend-mode: normal;
-}
+    .rankValue {
+      font-size: 12px;
+      color: var(--name);
+      font-weight: bold;
+    }
 
     /* ==========================================================================
    CHƯƠNG VII: GIAO DIỆN PHẢN HỒI THEO KÍCH THƯỚC MÀN HÌNH (MEDIA QUERIES)
@@ -1070,6 +1056,7 @@
     let viewerCount = 0;
     let likeCount = 0;
     let diamondsCount = 0;
+    let totalUser = 0;
     // Biến lưu trữ cấu trúc Dữ liệu Xếp hạng trong bộ nhớ RAM
     let giftsRankMap = {};
     let likesRankMap = {};
@@ -1211,9 +1198,13 @@
       actionsDiv.innerHTML = '';
       currentLiveDiv.innerHTML = '';
       stateText.innerHTML = '';
+      giftsRankMap = {};
+      likesRankMap = {};
+      document.querySelector('.rankList')?.replaceChildren();
       viewerCount = 0;
       likeCount = 0;
       diamondsCount = 0;
+      totalUser = 0;
       updateRoomStats();
     }
     // Cơ chế Ủy quyền sự kiện (Event Delegation) cho cột Yêu Cầu Ghim
@@ -1282,7 +1273,6 @@
       enablePopupDrag(popup);
     }
 
-    /*
     function renderGiftsRankList() {
       const container = document.getElementById('list_gifts_rank');
       if (!container) return;
@@ -1322,109 +1312,6 @@
       });
       container.innerHTML = html || '<div style="text-align:center;color:var(--time);padding-top:20px;">Chưa có dữ liệu</div>';
     }
-    */
-
-    function renderGiftsRankList() {
-  const container = document.getElementById('list_gifts_rank');
-  if (!container) return;
-
-  // 1. Sắp xếp dữ liệu từ map để lấy thứ tự chuẩn
-  const sortedGifts = Object.values(giftsRankMap).sort((a, b) => b.totalDiamonds - a.totalDiamonds);
-  if (sortedGifts.length === 0) {
-    container.innerHTML = '<div class="no-data" style="text-align:center;color:var(--time);padding-top:20px;width:100%;">Chưa có dữ liệu</div>';
-    return;
-  }
-
-  // Xóa dòng thông báo "Chưa có dữ liệu" cũ nếu có phần tử mới
-  if (container.children.length === 1 && container.firstChild.tagName !== 'DIV') {
-    container.innerHTML = '';
-  }
-
-  // Kích hoạt View Transition bọc quanh tiến trình cập nhật vị trí
-  if (document.startViewTransition) {
-    document.startViewTransition(() => {
-      updateRankDomElements(container, sortedGifts, 'gift');
-    });
-  } else {
-    updateRankDomElements(container, sortedGifts, 'gift');
-  }
-}
-
-function renderLikesRankList() {
-  const container = document.getElementById('list_likes_rank');
-  if (!container) return;
-
-  // 1. Sắp xếp dữ liệu từ map để lấy thứ tự chuẩn
-  const sortedLikes = Object.values(likesRankMap).sort((a, b) => b.totalLikes - a.totalLikes);
-  if (sortedLikes.length === 0) {
-    container.innerHTML = '<div class="no-data" style="text-align:center;color:var(--time);padding-top:20px;width:100%;">Chưa có dữ liệu</div>';
-    return;
-  }
-
-  if (container.children.length === 1 && container.firstChild.tagName !== 'DIV') {
-    container.innerHTML = '';
-  }
-
-  if (document.startViewTransition) {
-    document.startViewTransition(() => {
-      updateRankDomElements(container, sortedLikes, 'like');
-    });
-  } else {
-    updateRankDomElements(container, sortedLikes, 'like');
-  }
-}
-
-/**
- * Hàm điều phối lõi: Cập nhật DOM cục bộ, không ghi đè innerHTML để giữ hiệu ứng trượt
- */
-function updateRankDomElements(container, sortedData, type) {
-  // Tìm và xóa triệt để dòng "Chưa có dữ liệu" nếu có phần tử mới xuất hiện
-  const noDataEl = container.querySelector('.no-data');
-  if (noDataEl) {
-    noDataEl.remove();
-  }
-
-  sortedData.forEach((item, idx) => {
-    const userId = item.user.userId || item.user.uniqueId;
-    const elementId = `rank-item-${type}-${userId}`;
-    let itemEl = document.getElementById(elementId);
-
-    const scoreText = type === 'gift' 
-      ? `${item.totalDiamonds.toLocaleString()} 💎 (Diamonds)` 
-      : `${item.totalLikes.toLocaleString()} ❤️ (Likes)`;
-
-    // Nếu User chưa có hàng trên bảng, tiến hành append (thêm mới) duy nhất một lần
-    if (!itemEl) {
-      const avatar = item.user.profilePictureUrl || `https://ui-avatars.com/api/?name=${item.user.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=64`;
-      itemEl = document.createElement('div');
-      itemEl.id = elementId;
-      itemEl.className = 'rankItem';
-      
-      // Gán định danh View Transition cố định cho phần tử này
-      itemEl.style.viewTransitionName = `${type}-user-${userId}`;
-      
-      itemEl.innerHTML = `
-        <span class="rankNumber">${idx + 1}</span>
-        <img class="rankAvatar" src="${avatar}">
-        <div class="rankInfo">
-          <span class="rankName">${generateUsernameLink(item.user)}</span>
-          <span class="rankValue">${scoreText}</span>
-        </div>
-      `;
-      container.appendChild(itemEl);
-    } else {
-      // Nếu đã có sẵn hàng, CHỈ cập nhật text số liệu và số thứ hạng, không nạp lại DOM
-      itemEl.querySelector('.rankNumber').textContent = idx + 1;
-      itemEl.querySelector('.rankValue').textContent = scoreText;
-    }
-
-    // Thiết lập thuộc tính để CSS trích xuất đổi màu chính xác
-    itemEl.style.order = idx + 1;
-    itemEl.setAttribute('data-rank', idx + 1);
-  });
-}
-
-    
     // ==========================================================================
     // KHỐI KHỞI TẠO 5: CÁC HÀM RENDER DÒNG DỮ LIỆU CHUYÊN BIỆT
     // ==========================================================================
@@ -1537,6 +1424,7 @@ function updateRankDomElements(container, sortedData, type) {
       reqDiv.innerHTML = '';
       giftsDiv.innerHTML = '';
       actionsDiv.innerHTML = '';
+      
       currentLiveDiv.innerHTML = `
           <b style="color: var(--fg)">Live: </b>
           <img src="${streamerInfo.avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle">
@@ -1640,11 +1528,11 @@ function updateRankDomElements(container, sortedData, type) {
       };
     }
     connection.on('follow', (data) => {
-      const text = (data.label || data.common?.displayText?.defaultPattern || 'đã follow').replace('{0:user}', '').trim();
+      const text = (data.defaultPattern || 'đã follow').replace('{0:user}', '').trim();
       renderAction(data, text, '#ff005e');
     });
     connection.on('share', (data) => {
-      const text = (data.label || data.common?.displayText?.defaultPattern || 'đã chia sẻ').replace('{0:user}', '').trim();
+      const text = (data.defaultPattern || 'đã chia sẻ').replace('{0:user}', '').trim();
       renderAction(data, text, '#2fb816');
     });
     connection.on('streamEnd', () => {
