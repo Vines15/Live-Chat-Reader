@@ -329,26 +329,26 @@
     }
 
     /* Phân chia tỷ lệ chiều rộng các cột panel: 34% - 28% - 18.9% - 18.9% */
+    /* Cột 1: CHAT */
     .panel:nth-child(1) {
       flex: 0 0 34%;
     }
 
-    /* Cột 1: ACTIONS */
+    /* Cột 2: YÊU CẦU */
     .panel:nth-child(2) {
       flex: 0 0 28%;
     }
 
-    /* Cột 2: CHAT */
+    /* Cột 3: GIFTS */
     .panel:nth-child(3) {
       flex: 0 0 18.9%;
     }
 
-    /* Cột 3: YÊU CẦU */
+    /* Cột 4: ACTIONS */
     .panel:nth-child(4) {
       flex: 0 0 18.9%;
     }
-
-    /* Cột 4: GIFTS */
+    
     .panel h3 {
       margin: 0;
       padding: 5px;
@@ -1245,7 +1245,7 @@
       if (document.getElementById('popup_likes_rank')) renderLikesRankList();
     }
 
-    function createRankingPopup(id, title) {
+    function createRankingPopup(id, title, initLeft, initTop) {
       const popupId = `popup_${id}`;
       let popup = document.getElementById(popupId);
       if (popup) {
@@ -1261,6 +1261,10 @@
       `;
       popup.querySelector('.rankClose').onclick = () => popup.remove();
       document.body.appendChild(popup);
+      
+      if (initLeft) popup.style.left = initLeft;
+      if (initTop) popup.style.top = initTop;
+      
       enablePopupDrag(popup);
     }
 
@@ -1677,11 +1681,11 @@
     };
     // Điều hướng các nút xếp hạng mới
     document.getElementById('showGiftsRank').onclick = () => {
-      createRankingPopup('gifts_rank', 'Gift Leaderboard');
+      createRankingPopup('gifts_rank', 'Gift Leaderboard', '400px', '145px');
       renderGiftsRankList();
     };
     document.getElementById('showLikesRank').onclick = () => {
-      createRankingPopup('likes_rank', 'Likes Leaderboard');
+      createRankingPopup('likes_rank', 'Likes Leaderboard', '800px', '145px');
       renderLikesRankList();
     };
     // Điều hướng Checkbox trạng thái hiển thị
