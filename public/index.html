@@ -1460,7 +1460,6 @@
         viewerCount = msg.viewerCount;
         updateRoomStats();
       }
-      if (msg.uniqueId) renderAction(msg, msg.label || 'đã xuất hiện!', '#f1c40f', false);
       if (msg.owner) renderStreamerInfo(msg.owner);
     });
     let joinMsgDelay = 0;
@@ -1479,17 +1478,7 @@
       }, joinMsgDelay);
     });
     connection.on('chat', (msg) => {
-      let chatContent = msg.comment;
-      if (msg.emojis && msg.emojis.length > 0) {
-        msg.emojis.forEach(emoji => {
-          if (emoji.image && emoji.image.url) {
-            const imgTag = `<img src="${emoji.image.url}" style="height:20px; vertical-align:middle; margin:0 2px;">`;
-            chatContent = chatContent.replaceAll(emoji.name, imgTag);
-            if (!msg.comment.includes(emoji.name)) chatContent += imgTag;
-          }
-        });
-      }
-      renderChat(msg, chatContent);
+      renderChat(msg, msg.comment);
     });
     connection.on('gift', (data) => {
       if (!isPendingStreak(data) && data.diamondCount > 0) {
@@ -1513,7 +1502,26 @@
         // CẬP NHẬT RANKING: Tích lũy số lượt like
         updateLikesRanking(cleanUser, msg.likeCount);
       }
+    });  
+    
+    connection.on('roomNotify', (msg) => {
+      if (msg.uniqueId) {
+        renderAction(msg, msg.label || 'đã xuất hiện!', '#f1c40f', false);
+      }
     });
+
+
+    // Bẫy thử sự kiện roomMessage để tìm số tích lũy
+connection.on('roomMessage', (msg) => {
+    console.log("--- ROOM MESSAGE DATA ---", msg);
+});
+
+// Bẫy thử sự kiện rankUpdate
+connection.on('rankUpdate', (msg) => {
+    console.log("--- RANK UPDATE DATA ---", msg);
+});
+    
+    
     /**
      * Trích xuất và đóng băng dữ liệu User để chống ghi đè ô nhớ trong RAM
      * @param {Object} msg - Gói tin gốc từ Socket
@@ -1651,8 +1659,35 @@
       resetUI();
       stateText.textContent = 'Đang kết nối...';
       connection.connect(uniqueId, {
-        enableExtendedGiftInfo: true,
-        fetchRoomInfoOnConnect: true
+        // 1. Giữ lại các tham số cấu hình chức năng quan trọng
+    enableExtendedGiftInfo: true,  // Bật thông tin quà tặng mở rộng (từ hàm cũ)
+    fetchRoomInfoOnConnect: true,  // Tự động lấy thông tin phòng khi kết nối thành công
+
+    // 2. Cấu hình đè để giả lập người dùng Máy tính tại Việt Nam
+    webConfigOverrides: {
+      DEFAULT_HTTP_CLIENT_PARAMS: {
+        app_language: 'vi-VN',
+        webcast_language: 'vi-VN',
+        browser_language: 'vi-VN',
+        region: 'VN',
+        device_platform: 'web_pc'
+      },
+      DEFAULT_HTTP_CLIENT_HEADERS: {
+        'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    },
+    wsConfigOverrides: {
+      DEFAULT_WS_CLIENT_PARAMS: {
+        app_language: 'vi-VN',
+        webcast_language: 'vi-VN',
+        region: 'VN',
+        device_platform: 'web_pc'
+      },
+      DEFAULT_WS_CLIENT_HEADERS: {
+        'Accept-Language': 'vi-VN,vi;q=0.9'
+      }
+    }
       }).then(roomInfo => {
         stateText.textContent = `Connected to roomId: ${roomInfo.roomId}`;
         const owner = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
