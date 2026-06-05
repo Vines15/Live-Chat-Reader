@@ -85,12 +85,15 @@ io.on('connection', (socket) => {
         tiktokConnectionWrapper.connection.on('envelope', msg => socket.emit('envelope', msg));                   
         tiktokConnectionWrapper.connection.on('superFan', msg => socket.emit('superFan', msg));
         tiktokConnectionWrapper.connection.on('superFanJoin', msg => socket.emit('superFanJoin', msg));
-        tiktokConnectionWrapper.connection.on('superFanBox', msg => socket.emit('superFanBox', msg));      
-
+        tiktokConnectionWrapper.connection.on('superFanBox', msg => socket.emit('superFanBox', msg));           
+        
         // Redirect custom events
         tiktokConnectionWrapper.connection.on('follow', msg => socket.emit('follow', msg));
         tiktokConnectionWrapper.connection.on('share', msg => socket.emit('share', msg));  
         tiktokConnectionWrapper.connection.on('goalUpdate', msg => socket.emit('goalUpdate', msg));  
+        tiktokConnectionWrapper.connection.on('roomNotify', msg => socket.emit('roomNotify', msg)); 
+        tiktokConnectionWrapper.connection.on('roomMessage', msg => socket.emit('roomMessage', msg)); 
+        tiktokConnectionWrapper.connection.on('rankUpdate', msg => socket.emit('rankUpdate', msg));              
     });
 
     socket.on('disconnect_tiktok', () => {
