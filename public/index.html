@@ -1286,7 +1286,7 @@
             <img class="rankAvatar" src="${avatar}">
             <div class="rankInfo">
               <span class="rankName">${generateUsernameLink(item.user)}</span>
-              <span class="rankValue">${item.totalDiamonds.toLocaleString()} 💎 (Diamonds)</span>
+              <span class="rankValue">💎 ${item.totalDiamonds.toLocaleString()} (Diamonds)</span>
             </div>
           </div>`;
       });
@@ -1306,7 +1306,7 @@
             <img class="rankAvatar" src="${avatar}">
             <div class="rankInfo">
               <span class="rankName">${generateUsernameLink(item.user)}</span>
-              <span class="rankValue">${item.totalLikes.toLocaleString()} ❤️ (Likes)</span>
+              <span class="rankValue">❤️ ${item.totalLikes.toLocaleString()} (Likes)</span>
             </div>
           </div>`;
       });
@@ -1502,25 +1502,7 @@
         // CẬP NHẬT RANKING: Tích lũy số lượt like
         updateLikesRanking(cleanUser, msg.likeCount);
       }
-    });  
-    
-    connection.on('roomNotify', (msg) => {
-      if (msg.uniqueId) {
-        renderAction(msg, msg.label || 'đã xuất hiện!', '#f1c40f', false);
-      }
-    });
-
-
-    // Bẫy thử sự kiện roomMessage để tìm số tích lũy
-connection.on('roomMessage', (msg) => {
-    console.log("--- ROOM MESSAGE DATA ---", msg);
-});
-
-// Bẫy thử sự kiện rankUpdate
-connection.on('rankUpdate', (msg) => {
-    console.log("--- RANK UPDATE DATA ---", msg);
-});
-    
+    });      
     
     /**
      * Trích xuất và đóng băng dữ liệu User để chống ghi đè ô nhớ trong RAM
