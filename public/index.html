@@ -1641,35 +1641,8 @@
       resetUI();
       stateText.textContent = 'Đang kết nối...';
       connection.connect(uniqueId, {
-        // 1. Giữ lại các tham số cấu hình chức năng quan trọng
-    enableExtendedGiftInfo: true,  // Bật thông tin quà tặng mở rộng (từ hàm cũ)
-    fetchRoomInfoOnConnect: true,  // Tự động lấy thông tin phòng khi kết nối thành công
-
-    // 2. Cấu hình đè để giả lập người dùng Máy tính tại Việt Nam
-    webConfigOverrides: {
-      DEFAULT_HTTP_CLIENT_PARAMS: {
-        app_language: 'vi-VN',
-        webcast_language: 'vi-VN',
-        browser_language: 'vi-VN',
-        region: 'VN',
-        device_platform: 'web_pc'
-      },
-      DEFAULT_HTTP_CLIENT_HEADERS: {
-        'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
-    },
-    wsConfigOverrides: {
-      DEFAULT_WS_CLIENT_PARAMS: {
-        app_language: 'vi-VN',
-        webcast_language: 'vi-VN',
-        region: 'VN',
-        device_platform: 'web_pc'
-      },
-      DEFAULT_WS_CLIENT_HEADERS: {
-        'Accept-Language': 'vi-VN,vi;q=0.9'
-      }
-    }
+        enableExtendedGiftInfo: true,
+        fetchRoomInfoOnConnect: true
       }).then(roomInfo => {
         stateText.textContent = `Connected to roomId: ${roomInfo.roomId}`;
         const owner = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
