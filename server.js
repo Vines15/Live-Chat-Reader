@@ -37,6 +37,38 @@ io.on('connection', (socket) => {
             options = {};
         }
 
+        // 2. GÀI CỨNG CẤU HÌNH TIẾNG VIỆT (Server-side)
+        const viNConfig = {
+            webConfigOverrides: {
+                DEFAULT_HTTP_CLIENT_PARAMS: {
+                    app_language: 'vi-VN',
+                    webcast_language: 'vi-VN',
+                    browser_language: 'vi-VN',
+                    region: 'VN',
+                    device_platform: 'web_pc'
+                },
+                DEFAULT_HTTP_CLIENT_HEADERS: {
+                    'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
+            },
+            wsConfigOverrides: {
+                DEFAULT_WS_CLIENT_PARAMS: {
+                    app_language: 'vi-VN',
+                    webcast_language: 'vi-VN',
+                    region: 'VN',
+                    device_platform: 'web_pc'
+                },
+                DEFAULT_WS_CLIENT_HEADERS: {
+                    'Accept-Language': 'vi-VN,vi;q=0.9'
+                }
+            }
+        };
+
+        // Trộn cấu hình tiếng Việt vào options (Hỗ trợ cả bản cũ lẫn bản mới của thư viện)
+        Object.assign(options, viNConfig);
+        options.clientOptions = Object.assign({}, options.clientOptions, viNConfig);        
+
         // Session ID in .env file is optional
         if (process.env.SESSIONID) {
             options.sessionId = process.env.SESSIONID;
