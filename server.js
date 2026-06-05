@@ -90,10 +90,7 @@ io.on('connection', (socket) => {
         // Redirect custom events
         tiktokConnectionWrapper.connection.on('follow', msg => socket.emit('follow', msg));
         tiktokConnectionWrapper.connection.on('share', msg => socket.emit('share', msg));  
-        tiktokConnectionWrapper.connection.on('goalUpdate', msg => socket.emit('goalUpdate', msg));  
-        tiktokConnectionWrapper.connection.on('roomNotify', msg => socket.emit('roomNotify', msg)); 
-        tiktokConnectionWrapper.connection.on('roomMessage', msg => socket.emit('roomMessage', msg)); 
-        tiktokConnectionWrapper.connection.on('rankUpdate', msg => socket.emit('rankUpdate', msg));              
+        tiktokConnectionWrapper.connection.on('goalUpdate', msg => socket.emit('goalUpdate', msg));               
     });
 
     socket.on('disconnect_tiktok', () => {
