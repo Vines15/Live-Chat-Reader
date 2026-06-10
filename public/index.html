@@ -6,10 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-  <title>Live Chat Reader - Enterprise Edition</title>
+  <title>Live Chat Reader - Optimized</title>
   <style>
     /* ==========================================================================
-       THEME VARIABLES & CORE DEFINITIONS
+       CHƯƠNG I: CẤU HÌNH HỆ THỐNG & BIẾN MÔI TRƯỜNG (THEME & TRANSITIONS)
        ========================================================================== */
     :root {
       --bg: #0f0f23;
@@ -37,238 +37,518 @@
       --shadow: rgba(0, 0, 0, 0.1);
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
-      margin: 0; padding: 0; height: 100%; width: 100%;
-      font-family: system-ui, -apple-system, sans-serif;
-      background: var(--bg); color: var(--fg);
-      overflow: hidden; transition: background-color 0.3s ease, color 0.3s ease;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* CSS Spinner cho trạng thái Loading */
-    .spinner {
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top: 2px solid #fff;
-      width: 14px; height: 14px;
-      animation: spin 0.6s linear infinite;
-      display: inline-block; margin-right: 6px; vertical-align: middle;
+    .chatListContainer::-webkit-scrollbar,
+    .rankList::-webkit-scrollbar {
+      width: 8px;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .chatListContainer::-webkit-scrollbar-track,
+    .rankList::-webkit-scrollbar-track {
+      background: var(--card);
     }
 
-    .pulse-connecting {
-      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    .chatListContainer::-webkit-scrollbar-thumb,
+    .rankList::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
+    .chatListContainer::-webkit-scrollbar-thumb:hover,
+    .rankList::-webkit-scrollbar-thumb:hover {
+      background: var(--uid);
     }
 
-    /* SPECIFICITY MANAGEMENT OVER TAILWIND */
-    header.app-header {
-      padding: 10px 20px; background: var(--header-bg);
-      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
-      box-shadow: 0 2px 8px var(--shadow); border-bottom: 1px solid var(--border);
+    /* ==========================================================================
+       CHƯƠNG II: KHỐI HEADER VÀ THÀNH PHẦN ĐIỀU KHIỂN (CONTROLS)
+       ========================================================================== */
+    header {
+      padding: 10px 20px;
+      background: var(--header-bg);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 2px 8px var(--shadow);
+      border-bottom: 1px solid var(--border);
     }
 
-    header.app-header .input-user {
-      padding: 8px 14px; border: 2px solid var(--border); border-radius: 6px;
-      background: var(--card); color: var(--fg); font-size: 14px; min-width: 220px;
+    #username {
+      padding: 8px 14px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      background: var(--card);
+      color: var(--fg);
+      font-size: 14px;
+      min-width: 220px;
       transition: var(--transition-smooth);
     }
 
-    header.app-header .input-user:focus {
-      outline: none; border-color: #2196f3; box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+    #username:focus {
+      outline: none;
+      border-color: #2196f3;
+      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
     }
 
-    header.app-header .btn-control {
-      border: none; padding: 8px 16px; color: #ffffff; border-radius: 6px;
-      cursor: pointer; font-weight: 600; font-size: 14px;
-      transition: var(--transition-smooth); box-shadow: 0 2px 4px var(--shadow);
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
     }
 
-    header.app-header .btn-control:hover:not(:disabled) {
-      transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); filter: brightness(1.1);
+    button {
+      border: none !important;
+      padding: 5px 15px !important;
+      color: white !important;
+      border-radius: 6px !important;
+      cursor: pointer !important;
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      transition: var(--transition-smooth) !important;
+      box-shadow: 0 2px 4px var(--shadow) !important;
     }
 
-    header.app-header .btn-control:disabled {
-      opacity: 0.6; cursor: not-allowed; transform: none;
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px var(--shadow) !important;
     }
 
-    header.app-header .btn-connect { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); }
-    header.app-header .btn-clear { background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); }
-    header.app-header .btn-gift-rank { background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); }
-    header.app-header .btn-like-rank { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); }
-
-    header.app-header input[type="checkbox"].toggle-switch {
-      width: 40px; height: 20px; appearance: none; background: #cbd5e0;
-      border-radius: 20px; position: relative; cursor: pointer; transition: var(--transition-smooth);
+    button:focus-visible {
+      outline: 3px solid #2196f3;
+      outline-offset: 2px;
     }
 
-    header.app-header input[type="checkbox"].toggle-switch::before {
-      content: ''; position: absolute; width: 16px; height: 16px;
-      border-radius: 50%; background: white; top: 2px; left: 2px; transition: var(--transition-smooth);
+    button:active {
+      transform: translateY(0);
     }
 
-    header.app-header input[type="checkbox"].toggle-switch:checked { background: #2196f3; }
-    header.app-header input[type="checkbox"].toggle-switch:checked::before { transform: translateX(20px); }
+    #connect { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); }
+    #connect:hover { background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%); }
+    #clear { background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); }
+    #clear:hover { background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%); }
+    #showGiftsRank, #copyAll { background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); }
+    #showGiftsRank:hover { background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%); }
+    #showLikesRank { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); }
+    #showLikesRank:hover { background: linear-gradient(135deg, #ff4b2b 0%, #e63917 100%); }
 
-    /* LAYOUT & PANEL GRIDS */
-    .state-info { display: flex; gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
-    .state-section { flex: 0 0 50%; background: var(--card); padding: 10px 16px; font-size: 13px; }
-    #roomStats { display: flex; gap: 20px; align-items: center; }
-    #roomStats b { color: var(--name); }
+    input[type="checkbox"] {
+      width: 44px;
+      height: 22px;
+      appearance: none;
+      background: #cbd5e0;
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
 
-    .main-grid { display: flex; height: calc(100% - 115px); gap: 1px; background: var(--border); }
-    .panel { background: var(--card); display: flex; flex-direction: column; overflow: hidden; }
-    .panel-chat { flex: 0 0 35%; }
-    .panel-req { flex: 0 0 27%; }
-    .panel-gift { flex: 0 0 19%; }
-    .panel-action { flex: 0 0 19%; }
+    input[type="checkbox"]::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      top: 2px;
+      left: 2px;
+      transition: var(--transition-smooth);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input[type="checkbox"]:checked { background: #2196f3; }
+    input[type="checkbox"]:checked::before { transform: translateX(22px); }
+    input[type="checkbox"]:focus-visible { outline: 2px solid #2196f3; outline-offset: 2px; }
+
+    #currentLive {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--card);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-left: auto;
+    }
+
+    /* ==========================================================================
+       CHƯƠNG III: THÔNG TIN TRẠNG THÁI & PANEL BỐ CỤC
+       ========================================================================== */
+    .state-info {
+      display: flex;
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .state-section {
+      flex: 0 0 62.05%;
+      background: var(--card);
+      padding: 8px 8px 8px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .state-section pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      color: var(--fg);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    #roomStats {
+      color: var(--fg);
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #roomStats b { color: var(--name); font-weight: 700; }
+
+    .main {
+      display: flex;
+      height: calc(100% - 110px);
+      gap: 1px;
+      background: var(--border);
+      overflow: hidden;
+      margin: 0 0 10px 0;
+    }
+
+    .panel {
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel:nth-child(1) { flex: 0 0 34%; }
+    .panel:nth-child(2) { flex: 0 0 28%; }
+    .panel:nth-child(3) { flex: 0 0 18.9%; }
+    .panel:nth-child(4) { flex: 0 0 18.9%; }
 
     .panel h3 {
-      margin: 0; padding: 8px; text-align: center; font-size: 14px; font-weight: 700;
-      background: var(--header-bg); border-bottom: 1px solid var(--border); letter-spacing: 0.05em;
+      margin: 0;
+      padding: 5px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      background: var(--header-bg);
+      border-bottom: 2px solid var(--border);
+      text-transform: uppercase;
     }
 
-    .chatListContainer { flex: 1; overflow-y: auto; padding: 10px; }
+    .chatListContainer {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      scroll-behavior: smooth;
+    }
 
-    /* UI MESSAGE CARD & TRANSTIONS */
-    .msg { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin-bottom: 8px; transition: var(--transition-smooth); }
-    .msg:hover { background: var(--hover); transform: translateX(2px); }
-    .msg.selected { background: rgba(255, 152, 0, 0.1); border-color: var(--orange); }
-    .chat-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-    .avatar { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); }
-    .time { font-size: 10px; opacity: 0.6; background: var(--bg); padding: 2px 4px; border-radius: 4px; }
-    .name { color: var(--name); font-weight: 600; font-size: 13px; }
-    .uid { font-size: 11px; color: var(--uid); }
+    /* ==========================================================================
+       CHƯƠNG V: CHI TIẾT THÀNH PHẦN TRONG PANEL (ITEMS & HOVER EFFECTS)
+       ========================================================================== */
+    .msg {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px;
+      margin-bottom: 8px;
+      transition: var(--transition-smooth);
+      box-shadow: 0 1px 3px var(--shadow);
+    }
 
-    .btn-pin-action { margin-left: auto; background: none; border: none; cursor: pointer; opacity: 0.6; transition: var(--transition-smooth); }
-    .btn-pin-action:hover { opacity: 1; transform: scale(1.1); }
-    .btn-pin-action svg { width: 16px; height: 16px; fill: var(--orange); }
+    .msg:hover {
+      background: var(--hover);
+      box-shadow: 0 4px 8px var(--shadow);
+      transform: translateX(2px);
+    }
 
-    /* REQ PIN CONTAINER */
-    .req { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; margin-bottom: 8px; background: var(--card); border: 1px solid #ef4444; border-radius: 6px; transition: var(--transition-smooth); }
+    .msg.selected {
+      background: rgba(255, 152, 0, 0.15);
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+    }
+
+    .chat-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+      flex-wrap: wrap;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+    }
+
+    .time {
+      font-size: 11px;
+      opacity: 0.7;
+      background: var(--hover);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .name { color: var(--name); font-weight: 600; font-size: 14px; }
+    .uid { font-size: 12px; color: var(--uid); opacity: 0.8; }
+
+    .arrow {
+      margin-left: auto;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: var(--transition-smooth);
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .arrow:hover {
+      opacity: 1;
+      background: var(--hover);
+      transform: scale(1.15);
+    }
+
+    .arrow svg { width: 18px; height: 18px; fill: var(--orange); }
+
+    #chat .msg > div:last-child {
+      padding-left: 40px;
+      line-height: 1.5;
+      color: var(--fg);
+    }
+
+    /* --- CÁC THÀNH PHẦN YÊU CẦU, GIFTS, ACTIONS --- */
+    .req {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      position: relative;
+      padding: 8px 10px;
+      padding-right: 80px;
+      margin-bottom: 10px;
+      background: var(--card);
+      border: 1px solid #f93740;
+      border-radius: 8px;
+      transition: var(--transition-smooth);
+      color: var(--fg);
+    }
+
+    .req:hover { background: var(--hover); box-shadow: 0 2px 6px var(--shadow); }
+    .req .req-nickname { color: var(--name); font-weight: 600; }
+    .req .req-message { color: #f50e0e; transition: var(--transition-smooth); }
     .req.done { border-color: #10b981; }
-    .req-message { color: #ef4444; transition: var(--transition-smooth); }
-    .req.done .req-message { color: #10b981; text-decoration: line-through; opacity: 0.6; }
-    .req-controls { display: flex; gap: 8px; align-items: center; }
-    .req-btn { background: none; border: none; cursor: pointer; opacity: 0.7; transition: var(--transition-smooth); }
-    .req-btn:hover { opacity: 1; transform: scale(1.1); }
-    .req-btn svg { width: 18px; height: 18px; }
+    .req.done .req-message { color: #10b981; }
 
-    /* DRAGGABLE POPUPS */
-    .rankPopup { position: fixed; width: 340px; height: 400px; background: var(--card); border: 1px solid var(--name); border-radius: 8px; box-shadow: 0 10px 25px var(--shadow); z-index: 999; display: flex; flex-direction: column; overflow: hidden; }
-    .rankHeader { padding: 10px; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; cursor: move; font-weight: bold; font-size: 13px; }
-    .rankList { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-    .rankItem { display: flex; align-items: center; gap: 8px; padding: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; }
-    .rankAvatar { width: 24px; height: 24px; border-radius: 50%; }
+    .req .checkbox-icon, .req .del {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+    }
+
+    .req .checkbox-icon { right: 40px; opacity: 0.7; }
+    .req .checkbox-icon:hover { opacity: 1; background: var(--hover); }
+    .req .checkbox-icon svg { width: 20px; height: 20px; fill: #ef4444; transition: fill 0.2s; }
+    .req.done .checkbox-icon svg { fill: #10b981; }
+
+    .req .del { right: 8px; background: none !important; opacity: 0.6; box-shadow: none !important; }
+    .req .del:hover { opacity: 1; background: rgba(244, 67, 54, 0.15) !important; transform: translateY(-50%) scale(1.15); }
+    .req .del svg { width: 16px; height: 16px; fill: #f44336; }
+
+    .gift-item, .action-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: var(--transition-smooth);
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    .gift-item:hover, .action-item:hover { background: var(--hover); transform: translateX(2px); }
+    .gift-sender, .action-username { color: var(--name); font-weight: 600; }
+    .gift-icon { width: 50px; height: 50px; border-radius: 8px; border: 2px solid var(--border); background: var(--hover); }
+
+    /* --- POPUPS & RANKINGS --- */
+    #watchUserOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .watchBox {
+      background: var(--card);
+      padding: 22px 26px;
+      border-radius: 12px;
+      min-width: 340px;
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 40px var(--shadow);
+    }
+
+    .watchBox input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      outline: none;
+    }
+
+    .specialPopup {
+      position: fixed;
+      right: 20px;
+      min-width: 300px;
+      background: linear-gradient(135deg, #ff0000, #ff6600);
+      color: #fff;
+      padding: 16px 18px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: popupSlide 0.35s ease;
+      z-index: 9999;
+    }
+
+    .rankPopup {
+      position: fixed;
+      width: 360px;
+      height: 420px;
+      background: var(--card);
+      border: 1px solid var(--name);
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .rankHeader { padding: 10px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; cursor: move; font-weight: bold; }
+    .rankClose { cursor: pointer; }
+    .rankList { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .rankItem { display: flex; align-items: center; gap: 10px; padding: 6px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; transition: order 0.5s ease; }
+    .rankAvatar { width: 28px; height: 28px; border-radius: 50%; }
+
+    @keyframes popupSlide {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
 
     @media (max-width: 768px) {
-      .main-grid { flex-direction: column; overflow-y: auto; }
-      .panel { flex: none; height: 300px; }
+      .main { flex-direction: column; }
+      .panel:nth-child(1), .panel:nth-child(2), .panel:nth-child(3), .panel:nth-child(4) { flex: 1 1 auto; }
+      #username { min-width: 100%; }
     }
   </style>
 </head>
 
 <body>
 
-  <header class="app-header" role="banner">
-    <input id="username" class="input-user" placeholder="Nhập @Unique_ID..." aria-label="Nhập TikTok Live ID muốn kết nối">
-    <button id="connect" class="btn-control btn-connect" aria-label="Bấm để kết nối tới luồng Livestream">Connect</button>
-    <button id="clear" class="btn-control btn-clear" aria-label="Xóa dữ liệu màn hình tạm thời">Clear</button>
-    
-    <div class="flex items-center gap-4 ml-2">
-      <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
-        <input type="checkbox" id="showId" class="toggle-switch" aria-label="Hiển thị hoặc ẩn ID người dùng"> ID
-      </label>
-      <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
-        <input type="checkbox" id="hideTime" class="toggle-switch" aria-label="Hiển thị hoặc ẩn mốc thời gian"> Time
-      </label>
-      <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
-        <input type="checkbox" id="theme" class="toggle-switch" aria-label="Chuyển sang chế độ màn hình sáng hoặc tối"> Light
-      </label>
-    </div>
-
-    <button id="showGiftsRank" class="btn-control btn-gift-rank" aria-label="Mở cửa sổ xếp hạng quà tặng">Gifts Rank</button>
-    <button id="showLikesRank" class="btn-control btn-like-rank" aria-label="Mở cửa sổ xếp hạng lượt thích">Likes Rank</button>
-    <div id="currentLive" class="ml-auto text-sm font-semibold" aria-live="polite"></div>
+  <header role="banner">
+    <input id="username" placeholder="@LiveID" aria-label="Nhập TikTok Live ID">
+    <button id="connect" aria-label="Kết nối tới phòng Live">Connect</button>
+    <button id="clear" aria-label="Xóa toàn bộ dữ liệu">Clear</button>
+    <label><input type="checkbox" id="showId" aria-label="Hiển thị ID người dùng"> <span>ID</span></label>
+    <label><input type="checkbox" id="hideTime" aria-label="Hiển thị thời gian"> <span>Time</span></label>
+    <label><input type="checkbox" id="theme" aria-label="Chuyển đổi giao diện Sáng Tối"> Light</label>
+    <button id="showGiftsRank" aria-label="Mở bảng xếp hạng quà tặng">Gifts Rank</button>
+    <button id="showLikesRank" aria-label="Mở bảng xếp hạng lượt thích">Likes Rank</button>
+    <span id="currentLive" aria-live="polite"></span>
   </header>
 
-  <section class="state-info" aria-label="Thông báo trạng thái kết nối máy chủ">
-    <div class="state-section font-mono text-yellow-500" id="stateText" aria-live="assertive">Disconnected</div>
-    <div class="state-section" id="roomStats" aria-live="polite"></div>
-  </section>
+  <div class="state-info">
+    <div class="state-section">
+      <pre id="stateText" aria-live="assertive">Disconnected</pre>
+    </div>
+    <div class="state-section">
+      <div id="roomStats" aria-live="polite"></div>
+    </div>
+  </div>
 
-  <main class="main-grid" role="main">
-    <section class="panel panel-chat" aria-labelledby="title-chat">
-      <h3 id="title-chat">LIVE CHAT</h3>
-      <div class="chatListContainer" role="log" aria-live="polite"><div id="chat"></div></div>
+  <main class="main" role="main">
+    <section class="panel" aria-labelledby="h3-chat">
+      <h3 id="h3-chat">CHAT</h3>
+      <div class="chatListContainer" aria-live="polite">
+        <div id="chat"></div>
+      </div>
     </section>
-    
-    <section class="panel panel-req" aria-labelledby="title-req">
-      <h3 id="title-req">YÊU CẦU GHIM</h3>
-      <div class="chatListContainer"><div id="request"></div></div>
+    <section class="panel" aria-labelledby="h3-request">
+      <h3 id="h3-request">YÊU CẦU</h3>
+      <div class="chatListContainer">
+        <div id="request"></div>
+      </div>
     </section>
-
-    <section class="panel panel-gift" aria-labelledby="title-gift">
-      <h3 id="title-gift">QUÀ TẶNG</h3>
-      <div class="chatListContainer" role="log" aria-live="polite"><div id="gifts"></div></div>
+    <section class="panel" aria-labelledby="h3-gifts">
+      <h3 id="h3-gifts">GIFTS</h3>
+      <div class="chatListContainer" aria-live="polite">
+        <div id="gifts"></div>
+      </div>
     </section>
-
-    <section class="panel panel-action" aria-labelledby="title-action">
-      <h3 id="title-action">TƯƠNG TÁC</h3>
-      <div class="chatListContainer" role="log" aria-live="polite"><div id="actions"></div></div>
+    <section class="panel" aria-labelledby="h3-actions">
+      <h3 id="h3-actions">ACTIONS</h3>
+      <div class="chatListContainer" aria-live="polite">
+        <div id="actions"></div>
+      </div>
     </section>
   </main>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     // ==========================================================================
-    // INDUSTRIAL UTILITIES & MODULES (PURE FUNCTIONS FOR EASY TESTING)
-    // ==========================================================================
-    const Utils = {
-      // Hàm Clean XSS cực đoan đảm bảo tính nhất quán trên toàn hệ thống
-      sanitize: (str) => {
-        if (typeof str !== 'string') return '';
-        return str
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#x27;')
-          .replace(/\//g, '&#x2F;');
-      },
-      getTime: () => {
-        const d = new Date();
-        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
-      },
-      generateLink: (u) => {
-        const safeUid = Utils.sanitize(u.uniqueId);
-        const safeNick = Utils.sanitize(u.nickname || u.displayName || 'User');
-        return `<a href="https://www.tiktok.com/@${safeUid}" target="_blank" rel="noopener" class="name hover:underline">${safeNick}</a>`;
-      }
-    };
-
-    // ==========================================================================
-    // STATE CONFIGURATION
+    // MODULE 1: CẤU HÌNH & KHỞI TẠO TRẠNG THÁI TOÀN CỤC
     // ==========================================================================
     const CONFIG = {
-      UI: { CHAT: { MAX: 1000, BATCH: 80 }, GIFTS: { MAX: 300, BATCH: 40 }, ACTIONS: { MAX: 500, BATCH: 40 } },
-      BACKOFF: { INIT_DELAY: 1500, MAX_DELAY: 15000, MAX_ATTEMPTS: 5 }
+      UI: {
+        CHAT: { MAX: 2000, BATCH: 200 },
+        GIFTS: { MAX: 500, BATCH: 100 },
+        ACTIONS: { MAX: 1000, BATCH: 100 }
+      },
+      RENDER_THROTTLE_MS: 300 // Gom tin nhắn và render mỗi 300ms chống lag DOM
     };
 
     const STATE = {
       showIdEnabled: false,
       showTimeEnabled: false,
+      watchUsername: '',
       giftDictionaryMap: {},
       stats: { viewers: 0, likes: 0, diamonds: 0 },
       rankings: { gifts: {}, likes: {} },
-      chatQueue: []
+      queues: { chat: [] } // Hàng đợi xử lý throttle tin nhắn chat
     };
 
     const DOM = {
@@ -279,329 +559,551 @@
       currentLive: document.getElementById('currentLive'),
       stateText: document.getElementById('stateText'),
       username: document.getElementById('username'),
-      roomStats: document.getElementById('roomStats'),
-      connectBtn: document.getElementById('connect')
+      roomStats: document.getElementById('roomStats')
     };
 
-    const SVGS = {
-      pin: `<svg viewBox="0 0 24 24"><path d="M16 12V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2zm-2 0l-1 1-1-1V4h2v8z"/></svg>`,
-      trash: `<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
-      uncheck: `<svg viewBox="0 0 24 24"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>`,
-      checked: `<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`
+    const ICONS = {
+      pin: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 12V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2zm-2 0l-1 1-1-1V4h2v8z"/></svg>`,
+      trash: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
+      unchecked: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>`,
+      checked: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`
     };
 
     let backendUrl = location.protocol === 'file:' ? "https://tiktok-chat-reader.zerody.one/" : undefined;
 
+    // ==========================================================================
+    // MODULE 2: HÀM TIỆN ÍCH HỆ THỐNG (UTILITIES)
+    // ==========================================================================
+    const Utils = {
+      sanitize: text => text.replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+      
+      getCurrentTime: () => {
+        const d = new Date();
+        const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+        const tz = new Date(utc + 7 * 3600000);
+        return `${String(tz.getDate()).padStart(2, '0')}/${String(tz.getMonth() + 1).padStart(2, '0')}/${tz.getFullYear()} ${String(tz.getHours()).padStart(2, '0')}:${String(tz.getMinutes()).padStart(2, '0')}:${String(tz.getSeconds()).padStart(2, '0')}`;
+      },
+
+      generateLink: data => {
+        const uid = data.uniqueId || "";
+        const name = data.nickname || data.displayName || "User";
+        return `<a class="usernamelink" href="https://www.tiktok.com/@${uid}" target="_blank" rel="noopener noreferrer" style="color: var(--name); text-decoration: none;">${Utils.sanitize(name)}</a>`;
+      },
+
+      cloneUser: msg => ({
+        uniqueId: msg.uniqueId || "",
+        userId: msg.userId || "",
+        nickname: msg.nickname || "",
+        profilePictureUrl: msg.profilePictureUrl || `https://ui-avatars.com/api/?name=${(msg.uniqueId || 'U').charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=64`
+      })
+    };
+
+    // Nạp từ điển quà tặng tiếng Việt
     async function loadGiftDictionary() {
       try {
         const response = await fetch('./vi-VN.json');
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
         STATE.giftDictionaryMap = await response.json();
+        console.log("✅ [Từ điển] Đã nạp thành công vi-VN.json");
       } catch (err) {
-        DOM.stateText.textContent = "⚠️ Lỗi nạp dữ liệu từ điển tiếng Việt. Tên quà tặng gốc sẽ được sử dụng.";
+        console.warn("⚠️ Không thể nạp từ điển vi-VN.json, hệ thống sẽ dùng tên mặc định.", err);
       }
     }
     loadGiftDictionary();
 
     // ==========================================================================
-    // PERFORMANCE SYSTEM - DYNAMIC THROTTLING (rAF LOOP)
+    // MODULE 3: LỚP ĐIỀU PHỐI KẾT NỐI TIKTOK PROXY VÀ XỬ LÝ LỖI MẠNG
     // ==========================================================================
-    const PerformanceMonitor = {
-      lastFrameTime: performance.now(),
-      optimalBatchSize: 30,
-
-      // Điều tiết động dựa trên tần số đáp ứng đồ họa thực tế của thiết bị người dùng
-      getOptimalBatch: () => {
-        const now = performance.now();
-        const delta = now - PerformanceMonitor.lastFrameTime;
-        PerformanceMonitor.lastFrameTime = now;
-
-        if (delta > 16.7) { // Thiết bị đang nghẽn (Dưới 60 FPS) -> Giảm tải render
-          PerformanceMonitor.optimalBatchSize = Math.max(10, PerformanceMonitor.optimalBatchSize - 2);
-        } else { // Thiết bị mượt -> Tăng chỉ tiêu nạp hàng đợi để hiển thị nhanh hơn
-          PerformanceMonitor.optimalBatchSize = Math.min(80, PerformanceMonitor.optimalBatchSize + 1);
-        }
-        return PerformanceMonitor.optimalBatchSize;
+    class TikTokIOConnection {
+      constructor(url) {
+        this.socket = io(url, {
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 2000,
+          timeout: 10000
+        });
+        this.uniqueId = null;
+        this.options = null;
+        this.setupCoreEvents();
       }
-    };
 
+      setupCoreEvents() {
+        this.socket.on('connect', () => {
+          DOM.stateText.textContent = "Đã kết nối Socket Proxy. Đang xác thực phòng Live...";
+          if (this.uniqueId) this.socket.emit('setUniqueId', this.uniqueId, this.options);
+        });
+
+        this.socket.on('connect_error', (error) => {
+          DOM.stateText.textContent = `❌ Lỗi kết nối server (Thử lại...): ${error.message}`;
+        });
+
+        this.socket.on('reconnect_failed', () => {
+          DOM.stateText.textContent = "❌ Mất kết nối hoàn toàn tới Server Proxy. Vui lòng F5 làm mới trang.";
+        });
+
+        this.socket.on('streamEnd', () => {
+          DOM.stateText.textContent = '🔒 Stream này đã kết thúc.';
+          this.uniqueId = null;
+        });
+
+        this.socket.on('tiktokDisconnected', (errMsg) => {
+          DOM.stateText.textContent = `❌ TikTok ngắt kết nối: ${errMsg || 'Không rõ lý do'}`;
+          if (errMsg && errMsg.includes('LIVE has ended')) this.uniqueId = null;
+        });
+      }
+
+      connect(uniqueId, options) {
+        this.uniqueId = uniqueId;
+        this.options = options || {};
+        this.socket.off('tiktokConnected');
+        this.socket.off('tiktokDisconnected');
+        
+        this.socket.emit('setUniqueId', this.uniqueId, this.options);
+
+        return new Promise((resolve, reject) => {
+          this.socket.once('tiktokConnected', resolve);
+          this.socket.once('tiktokDisconnected', reject);
+          setTimeout(() => reject(new Error('Kết nối tới TikTok quá thời gian (Timeout 15s)')), 15000);
+        });
+      }
+
+      disconnect() {
+        this.uniqueId = null;
+        this.socket.emit('disconnect_tiktok');
+      }
+
+      on(event, handler) { this.socket.on(event, handler); }
+    }
+
+    const connection = new TikTokIOConnection(backendUrl);
+
+    // ==========================================================================
+    // MODULE 4: QUẢN LÝ ĐỒNG BỘ UI & HIỆU NĂNG CAO (THROTTLE RENDER)
+    // ==========================================================================
     const UIManager = {
-      cleanDOM: (parent, cfg) => {
-        const len = parent.children.length;
-        if (cfg.MAX > 0 && len > cfg.MAX) {
+      checkAndCleanUI: (container, config) => {
+        const currentLength = container.children.length;
+        if (config.MAX > 0 && currentLength > config.MAX) {
+          const toRemove = Math.min(config.BATCH, currentLength);
           const range = document.createRange();
-          range.setStartBefore(parent.firstChild);
-          range.setEndAfter(parent.children[Math.min(cfg.BATCH, len) - 1]);
+          range.setStartBefore(container.firstChild);
+          range.setEndAfter(container.children[toRemove - 1]);
           range.deleteContents();
         }
       },
 
-      renderLoop: () => {
-        if (STATE.chatQueue.length > 0) {
-          UIManager.cleanDOM(DOM.chat, CONFIG.UI.CHAT);
-          const frag = document.createDocumentFragment();
+      scrollIfNeeded: (containerParent) => {
+        if (containerParent._autoScrollEnabled) {
+          containerParent.scrollTo({ top: containerParent.scrollHeight, behavior: 'smooth' });
+        }
+      },
+
+      updateVisibility: () => {
+        const idStyle = STATE.showIdEnabled ? 'inline' : 'none';
+        const timeStyle = STATE.showTimeEnabled ? 'inline' : 'none';
+        document.querySelectorAll('.uid').forEach(u => u.style.display = idStyle);
+        document.querySelectorAll('.time').forEach(t => t.style.display = timeStyle);
+      },
+
+      updateStats: () => {
+        DOM.roomStats.innerHTML = `
+          <div><strong>Viewers:</strong> <b>${STATE.stats.viewers.toLocaleString()}</b></div>
+          <div><strong>Likes:</strong> <b>${STATE.stats.likes.toLocaleString()}</b></div>
+          <div><strong>Diamonds:</strong> <b>${STATE.stats.diamonds.toLocaleString()}</b></div>
+        `;
+      },
+
+      resetAll: () => {
+        ['chat', 'request', 'gifts', 'actions', 'currentLive', 'stateText'].forEach(k => DOM[k].innerHTML = '');
+        STATE.rankings.gifts = {};
+        STATE.rankings.likes = {};
+        STATE.stats = { viewers: 0, likes: 0, diamonds: 0 };
+        ['popup_gifts_rank', 'popup_likes_rank'].forEach(id => document.getElementById(id)?.remove());
+        UIManager.updateStats();
+      },
+
+      // Cơ chế gom hàng đợi để render hàng loạt bằng DocumentFragment chống Reflow lag DOM
+      processChatQueue: () => {
+        if (STATE.queues.chat.length === 0) return;
+
+        UIManager.checkAndCleanUI(DOM.chat, CONFIG.UI.CHAT);
+        const fragment = document.createDocumentFragment();
+
+        while (STATE.queues.chat.length > 0) {
+          const item = STATE.queues.chat.shift();
+          const div = document.createElement('div');
+          div.className = 'msg';
+          const avatar = item.data.profilePictureUrl || `https://ui-avatars.com/api/?name=${item.data.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=64`;
           
-          // Lấy giới hạn lô hàng quét động thay vì cố định số cứng
-          const batchLimit = PerformanceMonitor.getOptimalBatch();
-          const currentBatch = STATE.chatQueue.splice(0, batchLimit);
+          div.innerHTML = `
+            <div class="chat-head">
+              <img class="avatar" src="${avatar}" alt="Avatar">
+              <span class="time" style="display: ${STATE.showTimeEnabled ? 'inline' : 'none'}">[${item.time}]</span>
+              <span class="name">${Utils.generateLink(item.data)}</span>
+              <span class="uid" style="display: ${STATE.showIdEnabled ? 'inline' : 'none'}">@${item.data.uniqueId}</span>
+              <button class="arrow" aria-label="Ghim tin nhắn này thành yêu cầu">${ICONS.pin}</button>
+            </div>
+            <div>${Utils.sanitize(item.text)}</div>
+          `;
 
-          currentBatch.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'msg';
-            div.innerHTML = `
-              <div class="chat-head">
-                <img class="avatar" src="${Utils.sanitize(item.user.profilePictureUrl)}" alt="">
-                <span class="time" style="display: ${STATE.showTimeEnabled ? 'inline' : 'none'}">[${item.time}]</span>
-                <span>${Utils.generateLink(item.user)}</span>
-                <span class="uid" style="display: ${STATE.showIdEnabled ? 'inline' : 'none'}">@${Utils.sanitize(item.user.uniqueId)}</span>
-                <button class="btn-pin-action" aria-label="Ghim tin nhắn">${SVGS.pin}</button>
-              </div>
-              <div class="pl-8 text-sm break-all">${Utils.sanitize(item.text)}</div>
-            `;
-            div.querySelector('.btn-pin-action').onclick = () => UIManager.pinToRequest(item.user, item.text, div);
-            frag.appendChild(div);
-          });
-
-          DOM.chat.appendChild(frag);
-          if (DOM.chat.parentElement._autoScroll) {
-            DOM.chat.parentElement.scrollTop = DOM.chat.parentElement.scrollHeight;
-          }
-        } else {
-          PerformanceMonitor.lastFrameTime = performance.now();
+          div.querySelector('.arrow').onclick = () => UIManager.addRequest(item.data, item.text, div);
+          fragment.appendChild(div);
         }
-        requestAnimationFrame(UIManager.renderLoop);
+
+        DOM.chat.appendChild(fragment);
+        UIManager.scrollIfNeeded(DOM.chat.parentElement);
       },
 
-      setLoading: (isLoading) => {
-        if (isLoading) {
-          DOM.connectBtn.disabled = true;
-          DOM.connectBtn.innerHTML = `<span class="spinner"></span>Connecting...`;
-          DOM.stateText.classList.add('pulse-connecting');
-        } else {
-          DOM.connectBtn.disabled = false;
-          DOM.connectBtn.innerHTML = 'Connect';
-          DOM.stateText.classList.remove('pulse-connecting');
-        }
-      },
-
-      pinToRequest: (user, text, element) => {
-        element.classList.add('selected');
+      addRequest: (data, text, chatEl) => {
+        chatEl.classList.add('selected');
         const div = document.createElement('div');
         div.className = 'req';
         div.innerHTML = `
-          <div class="text-sm"><b class="text-blue-400">${Utils.sanitize(user.nickname)}</b>: <span class="req-message">${Utils.sanitize(text)}</span></div>
-          <div class="req-controls">
-            <button class="req-btn btn-check" aria-label="Xác nhận hoàn thành hoặc khôi phục yêu cầu">${SVGS.uncheck}</button>
-            <button class="req-btn btn-del" aria-label="Gỡ bỏ hoàn toàn yêu cầu ghim">${SVGS.trash}</button>
-          </div>
+          <div><span class="req-nickname">${Utils.generateLink(data)}</span>: <span class="req-message">${Utils.sanitize(text)}</span></div>
+          <button class="checkbox-icon" aria-label="Đánh dấu hoàn thành yêu cầu">${ICONS.unchecked}</button>
+          <button class="del" aria-label="Xóa yêu cầu này">${ICONS.trash}</button>
         `;
         DOM.request.appendChild(div);
+        UIManager.scrollIfNeeded(DOM.request.parentElement);
       },
 
       renderGift: (data) => {
-        UIManager.cleanDOM(DOM.gifts, CONFIG.UI.GIFTS);
-        const streakKey = `${data.userId}_${data.giftId}`;
-        const oldNode = DOM.gifts.querySelector(`[data-streak="${streakKey}"]`);
-        const nameVN = STATE.giftDictionaryMap[`live_gift_${data.giftId}`] || data.giftName;
+        UIManager.checkAndCleanUI(DOM.gifts, CONFIG.UI.GIFTS);
+        const streakId = `${data.userId}_${data.giftId}`;
+        const existing = DOM.gifts.querySelector(`[data-streakid="${streakId}"]`);
+        
+        const giftKey = `live_gift_${data.giftId}`;
+        const giftName = STATE.giftDictionaryMap[giftKey] || data.giftName || `Gift #${data.giftId}`;
         
         const div = document.createElement('div');
-        div.className = 'p-2 mb-2 bg-gray-800 border border-gray-700 rounded flex gap-3 text-xs';
-        if (data.giftType === 1 && !data.repeatEnd) div.setAttribute('data-streak', streakKey);
+        div.className = 'gift-item';
+        if (data.giftType === 1 && !data.repeatEnd) div.setAttribute('data-streakid', streakId);
 
         div.innerHTML = `
-          <img class="w-8 h-8 rounded-full" src="${Utils.sanitize(data.profilePictureUrl)}" alt="">
-          <div class="flex-1">
-            <div class="font-semibold text-blue-300">${Utils.sanitize(data.nickname)}</div>
-            <div>Gửi tặng: <b class="text-yellow-400">${Utils.sanitize(nameVN)}</b></div>
-            <div class="mt-1 flex items-center gap-2">
-              <img class="w-8 h-8 bg-gray-900 rounded p-1" src="${Utils.sanitize(data.giftPictureUrl)}" alt="">
-              <div>
-                <div>Số lượng: <span class="text-red-400 font-bold">x${data.repeatCount}</span></div>
-                <div>Trị giá: <b>${(data.diamondCount * data.repeatCount).toLocaleString()} 💎</b></div>
+          <img class="avatar" src="${data.profilePictureUrl}" alt="Avatar">
+          <div class="gift-details">
+            <div class="gift-sender">${Utils.generateLink(data)}</div>
+            <div class="gift-desc">đã gửi ${Utils.sanitize(giftName)}</div>
+            <div class="gift-info-row">
+              <img class="gift-icon" src="${data.giftPictureUrl}" alt="Icon Quà">
+              <div class="gift-stats">
+                <div>Tên: <b>${Utils.sanitize(giftName)}</b></div>
+                <div>Số lượng: <b style="${data.giftType === 1 && !data.repeatEnd ? 'color:red' : ''}">x${data.repeatCount.toLocaleString()}</b></div>
+                <div>Tổng: <b>${(data.diamondCount * data.repeatCount).toLocaleString()} Diamonds</b></div>
               </div>
             </div>
           </div>
         `;
-        if (oldNode) oldNode.replaceWith(div);
+
+        if (existing) existing.replaceWith(div);
         else DOM.gifts.appendChild(div);
+        UIManager.scrollIfNeeded(DOM.gifts.parentElement);
       },
 
-      renderAction: (user, text, color) => {
-        UIManager.cleanDOM(DOM.actions, CONFIG.UI.ACTIONS);
+      renderAction: (data, text, color, isTemp = false) => {
+        UIManager.checkAndCleanUI(DOM.actions, CONFIG.UI.ACTIONS);
         const div = document.createElement('div');
-        div.className = 'p-2 mb-2 border border-gray-700 bg-opacity-40 bg-gray-800 rounded flex items-center gap-2 text-xs transition-opacity duration-300';
+        div.className = isTemp ? 'action-item temporary' : 'action-item';
+        const avatar = data.profilePictureUrl || `https://ui-avatars.com/api/?name=${data.uniqueId.charAt(0).toUpperCase()}&background=4fc3f7&color=fff&size=64`;
+        
         div.innerHTML = `
-          <img class="w-6 h-6 rounded-full" src="${Utils.sanitize(user.profilePictureUrl || 'https://ui-avatars.com/api/?name=U')}" alt="">
-          <div><b>${Utils.sanitize(user.nickname)}</b> <span style="color:${color}">${Utils.sanitize(text)}</span></div>
+          <img class="avatar" src="${avatar}" alt="Avatar">
+          <div class="action-content">
+            <span class="action-username">${Utils.generateLink(data)}</span>:
+            <span style="${color ? 'color:' + color : ''}">${Utils.sanitize(text)}</span>
+          </div>
         `;
         DOM.actions.appendChild(div);
+        UIManager.scrollIfNeeded(DOM.actions.parentElement);
+
+        if (isTemp) {
+          div.style.transition = 'opacity 1s ease';
+          setTimeout(() => {
+            if (!div.parentNode) return;
+            div.style.opacity = '0';
+            setTimeout(() => { if (div.parentNode) div.remove(); }, 1000);
+          }, 6000);
+        }
+      },
+
+      renderStreamerInfo: (owner) => {
+        if (!owner) return;
+        const avatar = owner.avatar_thumb?.url_list?.[0] || `https://ui-avatars.com/api/?name=${encodeURIComponent(owner.nickname)}&background=2196f3&color=fff`;
+        DOM.currentLive.innerHTML = `
+          <b style="color: var(--fg)">Live: </b>
+          <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;margin:0 6px;vertical-align:middle" alt="Streamer">
+          <b>${Utils.generateLink({uniqueId: owner.display_id, nickname: owner.nickname})}</b>
+        `;
       }
     };
 
-    requestAnimationFrame(UIManager.renderLoop);
+    // Chạy vòng lặp định kỳ xử lý hàng đợi tin nhắn (Throttle)
+    setInterval(UIManager.processChatQueue, CONFIG.RENDER_THROTTLE_MS);
 
-    // ==========================================================================
-    // SOCKET NETWORK CONTROL WITH ADVANCED RETRY LOGIC
-    // ==========================================================================
-    class TikTokCoreConnection {
-      constructor(url) {
-        this.url = url; this.attempt = 0; this.io = null; this.targetId = null;
-        this.initSocket();
+    // Kích hoạt tính năng cuộn thông minh khi tương tác chuột
+    document.querySelectorAll('.chatListContainer').forEach(container => {
+      container._autoScrollEnabled = true;
+      container.addEventListener('scroll', () => {
+        container._autoScrollEnabled = (container.scrollTop + container.clientHeight >= container.scrollHeight - 10);
+      });
+    });
+
+    // Ủy quyền sự kiện (Event Delegation) cho panel Yêu cầu Ghim
+    DOM.request.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('.del');
+      if (delBtn) { delBtn.closest('.req').remove(); return; }
+
+      const checkBtn = e.target.closest('.checkbox-icon');
+      if (checkBtn) {
+        const item = checkBtn.closest('.req');
+        const isDone = item.classList.toggle('done');
+        checkBtn.innerHTML = isDone ? ICONS.checked : ICONS.unchecked;
       }
+    });
 
-      initSocket() {
-        this.io = io(this.url, { reconnection: false, timeout: 10000 });
+    // ==========================================================================
+    // MODULE 5: HỆ THỐNG TÍNH TOÁN VÀ RENDER XẾP HẠNG REAL-TIME
+    // ==========================================================================
+    const RankingSystem = {
+      updateGift: (userData, diamonds) => {
+        const id = userData.userId || userData.uniqueId;
+        if (!id) return;
+        if (!STATE.rankings.gifts[id]) STATE.rankings.gifts[id] = { user: userData, value: 0 };
+        STATE.rankings.gifts[id].value += diamonds;
+        if (document.getElementById('popup_gifts_rank')) RankingSystem.renderList('gifts_rank', STATE.rankings.gifts, '💎', 'Diamonds');
+      },
+
+      updateLike: (userData, likes) => {
+        const id = userData.userId || userData.uniqueId;
+        if (!id) return;
+        if (!STATE.rankings.likes[id]) STATE.rankings.likes[id] = { user: userData, value: 0 };
+        STATE.rankings.likes[id].value += likes;
+        if (document.getElementById('popup_likes_rank')) RankingSystem.renderList('likes_rank', STATE.rankings.likes, '❤️', 'Likes');
+      },
+
+      createPopup: (id, title, left, top) => {
+        const popupId = `popup_${id}`;
+        let popup = document.getElementById(popupId);
+        if (popup) { popup.remove(); return; }
+
+        popup = document.createElement('div');
+        popup.id = popupId;
+        popup.className = 'rankPopup';
+        popup.style.left = left;
+        popup.style.top = top;
+        popup.innerHTML = `
+          <div class="rankHeader"><span>${title}</span><span class="rankClose" role="button" aria-label="Đóng bảng xếp hạng">✕</span></div>
+          <div class="rankList" id="list_${id}"></div>
+        `;
+        popup.querySelector('.rankClose').onclick = () => popup.remove();
+        document.body.appendChild(popup);
+        RankingSystem.enableDrag(popup);
+      },
+
+      renderList: (id, dataMap, icon, unitLabel) => {
+        const container = document.getElementById(`list_${id}`);
+        if (!container) return;
+        const sorted = Object.values(dataMap).sort((a, b) => b.value - a.value);
         
-        this.io.on('connect', () => {
-          this.attempt = 0;
-          if (this.targetId) this.io.emit('setUniqueId', this.targetId, { enableExtendedGiftInfo: true });
+        let html = '';
+        sorted.forEach((item, idx) => {
+          const avatar = item.user.profilePictureUrl;
+          html += `
+            <div class="rankItem" style="order: ${idx + 1}">
+              <span class="rankNumber">${idx + 1}</span>
+              <img class="rankAvatar" src="${avatar}" alt="Avatar">
+              <div class="rankInfo">
+                <span class="rankName">${Utils.generateLink(item.user)}</span>
+                <span class="rankValue">${icon} ${item.value.toLocaleString()} (${unitLabel})</span>
+              </div>
+            </div>`;
         });
+        container.innerHTML = html || '<div style="text-align:center;color:var(--uid);padding-top:20px;">Chưa có dữ liệu</div>';
+      },
 
-        this.io.on('connect_error', (err) => this.fallback(`Lỗi mạng kết nối Server Proxy: ${err.message}`));
-        this.io.on('disconnect', () => this.fallback('Đứt liên kết kênh dữ liệu Proxy.'));
-        this.io.on('streamEnd', () => { DOM.stateText.textContent = "🔒 Buổi Live Stream đã kết thúc từ phía Streamer."; this.targetId = null; UIManager.setLoading(false); });
-        this.io.on('tiktokDisconnected', (err) => DOM.stateText.textContent = `❌ Lỗi luồng TikTok: ${Utils.sanitize(err)}`);
+      enableDrag: (popup) => {
+        let isDragging = false, offsetX = 0, offsetY = 0;
+        popup.querySelector('.rankHeader').addEventListener('mousedown', (e) => {
+          isDragging = true;
+          const rect = popup.getBoundingClientRect();
+          offsetX = e.clientX - rect.left;
+          offsetY = e.clientY - rect.top;
+          popup.style.right = 'auto';
+          popup.style.left = `${rect.left}px`;
+          popup.style.top = `${rect.top}px`;
+          
+          const moveHandler = (ev) => {
+            if (!isDragging) return;
+            popup.style.left = `${ev.clientX - offsetX}px`;
+            popup.style.top = `${ev.clientY - offsetY}px`;
+          };
+          
+          const upHandler = () => {
+            isDragging = false;
+            document.removeEventListener('mousemove', moveHandler);
+            document.removeEventListener('mouseup', upHandler);
+          };
+          
+          document.addEventListener('mousemove', moveHandler);
+          document.addEventListener('mouseup', upHandler);
+        });
       }
+    };
 
-      fallback(reason) {
-        if (!this.targetId) return;
-        UIManager.setLoading(false);
-        if (this.attempt >= CONFIG.BACKOFF.MAX_ATTEMPTS) {
-          DOM.stateText.textContent = "❌ Lỗi: Không thể kết nối lại sau nhiều lần thử. Vui lòng bấm Connect thử lại.";
-          return;
+    // ==========================================================================
+    // MODULE 6: ĐĂNG KÝ VÀ SỰ KIỆN KHÁCH HÀNG TIKTOK SOCKET
+    // ==========================================================================
+    connection.on('roomUser', (msg) => {
+      if (typeof msg.viewerCount === 'number') {
+        STATE.stats.viewers = msg.viewerCount;
+        UIManager.updateStats();
+      }
+      if (msg.owner) UIManager.renderStreamerInfo(msg.owner);
+    });
+
+    let joinDelay = 0;
+    connection.on('member', (msg) => {
+      let delayAmt = joinDelay > 1000 ? 0 : (joinDelay > 500 ? 100 : 250);
+      joinDelay += delayAmt;
+      
+      setTimeout(() => {
+        joinDelay -= delayAmt;
+        if (STATE.watchUsername && msg.uniqueId?.toLowerCase() === STATE.watchUsername) {
+          UIManager.renderAction(msg, 'ĐÃ VÀO PHÒNG LIVE!', '#ff0000', false);
+          showSpecialWatchPopup(msg);
         }
-        this.attempt++;
-        const delay = Math.min(CONFIG.BACKOFF.INIT_DELAY * Math.pow(2, this.attempt), CONFIG.BACKOFF.MAX_DELAY);
-        DOM.stateText.textContent = `⚠️ ${reason} Thử lại lần ${this.attempt}/${CONFIG.BACKOFF.MAX_ATTEMPTS} sau ${(delay/1000).toFixed(1)}s...`;
-        
-        setTimeout(() => { this.io.close(); this.initSocket(); this.io.connect(); }, delay);
+        UIManager.renderAction(msg, 'joined', '#f39c12', true);
+      }, joinDelay);
+    });
+
+    connection.on('chat', (msg) => {
+      // Đẩy tin nhắn vào Queue (Throttling System) thay vì render trực tiếp vào DOM
+      STATE.queues.chat.push({ data: msg, text: msg.comment, time: Utils.getCurrentTime() });
+    });
+
+    connection.on('gift', (data) => {
+      if (data.giftType === 1 && !data.repeatEnd) { /* Đang trong chuỗi streak gửi liên tục */ }
+      else if (data.diamondCount > 0) {
+        const cost = data.diamondCount * data.repeatCount;
+        STATE.stats.diamonds += cost;
+        UIManager.updateStats();
+        RankingSystem.updateGift(Utils.cloneUser(data), cost);
       }
+      UIManager.renderGift(data);
+    });
 
-      connect(uniqueId) {
-        this.targetId = uniqueId;
-        this.attempt = 0;
-        UIManager.setLoading(true);
-        this.io.emit('setUniqueId', this.targetId, { enableExtendedGiftInfo: true });
-
-        return new Promise((resolve, reject) => {
-          this.io.once('tiktokConnected', (res) => { UIManager.setLoading(false); resolve(res); });
-          this.io.once('tiktokDisconnected', (err) => { UIManager.setLoading(false); reject(err); });
-        });
+    connection.on('like', (msg) => {
+      if (typeof msg.totalLikeCount === 'number') {
+        STATE.stats.likes = msg.totalLikeCount;
+        UIManager.updateStats();
       }
+      if (typeof msg.likeCount === 'number') {
+        UIManager.renderAction(msg, `đã thả ❤️ x${msg.likeCount}`, '#447dd4');
+        RankingSystem.updateLike(Utils.cloneUser(msg), msg.likeCount);
+      }
+    });
 
-      on(ev, cb) { this.io.on(ev, cb); }
+    connection.on('follow', data => UIManager.renderAction(data, (data.defaultPattern || 'đã follow').replace('{0:user}', '').trim(), '#ff005e'));
+    connection.on('share', data => UIManager.renderAction(data, (data.defaultPattern || 'đã chia sẻ').replace('{0:user}', '').trim(), '#2fb816'));
+
+    // Cửa sổ Popup Giám sát đặc biệt khi User Watch lọt vào phòng Live
+    function showSpecialWatchPopup(userData) {
+      const popup = document.createElement('div');
+      popup.className = 'specialPopup';
+      popup.style.top = `${20 + document.querySelectorAll('.specialPopup').length * 110}px`;
+      popup.innerHTML = `
+        <span class="popupClose" role="button" aria-label="Đóng thông báo">✕</span>
+        <img src="${userData.profilePictureUrl}" alt="Avatar VIP">
+        <div class="popupContent">
+          ${Utils.generateLink(userData)}
+          <div style="font-size:12px;opacity:0.9;margin-top:4px;">Phát hiện lúc: ${Utils.getCurrentTime()}</div>
+        </div>
+      `;
+      popup.querySelector('.popupClose').onclick = () => {
+        popup.remove();
+        document.querySelectorAll('.specialPopup').forEach((el, idx) => el.style.top = `${20 + idx * 110}px`);
+      };
+      document.body.appendChild(popup);
     }
 
-    const connection = new TikTokCoreConnection(backendUrl);
+    function openWatchInputModal() {
+      const overlay = document.createElement('div');
+      overlay.id = 'watchUserOverlay';
+      overlay.innerHTML = `
+        <div class="watchBox" role="dialog" aria-modal="true" aria-label="Cài đặt giám sát user">
+          <div style="margin-bottom:12px;font-weight:600;">Nhập Username hoặc link TikTok cần gác đền:</div>
+          <input type="text" id="watchUserField" value="${STATE.watchUsername}" autofocus placeholder="@username">
+          <div style="margin-top:10px;font-size:12px;color:var(--uid);">Bấm Enter để lưu • ESC để đóng</div>
+        </div>`;
+      document.body.appendChild(overlay);
 
-    // ==========================================================================
-    // LEADERBOARD CONTROL MODULE
-    // ==========================================================================
-    const RankManager = {
-      track: (type, user, val) => {
-        const id = user.userId || user.uniqueId; if (!id) return;
-        if (!STATE.rankings[type][id]) STATE.rankings[type][id] = { user, score: 0 };
-        STATE.rankings[type][id].score += val;
-        if (document.getElementById(`popup_${type}`)) RankManager.drawList(type);
-      },
-      open: (type, title, x, y) => {
-        const id = `popup_${type}`; if (document.getElementById(id)) { document.getElementById(id).remove(); return; }
-        const pop = document.createElement('div'); pop.id = id; pop.className = 'rankPopup'; pop.style.left = x; pop.style.top = y;
-        pop.innerHTML = `
-          <div class="rankHeader"><span>${title}</span><button class="text-red-500 font-bold w-5 h-5 flex items-center justify-center rounded hover:bg-gray-700 btn-close-pop" aria-label="Đóng bảng xếp hạng">✕</button></div>
-          <div class="rankList" id="list_${type}"></div>
-        `;
-        pop.querySelector('.btn-close-pop').onclick = () => pop.remove();
-        document.body.appendChild(pop);
-        RankManager.bindDrag(pop);
-        RankManager.drawList(type);
-      },
-      drawList: (type) => {
-        const box = document.getElementById(`list_${type}`); if (!box) return;
-        const sorted = Object.values(STATE.rankings[type]).sort((a, b) => b.score - a.score);
-        box.innerHTML = sorted.map((item, i) => `
-          <div class="rankItem text-xs">
-            <span class="font-bold text-gray-500 w-4">${i+1}</span>
-            <img class="rankAvatar" src="${Utils.sanitize(item.user.profilePictureUrl)}" alt="">
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold text-blue-400 truncate">${Utils.sanitize(item.user.nickname)}</div>
-              <div class="opacity-70">${type === 'gifts' ? '💎' : '❤️'} ${item.score.toLocaleString()}</div>
-            </div>
-          </div>
-        `).join('') || '<div class="text-center p-4 text-gray-500">Chưa có dữ liệu xếp hạng</div>';
-      },
-      bindDrag: (el) => {
-        const header = el.querySelector('.rankHeader');
-        let active = false, initialX, initialY;
-        header.addEventListener('mousedown', (e) => {
-          if (e.target.closest('button')) return;
-          initialX = e.clientX - el.offsetLeft; initialY = e.clientY - el.offsetTop; active = true;
-          const drag = (ev) => { if (!active) return; el.style.left = `${ev.clientX - initialX}px`; el.style.top = `${ev.clientY - initialY}px`; };
-          const stop = () => { active = false; document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', stop); };
-          document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stop);
-        });
-      }
-    };
-
-    // ==========================================================================
-    // CORE APP EVENTS INITIALIZATION
-    // ==========================================================================
-    connection.on('roomUser', msg => {
-      if (msg.viewerCount) STATE.stats.viewers = msg.viewerCount;
-      DOM.roomStats.innerHTML = `<div>Mắt xem: <b>${STATE.stats.viewers.toLocaleString()}</b></div><div>Likes: <b>${STATE.stats.likes.toLocaleString()}</b></div><div>Kim cương: <b>${STATE.stats.diamonds.toLocaleString()}</b></div>`;
-      if (msg.owner) DOM.currentLive.innerHTML = `<span class="text-green-400">● Live:</span> <b class="text-blue-300">${Utils.sanitize(msg.owner.nickname)}</b>`;
-    });
-
-    connection.on('chat', msg => STATE.chatQueue.push({ user: msg, text: msg.comment, time: Utils.getTime() }));
-    connection.on('like', msg => {
-      STATE.stats.likes = msg.totalLikeCount || STATE.stats.likes;
-      UIManager.renderAction(msg, `đã thả tim x${msg.likeCount}`, '#60a5fa');
-      RankManager.track('likes', msg, msg.likeCount);
-    });
-
-    connection.on('gift', msg => {
-      if (!(msg.giftType === 1 && !msg.repeatEnd) && msg.diamondCount > 0) {
-        const total = msg.diamondCount * msg.repeatCount;
-        STATE.stats.diamonds += total;
-        RankManager.track('gifts', msg, total);
-      }
-      UIManager.renderGift(msg);
-    });
-
-    connection.on('member', msg => UIManager.renderAction(msg, 'vừa vào phòng', '#f59e0b'));
-    connection.on('follow', msg => UIManager.renderAction(msg, 'đã follow kênh', '#f43f5e'));
-    connection.on('share', msg => UIManager.renderAction(msg, 'đã chia sẻ live', '#10b981'));
-
-    DOM.request.onclick = (e) => {
-      const item = e.target.closest('.req'); if (!item) return;
-      if (e.target.closest('.btn-del')) item.remove();
-      else if (e.target.closest('.btn-check')) {
-        const isDone = item.classList.toggle('done');
-        e.target.closest('.btn-check').innerHTML = isDone ? SVGS.checked : SVGS.uncheck;
-      }
-    };
-
-    DOM.connectBtn.onclick = () => {
-      const userVal = DOM.username.value.trim(); if (!userVal) return alert('Hãy nhập Live ID trước!');
-      DOM.stateText.textContent = "🚀 Đang định vị luồng phát...";
-      connection.connect(userVal).then(info => {
-        DOM.stateText.textContent = `✅ Đang giải mã Room ID: ${info.roomId}`;
-      }).catch(err => {
-        DOM.stateText.textContent = `❌ Thất bại: ${err.message || err}`;
+      const input = document.getElementById('watchUserField');
+      input.focus();
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          let val = input.value.trim().toLowerCase();
+          if (val.includes('tiktok.com')) {
+            const m = val.match(/@([a-z0-9._]+)/);
+            if (m && m[1]) val = m[1];
+          }
+          if (val.startsWith('@')) val = val.substring(1);
+          STATE.watchUsername = val;
+          overlay.remove();
+        }
+        if (e.key === 'Escape') overlay.remove();
       });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+        openWatchInputModal();
+      }
+    });
+
+    // ==========================================================================
+    // MODULE 7: QUẢN LÝ ĐẦU VÀO FORM & KHỞI TẠO ĐIỀU KHIỂN HỆ THỐNG
+    // ==========================================================================
+    function startConnect() {
+      const uid = DOM.username.value.trim();
+      if (!uid) { DOM.stateText.textContent = '⚠️ Vui lòng điền Live ID trước khi kết nối!'; return; }
+      
+      UIManager.resetAll();
+      DOM.stateText.textContent = '🚀 Đang cố kết nối đến phòng TikTok Live...';
+      
+      connection.connect(uid, { enableExtendedGiftInfo: true, fetchRoomInfoOnConnect: true })
+        .then(roomInfo => {
+          DOM.stateText.textContent = `✅ Đang xem luồng dữ liệu Room ID: ${roomInfo.roomId}`;
+          const owner = roomInfo?.data?.owner || roomInfo?.roomInfo?.data?.owner;
+          if (owner) UIManager.renderStreamerInfo(owner);
+          UIManager.updateStats();
+        })
+        .catch(err => {
+          DOM.stateText.textContent = `❌ Kết nối thất bại: ${err.message || err}`;
+        });
+    }
+
+    document.getElementById('connect').onclick = startConnect;
+    DOM.username.onkeyup = (e) => { if (e.key === 'Enter') startConnect(); };
+    document.getElementById('clear').onclick = () => UIManager.resetAll();
+
+    document.getElementById('showGiftsRank').onclick = () => {
+      RankingSystem.createPopup('gifts_rank', 'Bảng xếp hạng Quà Tặng (Diamonds)', '20px', '145px');
+      RankingSystem.renderList('gifts_rank', STATE.rankings.gifts, '💎', 'Diamonds');
     };
 
-    document.getElementById('clear').onclick = () => { ['chat', 'request', 'gifts', 'actions', 'currentLive'].forEach(id => DOM[id].innerHTML = ''); STATE.chatQueue = []; };
-    document.getElementById('showGiftsRank').onclick = () => RankManager.open('gifts', 'Xếp hạng đóng góp Quà', '20px', '160px');
-    document.getElementById('showLikesRank').onclick = () => RankManager.open('likes', 'Xếp hạng tốc độ Thả Tim', '380px', '160px');
-    document.getElementById('showId').onchange = (e) => { STATE.showIdEnabled = e.target.checked; document.querySelectorAll('.uid').forEach(el => el.style.display = STATE.showIdEnabled ? 'inline' : 'none'); };
-    document.getElementById('hideTime').onchange = (e) => { STATE.showTimeEnabled = e.target.checked; document.querySelectorAll('.time').forEach(el => el.style.display = STATE.showTimeEnabled ? 'inline' : 'none'); };
+    document.getElementById('showLikesRank').onclick = () => {
+      RankingSystem.createPopup('likes_rank', 'Bảng xếp hạng Lượt Thích (Likes)', '390px', '145px');
+      RankingSystem.renderList('likes_rank', STATE.rankings.likes, '❤️', 'Likes');
+    };
+
+    document.getElementById('showId').onchange = (e) => { STATE.showIdEnabled = e.target.checked; UIManager.updateVisibility(); };
+    document.getElementById('hideTime').onchange = (e) => { STATE.showTimeEnabled = e.target.checked; UIManager.updateVisibility(); };
     document.getElementById('theme').onchange = (e) => document.documentElement.classList.toggle('light', e.target.checked);
 
-    document.querySelectorAll('.chatListContainer').forEach(box => {
-      box._autoScroll = true;
-      box.onscroll = () => box._autoScroll = (box.scrollTop + box.clientHeight >= box.scrollHeight - 12);
-    });
+    // Cài đặt ban đầu cho hệ thống
+    UIManager.updateStats();
+    UIManager.updateVisibility();
   </script>
 </body>
 
